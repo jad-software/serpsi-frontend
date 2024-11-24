@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { usePathname, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 
 type TRoute = {
 	title: string;
@@ -27,7 +27,7 @@ const routeTitles: { [key: string]: string } = {
 	past_sessions: "Histórico de Sessões"
 };
 
-export default function NavigationBreadcrumb() {
+const BreadcrumbContent = () => {
 	const urlpath: string = usePathname();
 	const searchParams = useSearchParams();
 
@@ -68,7 +68,6 @@ export default function NavigationBreadcrumb() {
 	const crumbs = getCrumbs();
 
 	return (
-		<>
 			<Breadcrumb>
 				<BreadcrumbList className="font-medium text-gray-600">
 					{crumbs.map((value, key) => (
@@ -93,6 +92,14 @@ export default function NavigationBreadcrumb() {
 					))}
 				</BreadcrumbList>
 			</Breadcrumb>
-		</>
+	);
+}
+
+// Main component with Suspense wrapper
+export default function NavigationBreadcrumb() {
+	return (
+			<Suspense fallback={<div>Loading...</div>}>
+					<BreadcrumbContent />
+			</Suspense>
 	);
 }
