@@ -1,9 +1,10 @@
-import { EntityBase } from "../EntityBase";
+import { EntityBase } from "..";
 import { School } from "./School";
 import { MedicamentInfo } from "./MedicamentInfo";
 import { Comorbidity } from "./Comorbidity";
 import { PaymentPlan } from "../vos/PaymentPlan";
 import { Person } from "./Person";
+import { Document } from "./Document";
 
 export interface Patient extends EntityBase {
   _paymentPlan: PaymentPlan;
@@ -12,4 +13,5 @@ export interface Patient extends EntityBase {
   _medicines: MedicamentInfo[];
   _person: Person;
   _parents: Person[];
+  _previewFollowUps?: Document[];
 }

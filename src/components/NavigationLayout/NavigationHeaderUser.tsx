@@ -1,11 +1,7 @@
-import Image from "next/image";
-
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
@@ -15,7 +11,11 @@ import {
 	MailIcon,
 	UserCircleIcon
 } from "@heroicons/react/outline";
-import { ReactNode } from "react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import Link from "next/link";
+import { logout } from "@/services/authService";
 
 interface NavigationHeaderUserProps {
 	name: string;
@@ -41,31 +41,38 @@ export default function NavigationHeaderUser({
 							className="text-primary-950"
 						/>
 						&nbsp;
-						<Image
-							alt="logo-empresa"
-							src={img}
-							width={33}
-							height={33}
-							className="rounded-full"
-						/>
+						<Avatar>
+							<AvatarImage src={img} width={33} />
+							<AvatarFallback>
+								<UserCircleIcon />
+							</AvatarFallback>
+						</Avatar>
 					</div>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent>
-					<DropdownMenuItem className="cursor-pointer">
-						<UserCircleIcon width={16} height={16} />
-						&nbsp;
-						<span>Conta</span>
-					</DropdownMenuItem>
-					<DropdownMenuItem className="cursor-pointer">
-						<MailIcon width={16} height={16} />
-						&nbsp;
-						<span>Definir Horários</span>
-					</DropdownMenuItem>
-					<DropdownMenuItem className="cursor-pointer">
-						<LogoutIcon width={16} height={16} />
-						&nbsp;
-						<span>Sair</span>
-					</DropdownMenuItem>
+					<Link href="/profile/">
+						<DropdownMenuItem className="cursor-pointer">
+							<UserCircleIcon width={16} height={16} />
+							&nbsp; Conta
+						</DropdownMenuItem>
+					</Link>
+					<Link href="/home/schedule-definer">
+						<DropdownMenuItem className="cursor-pointer">
+							<MailIcon width={16} height={16} />
+							&nbsp;
+							<span>Definir Horários</span>
+						</DropdownMenuItem>
+					</Link>
+					<Link href="/login">
+						<DropdownMenuItem
+							className="cursor-pointer"
+							onClick={() => logout()}
+						>
+							<LogoutIcon width={16} height={16} />
+							&nbsp;
+							<span>Sair</span>
+						</DropdownMenuItem>
+					</Link>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

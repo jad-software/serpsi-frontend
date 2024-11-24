@@ -1,7 +1,8 @@
-import { EntityBase } from "./EntityBase";
+import { EntityBase } from "./entityBase";
 import { Phone } from "./vos/Phone";
 import { Cpf } from "./vos/Cpf";
 import { Address } from "./Entities/Address";
+import { Document } from "./Entities/Document";
 import { School } from "./Entities/School";
 import { MedicamentInfo } from "./Entities/MedicamentInfo";
 import { Comorbidity } from "./Entities/Comorbidity";
@@ -19,6 +20,7 @@ export type {
   Address,
   Comorbidity,
   Cpf,
+  Document,
   Email,
   EntityBase,
   MedicamentInfo,

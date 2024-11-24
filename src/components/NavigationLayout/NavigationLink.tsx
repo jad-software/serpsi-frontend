@@ -20,7 +20,7 @@ export default function NavigationLink({
 	const urlpath = usePathname();
 
 	const linkClassName = classNames(
-		"flex w-full items-center justify-start p-2",
+		"flex w-full items-center justify-start p-2 ",
 		{
 			"bg-primary-200": urlpath.includes(link),
 			"min-w-48": !collapsed
@@ -32,7 +32,7 @@ export default function NavigationLink({
 			<Button
 				variant={"ghost"}
 				asChild
-				className="flex w-full justify-start"
+				className="flex w-full justify-start hover:bg-primary-200"
 			>
 				<Link href={link}>
 					<Icon height={24} width={24} />

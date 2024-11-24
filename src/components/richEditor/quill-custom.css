@@ -1,0 +1,36 @@
+/* Arquivo: styles/quill-custom.css */
+
+/* Personalização do container do editor */
+.ql-container {
+  border: 1px solid #0099D8 !important; /* Cor da borda personalizada */
+  -webkit-border-bottom-right-radius: 0.5rem;
+  -webkit-border-bottom-left-radius: 0.5rem;
+  -moz-border-radius-bottomright: 0.5rem;
+  -moz-border-radius-bottomleft: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  padding: .5rem; /* Espaçamento interno */
+  max-height: 35vh;
+  overflow: auto;
+}
+
+/* Personalização da barra de ferramentas */
+.ql-toolbar {
+  border: 1px solid #0099D8 !important; /* Cor da borda */
+  border-bottom: none !important; 
+  -webkit-border-top-left-radius: 0.5rem;
+  -webkit-border-top-right-radius: 0.5rem;
+  -moz-border-radius-topleft: 0.5rem;
+  -moz-border-radius-topright: 0.5rem;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+/* Personalização do editor de texto */
+.ql-editor {
+  min-height: 12rem; 
+  font-size: 1rem; 
+  line-height: 1.6; 
+  color: #374151;
+  padding: 10px; 
+}

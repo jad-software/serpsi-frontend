@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { Agenda, ScheduleAgendas } from "./dayTypes";
+import { ScheduleAgendas } from "./dayTypes";
 type defineLineProps = {
 	label: string;
 	id: number;
@@ -21,8 +21,8 @@ export function DefineLine({ id, label }: defineLineProps) {
 	const addAvaliableTime = () => {
 		insert(fields.length, {
 			key: id,
-			_startTime: "08:00",
-			_endTime: "18:00"
+			_startTime: "",
+			_endTime: ""
 		});
 	};
 
@@ -51,7 +51,11 @@ export function DefineLine({ id, label }: defineLineProps) {
 									defaultValue={watch(
 										`agendas.${id}._avaliableTimes.${index}._startTime`
 									)}
-									error={errors.agendas?.[id]?._avaliableTimes?.[index]?._startTime?.message}
+									error={
+										errors.agendas?.[id]?._avaliableTimes?.[
+											index
+										]?._startTime?.message
+									}
 									mask="99:99"
 									{...register(
 										`agendas.${id}._avaliableTimes.${index}._startTime`,
@@ -64,7 +68,7 @@ export function DefineLine({ id, label }: defineLineProps) {
 										}
 									)}
 								/>
-								<span className="w-8"> para </span>
+								<span className="w-8"> até </span>
 								<Input
 									type="text"
 									className="w-20 border-primary-400 lg:w-fit"
@@ -73,7 +77,11 @@ export function DefineLine({ id, label }: defineLineProps) {
 										`agendas.${id}._avaliableTimes.${index}._endTime`
 									)}
 									mask="99:99"
-									error={errors.agendas?.[id]?._avaliableTimes?.[index]?._endTime?.message}
+									error={
+										errors.agendas?.[id]?._avaliableTimes?.[
+											index
+										]?._endTime?.message
+									}
 									{...register(
 										`agendas.${id}._avaliableTimes.${index}._endTime`,
 										{

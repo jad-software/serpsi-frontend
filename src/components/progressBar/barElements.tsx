@@ -5,11 +5,11 @@ import React from "react";
 const ballVariants = cva("h-5 min-w-5 rounded-full", {
 	variants: {
 		variant: {
-			inactive: "bg-gray-600 shadow",
+			inactive: "bg-gray-500 shadow",
 			active: "bg-primary-500 shadow"
 		},
 		current: {
-			true: "bg-primary-300 shadow"
+			true: "bg-secondary-pink-200 ring-4 ring-secondary-pink-200 shadow"
 		}
 	},
 	defaultVariants: {
@@ -18,15 +18,15 @@ const ballVariants = cva("h-5 min-w-5 rounded-full", {
 	}
 });
 
-const Ball = React.forwardRef<
-	HTMLDivElement,
-	VariantProps<typeof ballVariants>
->(({ variant, current }, ref) => (
-	<div ref={ref} className={cn(ballVariants({ variant, current }))} />
-));
+const Ball = React.forwardRef<null, VariantProps<typeof ballVariants>>(
+	({ variant, current }, ref) => (
+		<div ref={ref} className={cn(ballVariants({ variant, current }))} />
+	)
+);
+
 Ball.displayName = "Ball";
 
-const barVariants = cva("h-[1px] min-w-5 w-full mx-5 hidden lg:block", {
+const barVariants = cva("h-0.5 min-w-5 w-full mx-5 hidden lg:block", {
 	variants: {
 		variant: {
 			inactive: "bg-gray-500 shadow",
@@ -38,7 +38,7 @@ const barVariants = cva("h-[1px] min-w-5 w-full mx-5 hidden lg:block", {
 	}
 });
 
-const Bar = React.forwardRef<HTMLDivElement, VariantProps<typeof barVariants>>(
+const Bar = React.forwardRef<null, VariantProps<typeof barVariants>>(
 	({ variant }, ref) => (
 		<div ref={ref} className={cn(barVariants({ variant }))} />
 	)
@@ -51,14 +51,14 @@ interface stepProps {
 	first?: boolean;
 }
 
-const Step = React.forwardRef<HTMLDivElement, stepProps>(
+const Step = React.forwardRef<null, stepProps>(
 	({ variant, current = false, first = false }, ref) => (
 		<>
 			{first ? (
 				<Ball ref={ref} variant={variant} current={current} />
 			) : (
 				<>
-					<Bar variant={variant} />
+					<Bar ref={ref} variant={variant} />
 					<Ball ref={ref} variant={variant} current={current} />
 				</>
 			)}

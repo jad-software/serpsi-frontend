@@ -41,11 +41,11 @@ export function PaginationTable<TData>({ table }: paginationTableProps<TData>) {
 						<ChevronLeftIcon className="h-4 w-4" />
 					</Button>
 				</PaginationItem>
-				<PaginationItem className="text-primary-600">
+				<PaginationItem className="flex items-center gap-1 text-primary-600">
 					<span>Página</span>
 					<Input
 						id="pagination"
-						className="mx-2 inline w-8 rounded-xl text-gray-500 text-center"
+						className="mx-2 inline w-8 rounded-xl text-gray-500"
 						onKeyDown={(e) => {
 							e.key === "Enter"
 								? changePage(Number(e.currentTarget.value))
@@ -54,7 +54,7 @@ export function PaginationTable<TData>({ table }: paginationTableProps<TData>) {
 						onChange={(e) => setPageIndex(Number(e.target.value))}
 						value={pageIndex}
 					/>
-					<span>de </span>
+					<span>de</span>
 					{table.getPageCount()}
 				</PaginationItem>
 				<PaginationItem>

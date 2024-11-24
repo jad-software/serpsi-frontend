@@ -14,6 +14,7 @@ interface InputTextProps {
 	variant?: "primary" | "secondary";
 	mask?: string;
 	error?: string;
+	accept?: string;
 }
 
 export function InputText({
@@ -25,7 +26,8 @@ export function InputText({
 	register,
 	variant = "primary",
 	mask,
-	error
+	error,
+	...rest
 }: InputTextProps) {
 	const inputClassNames = classNames("w-full rounded-md  p-2 text-left", {
 		"border placeholder:text-gray-500 ": variant === "primary",
@@ -61,6 +63,8 @@ export function InputText({
 					className={inputClassNames}
 					{...(register ? register(name ? name : id) : {})}
 					{...(type === "file" && { multiple: true })}
+					{...(type === "file" &&
+						rest.accept && { accept: rest.accept })}
 				/>
 			)}
 			{error !== undefined && (

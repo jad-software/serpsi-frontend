@@ -7,7 +7,7 @@ import {
 	BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 import { ChevronRightIcon } from "@heroicons/react/outline";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import React from "react";
 
 type TRoute = {
@@ -22,17 +22,34 @@ const routeTitles: { [key: string]: string } = {
 	schedule: "Agenda",
 	register: "Cadastro",
 	documents: "Documentos",
-	bills: "Financeiro"
+	bills: "Financeiro",
+	schedule_definer: "Minha agenda",
+	past_sessions: "Histórico de Sessões"
 };
 
 export default function NavigationBreadcrumb() {
 	const urlpath: string = usePathname();
+	const searchParams = useSearchParams();
 
 	const getCrumbs = (): TRoute[] => {
 		const parts = urlpath.split("/").filter(Boolean);
 
 		var crumbs: TRoute[] = parts.map((part, index) => {
 			const link = "/" + parts.slice(0, index + 1).join("/");
+
+			if (
+				index === parts.length - 1 &&
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+					part
+				) &&
+				searchParams.get("name")
+			) {
+				return {
+					title: searchParams.get("name") || part,
+					link
+				};
+			}
+
 			const title = routeTitles[part] || part;
 			return { title, link };
 		});

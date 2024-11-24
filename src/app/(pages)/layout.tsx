@@ -1,6 +1,7 @@
 "use client";
 import { Navigation } from "@/components/NavigationLayout";
 import { Button } from "@/components/ui/button";
+import { getData } from "@/services/userService";
 import {
 	CurrencyDollarIcon,
 	InboxIcon,
@@ -9,7 +10,7 @@ import {
 } from "@heroicons/react/outline";
 import { ClipboardListIcon } from "@heroicons/react/solid";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function RootLayout({
 	children
@@ -17,7 +18,14 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	const [collapsedLink, setCollapsedLink] = useState(true);
-
+	const [user, setUser] = useState({ name: "", profilePic: "" });
+	useEffect(() => {
+		async function setUserData() {
+			const value = await getData();
+			setUser(value);
+		}
+		setUserData();
+	}, [setUser]);
 	return (
 		<>
 			<Navigation.Root>
@@ -36,14 +44,15 @@ export default function RootLayout({
 						<Image
 							alt="logo-empresa"
 							src={"/logo-teste.jpg"}
-							width={35}
-							height={34}
+							width={33}
+							height={33}
 							className="mr-3 w-auto rounded-full"
+							loading="eager"
 						/>
 						<Navigation.Breadcrumb />
 					</div>
 					{/* User Profile */}
-					<Navigation.User name="Iara Lima" img="/avatar-teste.jpg" />
+					<Navigation.User name={user?.name} img={user?.profilePic} />
 				</Navigation.Header>
 
 				<Navigation.SideBar isHidden={collapsedLink}>

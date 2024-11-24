@@ -2,53 +2,20 @@ import { Input } from "@/components/ui/input";
 import { DefineLine } from "./defineLine";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useState } from "react";
-import { dayTypes, dayTypesResolve, ScheduleAgendas } from "./dayTypes";
-const week = [
-	{
-		key: 0,
-		name: dayTypesResolve.Sunday,
-		label: dayTypes.Sunday,
-		checked: false
-	},
-	{
-		key: 1,
-		name: dayTypesResolve.Monday,
-		label: dayTypes.Monday,
-		checked: true
-	},
-	{
-		key: 2,
-		name: dayTypesResolve.Tuesday,
-		label: dayTypes.Tuesday,
-		checked: true
-	},
-	{
-		key: 3,
-		name: dayTypesResolve.Wednesday,
-		label: dayTypes.Wednesday,
-		checked: true
-	},
-	{
-		key: 4,
-		name: dayTypesResolve.Thursday,
-		label: dayTypes.Thursday,
-		checked: true
-	},
-	{
-		key: 5,
-		name: dayTypesResolve.Friday,
-		label: dayTypes.Friday,
-		checked: true
-	},
-	{
-		key: 6,
-		name: dayTypesResolve.Saturday,
-		label: dayTypes.Saturday,
-		checked: false
-	}
-];
+import { dayTypesResolve, ScheduleAgendas, week } from "./dayTypes";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export function ScheduleDefiner() {
+export function ScheduleDefiner({
+	checkboxes,
+	setCheckboxes,
+	meetValue,
+	setMeetValue
+}: {
+	checkboxes: boolean[];
+	setCheckboxes: any;
+	meetValue: number;
+	setMeetValue: any;
+}) {
 	const {
 		register,
 		setValue,
@@ -61,6 +28,7 @@ export function ScheduleDefiner() {
 	const addAgenda = (dayType: dayTypesResolve, index: number) => {
 		let iterator = 0;
 		for (const value of fields) {
+			if (value.key === index) return;
 			if (value.key > index) {
 				insert(iterator, {
 					key: index,
@@ -98,9 +66,6 @@ export function ScheduleDefiner() {
 		});
 	};
 
-	const [checkboxes, setCheckboxes] = useState(
-		week.map((value) => value.checked)
-	);
 	const handleClickCheckbox = (index: number) => {
 		const updatedCheckBoxes = checkboxes.map((value, idx) => {
 			let newValue = value;
@@ -118,8 +83,9 @@ export function ScheduleDefiner() {
 
 	const changeMeetValue = (value: string) => {
 		let number = +value.slice(2).replaceAll(".", "").replaceAll(",", ".");
-		setValue("_meetValue", number);
-		return number;
+		setMeetValue(number);
+		setValue("meetValue", +number);
+		return meetValue;
 	};
 	return (
 		<>
@@ -131,8 +97,9 @@ export function ScheduleDefiner() {
 					type="numeric"
 					mask={"R$ 999.999.999,99"}
 					className="w-auto border border-primary-400 lg:w-fit"
-					defaultValue={120.5}
-					error={errors._meetValue?.message}
+					error={errors.meetValue?.message}
+					value={"" + meetValue}
+					
 					beforeMaskedStateChange={({ nextState }) => {
 						let number = nextState.value.replace("R$ ", "");
 						if (number.replaceAll(".", "").length < 9) {
@@ -150,11 +117,10 @@ export function ScheduleDefiner() {
 							nextState.value = nextState.value.slice(0, -1);
 						return nextState;
 					}}
-					{...register("_meetValue", {
+					{...register("meetValue", {
 						valueAsNumber: true,
-						onChange: (e) => changeMeetValue(e.target.value),
-					})
-				}
+						onChange: (e) => changeMeetValue(e.target.value)
+					})}
 				/>
 				<label htmlFor="duracao">Duração:</label>
 				<Input
@@ -163,8 +129,8 @@ export function ScheduleDefiner() {
 					className="w-auto border border-primary-400 lg:w-fit"
 					min={0}
 					max={600}
-					error={errors._duration?.message}
-					{...register("_duration", {
+					error={errors.meetDuration?.message}
+					{...register("meetDuration", {
 						valueAsNumber: true,
 						setValueAs: setDuration,
 						value: duration
@@ -180,11 +146,12 @@ export function ScheduleDefiner() {
 							key={value.key}
 							className="flex flex-col-reverse items-center justify-center gap-2 lg:flex-row"
 						>
-							<input
+							<Checkbox
 								id={"check" + value.name}
-								type="checkbox"
 								checked={checkboxes[index]}
-								onChange={() => handleClickCheckbox(index)}
+								onCheckedChange={() =>
+									handleClickCheckbox(index)
+								}
 								className="h-4 w-4"
 							/>
 							<label htmlFor={"check" + value.name}>
@@ -201,7 +168,7 @@ export function ScheduleDefiner() {
 							<DefineLine
 								key={value.id}
 								id={index}
-								label={week[value.key].label}
+								label={week[value.key]?.label || ""}
 							/>
 						)
 					);

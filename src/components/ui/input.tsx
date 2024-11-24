@@ -1,10 +1,9 @@
 import * as React from "react";
-
-import { cn } from "@/lib/utils";
 import InputMask, {
 	BeforeMaskedStateChangeStates,
 	InputState
-} from "react-input-mask";
+} from "react-input-mask-next";
+import { cn } from "@/lib/utils";
 
 export interface InputProps
 	extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -14,7 +13,17 @@ export interface InputProps
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-	({ className, type, mask, error = null, beforeMaskedStateChange, ...props }, ref) => {
+	(
+		{
+			className,
+			type,
+			mask,
+			error = null,
+			beforeMaskedStateChange,
+			...props
+		},
+		ref
+	) => {
 		return (
 			<div>
 				{mask ? (
@@ -40,7 +49,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 						{...props}
 					/>
 				)}
-				{error && <p className="text-red-400 text-sm">{error}</p>}
+				{error && <p className="text-sm text-red-400">{error}</p>}
 			</div>
 		);
 	}

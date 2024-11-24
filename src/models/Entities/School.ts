@@ -1,4 +1,4 @@
-import { EntityBase } from "../EntityBase";
+import { EntityBase } from "..";
 import { Address } from "./Address";
 import { Phone } from "../vos/Phone";
 import { CNPJ } from "../vos/CNPJ";
