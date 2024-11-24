@@ -131,7 +131,7 @@ export function DataTable<TData, TValue>({
 async function downloadMultiFiles(rows: Row<DocumentColumns>[]) {
 	await Promise.all(
 		rows.map((value) => {
-			DownloadFile(value.original._docLink, value.original._name + " - " + value.original._title);
+			DownloadFile(value.original.docLink, value.original.name + " - " + value.original.title);
 		})
 	);
 }
