@@ -49,7 +49,7 @@ export default function ScheduleDefinePage() {
 		resolver: zodResolver(scheduleSchema),
 		defaultValues: {
 			psychologistId: "",
-			meetValue: 100.50,
+			meetValue: 100.5,
 			meetDuration: 50,
 			agendas: [
 				{
@@ -181,20 +181,21 @@ export default function ScheduleDefinePage() {
 		async function setDefaultAgendas() {
 			const data = await getAgenda();
 			let checks: boolean[] = Array.from({ length: 7 }, () => false);
-			data?.agendas.map((value) => {
-				value.key = getKeyByDay(value._day);
-				checks[value.key] = true;
-				value._avaliableTimes.map((time) => {
-					time.key = getKeyByDay(value._day);
-					return time;
-				}, value);
-				return value;
-			}, data);
-			data?.agendas.sort((a,b) => a.key - b.key);
-			
-			methods.reset({ ...data });
-			setCheckboxes(checks);
-			setMeetValue(data!.meetValue);
+			if (data?.agendas && data.agendas.length > 0) {
+				data?.agendas.map((value) => {
+					value.key = getKeyByDay(value._day);
+					checks[value.key] = true;
+					value._avaliableTimes.map((time) => {
+						time.key = getKeyByDay(value._day);
+						return time;
+					}, value);
+					return value;
+				}, data);
+				data?.agendas.sort((a, b) => a.key - b.key);
+				methods.reset({ ...data });
+				setCheckboxes(checks);
+				setMeetValue(data!.meetValue);
+			}
 		}
 		setDefaultAgendas();
 	}, [methods]);
