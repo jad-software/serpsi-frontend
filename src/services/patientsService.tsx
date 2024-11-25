@@ -1,18 +1,18 @@
 "use server";
 import { cookies } from "next/headers";
 
-export async function getPatientsData() {
+export async function getPatientsData(isNewSession: boolean  = false) {
 	const jwt = cookies().get("Authorization")?.value!;
 	if (jwt) {
-		const sub = cookies().get("sub")?.value!;
+		const url = isNewSession ? "/patients/addmeeting" : "/patients/psychologist/";
 		const response = await fetch(
-			process.env.BACKEND_URL + "/patients/psychologist/" + sub,
+			process.env.BACKEND_URL + url,
 			{
 				method: "GET",
-				next: { revalidate: 30 },
 				headers: {
 					Authorization: jwt
-				}
+				},
+				cache: "no-store"
 			}
 		);
 		return await response.json();
