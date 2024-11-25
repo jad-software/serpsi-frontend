@@ -5,5 +5,5 @@ export function formatDateToddmmYYYY(date: Date) {
 }
 
 export function formatDateToddmmYYYYHHMM(date: Date) {
-	return date? moment(date).format("DD/MM/YYYY HH:mm") : null;
+	return moment(date).format("DD/MM/YYYY HH:mm");
 }

@@ -52,6 +52,11 @@ export const columns: ColumnDef<Session>[] = [
 		cell: (e) => (
 			<div className="">{formatDateToddmmYYYYHHMM(new Date(e.getValue() as string))}</div>
 		),
-		size: 250
+		size: 250,
+		filterFn: (row, id, filterValue) => {
+			const date = formatDateToddmmYYYYHHMM(row.getValue(id));
+			console.log(row.getValue(id))
+			return date.includes(filterValue);
+		}
 	}
 ];
