@@ -2,12 +2,14 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { PencilAltIcon } from "@heroicons/react/outline";
+import { formatDateToddmmYYYYHHMM } from "@/services/utils/formatDate";
 
 export type Session = {
 	id: string;
-	name: string;
-	paymentType: "Transferência" | "PIX" | "Cartão" | "Dinheiro" | "Pendente";
-	schedule: string;
+	person_name: string;
+	paymentType?: "Transferência" | "PIX" | "Cartão" | "Dinheiro" | "Pendente";
+	meeting_status: "CONFIRMADO" | "CANCELADO" | "ABERTO" | "CREDITO";
+	meeting_schedule: string;
 };
 
 export const columns: ColumnDef<Session>[] = [
@@ -25,7 +27,7 @@ export const columns: ColumnDef<Session>[] = [
 		)
 	},
 	{
-		accessorKey: "name",
+		accessorKey: "person_name",
 		header: "Paciente",
 		size: 250
 	},
@@ -35,68 +37,21 @@ export const columns: ColumnDef<Session>[] = [
 		cell: (e) => {
 			let className =
 				e.getValue() == "Pendente" ? "text-orange-600/70" : "";
-			return <p className={className}>{e.getValue() as string}</p>;
+			return e.getValue() as string ? <p className={className}>{e.getValue() as string}</p> : <p>-</p>;
 		},
 		size: 250
 	},
 	{
-		accessorKey: "schedule",
+		accessorKey: "meeting_status",
+		header: "Status",
+		size: 250
+	},
+	{
+		accessorKey: "meeting_schedule",
 		header: "Data da sessão",
+		cell: (e) => (
+			<div className="">{formatDateToddmmYYYYHHMM(new Date(e.getValue() as string))}</div>
+		),
 		size: 250
 	}
 ];
-
-export const data: Session[] = [
-	{
-		id: "INV00",
-		name: "Roberto Santos",
-		paymentType: "PIX",
-		schedule: "01/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV01",
-		name: "Roberto Santos",
-		paymentType: "PIX",
-		schedule: "02/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV02",
-		name: "Roberto Santos",
-		paymentType: "Pendente",
-		schedule: "03/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV03",
-		name: "Roberto Santos",
-		paymentType: "PIX",
-		schedule: "dd/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV04",
-		name: "Roberto Santos",
-		paymentType: "PIX",
-		schedule: "dd/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV05",
-		name: "Roberto Santos",
-		paymentType: "Pendente",
-		schedule: "dd/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV06",
-		name: "Roberto Santos",
-		paymentType: "PIX",
-		schedule: "dd/mm/aaaa HH:MM"
-	},
-	{
-		id: "INV07",
-		name: "Roberto Santos",
-		paymentType: "PIX",
-		schedule: "dd/mm/aaaa HH:MM"
-	}
-];
-
-export const getData = () => {
-	return data;
-};

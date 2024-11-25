@@ -6,7 +6,7 @@ import Link from "next/link";
 import { formatMedicineSchedule, getData } from "@/services/myPatientService";
 import { Comorbidity, MedicamentInfo, Person } from "@/models";
 import { ListComponent } from "./listComponent";
-import { formatDateToddmmYYYY } from "@/services/utils/formatDateToDDMMYYYY";
+import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 
 export default async function MyPatient({
