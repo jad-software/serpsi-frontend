@@ -13,7 +13,7 @@ export function HeaderTable<TData>({ table }: headerTableProps<TData>) {
 						return (
 							<TableHead
 								key={header.id}
-								className={`w-[${header.getSize()}px]`}
+								className={`w-[${header.getSize()}px] ${header.index === 0 ? "px-2" : ""}`}
 							>
 								{header.isPlaceholder
 									? null
