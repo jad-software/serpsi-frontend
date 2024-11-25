@@ -24,7 +24,8 @@ const routeTitles: { [key: string]: string } = {
 	documents: "Documentos",
 	bills: "Financeiro",
 	schedule_definer: "Minha agenda",
-	past_sessions: "Histórico de Sessões"
+	past_sessions: "Histórico de Sessões",
+	listPatients: "Selecionar paciente"
 };
 
 const BreadcrumbContent = () => {
@@ -38,7 +39,6 @@ const BreadcrumbContent = () => {
 			const link = "/" + parts.slice(0, index + 1).join("/");
 
 			if (
-				index === parts.length - 1 &&
 				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
 					part
 				) &&
