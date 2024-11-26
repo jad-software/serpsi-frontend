@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { DownloadFile } from "@/services/utils/downloadFile";
 import { DownloadIcon } from "@heroicons/react/outline";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { DocumentViewer } from "react-documents";
 
@@ -41,11 +42,22 @@ export default function Viewer({
 					<DialogDescription></DialogDescription>
 				</DialogHeader>
 				<div className="flex h-[80vh] w-full flex-col items-end justify-center gap-2">
-					<DocumentViewer
-						queryParams="hl=pt"
-						style={{ width: "100%", height: "100%" }}
-						url={url}
-					/>
+					{url.includes("image") ? (
+						<Image
+							src={url}
+							alt="imagem sobre a sessão"
+							width={450}
+							height={450}
+							className="h-full w-full object-contain p-4"
+						/>
+					) : (
+						<DocumentViewer
+							queryParams="hl=pt"
+							style={{ width: "100%", height: "100%" }}
+							url={url}
+						/>
+					)}
+
 					<Button
 						variant="link"
 						className="gap-2 text-primary-600"
