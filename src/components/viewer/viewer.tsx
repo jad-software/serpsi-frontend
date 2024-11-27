@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { DownloadFile } from "@/services/utils/downloadFile";
 import { DownloadIcon } from "@heroicons/react/outline";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Suspense, useEffect, useState } from "react";
 import { DocumentViewer } from "react-documents";
+import Markdown from "./markdownViewer";
 
 export default function Viewer({
 	children,
@@ -40,12 +42,27 @@ export default function Viewer({
 					<DialogTitle className="font-medium">{title}</DialogTitle>
 					<DialogDescription></DialogDescription>
 				</DialogHeader>
-				<div className="flex h-[80vh] w-full flex-col items-end justify-center gap-2">
-					<DocumentViewer
-						queryParams="hl=pt"
-						style={{ width: "100%", height: "100%" }}
-						url={url}
-					/>
+				<section className="flex h-[80vh] w-full flex-col items-end justify-center gap-2">
+					{url.includes("image") ? (
+						<Image
+							src={url}
+							alt="imagem sobre a sessão"
+							width={450}
+							height={450}
+							className="h-full w-full object-contain p-4"
+						/>
+					) : url.includes(".md") ? (
+						<Suspense fallback={<>Carregando...</>}>
+							<Markdown url={url} className="flex-col "/>
+						</Suspense>
+					) : (
+						<DocumentViewer
+							queryParams="hl=pt"
+							style={{ width: "100%", height: "100%" }}
+							url={url}
+						/>
+					)}
+
 					<Button
 						variant="link"
 						className="gap-2 text-primary-600"
@@ -53,7 +70,7 @@ export default function Viewer({
 					>
 						Baixar arquivo <DownloadIcon className="h-6 w-6" />
 					</Button>
-				</div>
+				</section>
 			</DialogContent>
 		</Dialog>
 	);

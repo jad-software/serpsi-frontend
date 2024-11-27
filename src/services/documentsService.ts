@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { DocumentColumns } from "@/app/(pages)/documents/columns";
-import { formatDateToddmmYYYY } from "./utils/formatDateToDDMMYYYY";
+import { formatDateToddmmYYYY } from "./utils/formatDate";
 
 export async function getData() {
 	const jwt = cookies().get("Authorization")?.value!;

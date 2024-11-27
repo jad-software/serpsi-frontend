@@ -18,13 +18,15 @@ type TRoute = {
 // Title of the route that will appear in the BreadCrumb
 const routeTitles: { [key: string]: string } = {
 	home: "Início",
-	patients: "Meus Pacientes",
+	patients: "Meus pacientes",
 	schedule: "Agenda",
 	register: "Cadastro",
 	documents: "Documentos",
 	bills: "Financeiro",
 	schedule_definer: "Minha agenda",
-	past_sessions: "Histórico de Sessões"
+	"past-sessions": "Histórico de sessões",
+	"select-patient": "Selecionar paciente",
+	profile: "Meus dados",
 };
 
 const BreadcrumbContent = () => {
@@ -38,7 +40,6 @@ const BreadcrumbContent = () => {
 			const link = "/" + parts.slice(0, index + 1).join("/");
 
 			if (
-				index === parts.length - 1 &&
 				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
 					part
 				) &&

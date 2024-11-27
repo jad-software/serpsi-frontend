@@ -6,8 +6,9 @@ import Link from "next/link";
 import { formatMedicineSchedule, getData } from "@/services/myPatientService";
 import { Comorbidity, MedicamentInfo, Person } from "@/models";
 import { ListComponent } from "./listComponent";
-import { formatDateToddmmYYYY } from "@/services/utils/formatDateToDDMMYYYY";
+import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
+import { Button } from "@/components/ui/button";
 
 export default async function MyPatient({
 	params
@@ -86,7 +87,7 @@ export default async function MyPatient({
 							<Square
 								variant={
 									data._parents.length % 2 > 0 &&
-										index === data._parents.length - 1
+									index === data._parents.length - 1
 										? "DoubleColumn"
 										: "primary"
 								}
@@ -108,7 +109,7 @@ export default async function MyPatient({
 				)}
 
 				{/* Escola */}
-				{data._school &&
+				{data._school && (
 					<Square variant="DoubleColumn">
 						<SquareHeader titulo="Escola" />
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -129,13 +130,13 @@ export default async function MyPatient({
 									{data._school._address._homeNumber}
 								</p>
 								<p>
-									Complemento: {data._school._address._complement}
+									Complemento:{" "}
+									{data._school._address._complement}
 								</p>
 							</div>
 						</div>
 					</Square>
-				}
-
+				)}
 
 				{/* Medicamento */}
 				{data._medicines.length > 0 && (
@@ -145,7 +146,7 @@ export default async function MyPatient({
 								<Square
 									variant={
 										data._medicines.length % 2 > 0 &&
-											index === data._medicines.length - 1
+										index === data._medicines.length - 1
 											? "DoubleColumn"
 											: "primary"
 									}
@@ -203,7 +204,7 @@ export default async function MyPatient({
 
 				{/* Arquivos */}
 
-				<Square variant="DoubleColumn">
+				<Square variant="primary">
 					<SquareHeader titulo="Arquivos de acompanhamentos anteriores" />
 					<ul>
 						{data._previewFollowUps &&
@@ -228,14 +229,13 @@ export default async function MyPatient({
 				</Square>
 
 				{/* Histórico de Sessões */}
-				{/*         
+
 				<Square variant="WithButton">
 					<SquareHeader titulo="Histórico de Sessões" />
 					<Button className="bg-primary-600 hover:bg-primary-700">
-						Ver Histórico de Sessões
+						<Link href={"/patients/"+ params.id + "/past_sessions?name=" + data._person._name}>Ver Histórico de Sessões</Link>
 					</Button>
-				</Square> 
-        */}
+				</Square>
 			</div>
 		</main>
 	);
