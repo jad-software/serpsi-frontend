@@ -12,7 +12,15 @@ import {
 	useReactTable
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { CurrencyDollarIcon } from "@heroicons/react/outline";
+import { CurrencyDollarIcon, SearchIcon } from "@heroicons/react/outline";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectTrigger,
+	SelectValue,
+	SelectContent,
+	SelectItem
+} from "@/components/ui/select";
 
 export default function BillsPage() {
 	const [data, setData] = useState({} as BillsColumns[]);
@@ -39,12 +47,64 @@ export default function BillsPage() {
 		<main className="flex h-full w-full flex-col items-center justify-center bg-white p-3">
 			<DataTable
 				columns={columns}
-				data={data!}
-				filteringColumn="name"
-				filteringPlaceHolder="nome"
-				filteringSecondColumn="billType"
-				filteringSecondPlaceHolder="tipo"
-				tableTd={table}
+				table={table}
+				filteringNode={
+					<div className="flex w-full justify-start gap-4">
+						<div className="border-1 flex w-full max-w-[200px] items-center rounded-lg border border-primary-600 px-2">
+							<SearchIcon className="h-5 w-5" />
+							<Input
+								id="busca"
+								className="border-0 text-start focus-visible:ring-0"
+								placeholder={`Procurar por nome...`}
+								value={
+									(table
+										.getColumn("name")
+										?.getFilterValue() as string) ?? ""
+								}
+								onChange={(event) =>
+									table
+										.getColumn("name")
+										?.setFilterValue(event.target.value)
+								}
+							/>
+						</div>
+						<Select
+							value={
+								(table
+									.getColumn("billType")
+									?.getFilterValue() as string) ?? ""
+							}
+							onValueChange={(value) =>
+								value !== "TODOS"
+									? table
+											.getColumn("billType")
+											?.setFilterValue(value)
+									: table
+											.getColumn("billType")
+											?.setFilterValue(undefined)
+							}
+						>
+							<SelectTrigger
+								className={
+									"w-full max-w-[200px] border-primary-600 px-2 focus:ring-primary-500"
+								}
+							>
+								<SelectValue placeholder="Selecione o tipo  " />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="TODOS">Todos</SelectItem>
+								<SelectItem value="A PAGAR">A pagar</SelectItem>
+								<SelectItem value="A RECEBER">
+									A receber
+								</SelectItem>
+								<SelectItem value="PAGO">Pago</SelectItem>
+								<SelectItem value="RECEBIDO">
+									Recebido
+								</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				}
 				linkTop={
 					<NewBillDialog
 						triggerButton={
