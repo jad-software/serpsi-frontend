@@ -20,12 +20,12 @@ export default function CreateSession() {
           <span className="text-gray-900">Agendar Sessões</span>
         </Link>
       </div>
-      <section className="w-[75vw] h-[80vh] border rounded-lg border-primary-600 flex 
+      <section className="w-[75vw] h-[75vh] border rounded-lg border-primary-600 flex 
         flex-row space-x-32 p-7">
         <div>
           <h1 className="text-primary-700">Informações do paciente:</h1>
           <section className="flex flex-col space-y-10">
-            <div className=" flex flex-col md:flex-row md:space-x-32 mt-10">
+            <div className=" flex flex-col md:flex-row md:space-x-20 mt-10">
               <div className="flex flex-col md:flex-row space-x-4">
                 <Image
                   className="mb-4 h-24 w-24 rounded-full"
@@ -52,10 +52,10 @@ export default function CreateSession() {
             </div>
             <div>
               <h1 className="text-primary-700">Criar próximas sessões:</h1>
-              <form className="flex flex-col md:flex-row md:space-x-32">
+              <form className="flex flex-col md:flex-row md:space-x-20 mt-5">
                 <div>
                   <label
-                    className="mb-2 text-gray-900 block mt-10"
+                    className="mb-2 text-gray-900 block"
                     htmlFor="valor-sessao"
                   >
                     Data da primeira sessão:
@@ -107,7 +107,7 @@ export default function CreateSession() {
                 </div>
                 <div>
                 <label
-                    className="mb-2 text-gray-900 block mt-5"
+                    className="mb-2 text-gray-900 block"
                     htmlFor="forma-pagamento"
                   >
                     Horário da primeira sessão:
@@ -164,8 +164,8 @@ export default function CreateSession() {
         <div className="hidden lg:block ">
           <Image
             src={CriarSessao}
-            width={391}
-            height={391}
+            width={400}
+            height={400}
             alt="Imagem tela cadastro sessão"
             className="h-auto w-auto"
             loading="eager"
