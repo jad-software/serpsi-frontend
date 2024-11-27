@@ -36,7 +36,7 @@ export default function CreateSession() {
                 <p><strong>Tel:</strong> (00) 00000-0000</p>
               </div>
             </div>
-            
+
             <div>
               <p><strong>Responsável:</strong> Roberta Mãe</p>
               <p><strong>Nascimento:</strong> 31/12/2000</p>
@@ -45,10 +45,10 @@ export default function CreateSession() {
             </div>
           </div>
 
-          
+
           <h2 className="text-lg font-semibold text-primary-700 mb-4">Criar próximas sessões:</h2>
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             <div>
               <label className="block text-gray-700 font-medium mb-2">Data da primeira sessão:</label>
               <input
@@ -107,6 +107,11 @@ export default function CreateSession() {
                   <SelectItem value="PENDENTE">Pendente</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="pb-10 w-full md:col-span-2 flex justify-center">
+              {/* <div className="w-full flex items-center justify-center"> */}
+                <button>Salvar</button>
+              {/* </div> */}
             </div>
           </form>
         </div>
