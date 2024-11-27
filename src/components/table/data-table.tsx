@@ -15,7 +15,7 @@ import { PaginationTable } from "./pagination-table";
 import { HeaderTable } from "./header-table";
 import { BodyTable } from "./body-table";
 import { DownloadIcon, SearchIcon } from "@heroicons/react/outline";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Button } from "../ui/button";
 import { DownloadFile } from "@/services/utils/downloadFile";
 import { DocumentColumns } from "@/app/(pages)/documents/columns";
@@ -23,14 +23,16 @@ import { DocumentColumns } from "@/app/(pages)/documents/columns";
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
-	linkTop?: boolean;
+	linkTop?: ReactNode;
+	selectedAction?: ReactNode;
 	filteringColumn: string;
-	filteringPlaceHolder: string,
+	filteringPlaceHolder: string;
 }
 export function DataTable<TData, TValue>({
 	columns,
 	data,
 	linkTop,
+	selectedAction,
 	filteringColumn,
 	filteringPlaceHolder
 }: DataTableProps<TData, TValue>) {
@@ -71,31 +73,27 @@ export function DataTable<TData, TValue>({
 				</div>
 				{/** seção para arquivos selecionados. disponivel apenas para documentos por enquanto */}
 				{table.getFilteredSelectedRowModel().rows.length > 0 ? (
-					<Button
-						variant="link"
-						className="flex items-center justify-center gap-2 text-center text-primary-600"
-						onClick={() =>
-							downloadMultiFiles(
-								table.getFilteredSelectedRowModel().rows as Row<DocumentColumns>[]
-							)
-						}
-					>
-						Baixar arquivos selecionados{" "}
-						<DownloadIcon className="h-4 w-4" />
-					</Button>
+					selectedAction ? (
+						selectedAction
+					) : (
+						<Button
+							variant="link"
+							className="flex items-center justify-center gap-2 text-center text-primary-600"
+							onClick={() =>
+								downloadMultiFiles(
+									table.getFilteredSelectedRowModel()
+										.rows as Row<DocumentColumns>[]
+								)
+							}
+						>
+							Baixar arquivos selecionados{" "}
+							<DownloadIcon className="h-4 w-4" />
+						</Button>
+					)
 				) : null}
 			</section>
 			{/* se verdadeiro aparece o Link para cadastrar novo paciente */}
-			{linkTop ? (
-				<section>
-					<Link
-						href="/patients/register"
-						className="text-sm font-medium text-primary-600 underline"
-					>
-						Cadastrar novo paciente
-					</Link>
-				</section>
-			) : null}
+			{linkTop ?? null}
 
 			<Table className="rounded-3xl">
 				<HeaderTable table={table} />
@@ -131,7 +129,10 @@ export function DataTable<TData, TValue>({
 async function downloadMultiFiles(rows: Row<DocumentColumns>[]) {
 	await Promise.all(
 		rows.map((value) => {
-			DownloadFile(value.original.docLink, value.original.name + " - " + value.original.title);
+			DownloadFile(
+				value.original.docLink,
+				value.original.name + " - " + value.original.title
+			);
 		})
 	);
 }

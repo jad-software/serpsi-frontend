@@ -6,7 +6,7 @@ import { PencilAltIcon } from "@heroicons/react/outline";
 export type Patient = {
 	id: string;
 	name: string;
-	paymentPlan: "Mensal" | "Bimestral" | "Trimestral" | "Avulso";
+	payment_plan: "Mensal" | "Bimestral" | "Trimestral" | "Avulso";
 	documento: string;
 };
 
