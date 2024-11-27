@@ -1,13 +1,19 @@
 "use client";
 
-import { Table, TableCell, TableFooter, TableRow } from "@/components/ui/table";
+import {
+	Table as TableComponent,
+	TableCell,
+	TableFooter,
+	TableRow
+} from "@/components/ui/table";
 import {
 	ColumnDef,
 	getCoreRowModel,
 	useReactTable,
 	getPaginationRowModel,
 	getFilteredRowModel,
-	Row
+	Row,
+	Table
 } from "@tanstack/react-table";
 import { Input } from "../ui/input";
 import Link from "next/link";
@@ -27,6 +33,9 @@ interface DataTableProps<TData, TValue> {
 	selectedAction?: ReactNode;
 	filteringColumn: string;
 	filteringPlaceHolder: string;
+	filteringSecondColumn?: string;
+	filteringSecondPlaceHolder?: string;
+	tableTd?: Table<TData>;
 }
 export function DataTable<TData, TValue>({
 	columns,
@@ -34,10 +43,13 @@ export function DataTable<TData, TValue>({
 	linkTop,
 	selectedAction,
 	filteringColumn,
-	filteringPlaceHolder
+	filteringPlaceHolder,
+	filteringSecondColumn,
+	filteringSecondPlaceHolder,
+	tableTd
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = useState({});
-	const table = useReactTable({
+	let table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
@@ -48,11 +60,14 @@ export function DataTable<TData, TValue>({
 			rowSelection
 		}
 	});
+	if (tableTd) {
+		table = tableTd;
+	}
 
 	return (
 		<section className="flex flex-col items-start gap-2 rounded-[20px] lg:w-4/5">
 			{/* seção de filtros para a tabela */}
-			<section className="flex w-full items-center justify-between gap-4">
+			<section className="flex w-full items-center justify-start gap-4">
 				<div className="border-1 flex max-w-[300px] items-center rounded-lg border px-2">
 					<SearchIcon className="h-6 w-6" />
 					<Input
@@ -71,31 +86,53 @@ export function DataTable<TData, TValue>({
 						}
 					/>
 				</div>
+				{filteringSecondColumn && filteringSecondPlaceHolder ? (
+					<div className="border-1 flex max-w-[300px] items-center rounded-lg border px-2">
+						<SearchIcon className="h-6 w-6" />
+						<Input
+							id="busca"
+							className="border-0 text-start focus-visible:ring-0"
+							placeholder={`Procurar por ${filteringSecondPlaceHolder}...`}
+							value={
+								(table
+									.getColumn(filteringSecondColumn)
+									?.getFilterValue() as string) ?? ""
+							}
+							onChange={(event) =>
+								table
+									.getColumn(filteringSecondColumn)
+									?.setFilterValue(event.target.value)
+							}
+						/>
+					</div>
+				) : null}
 				{/** seção para arquivos selecionados. disponivel apenas para documentos por enquanto */}
 				{table.getFilteredSelectedRowModel().rows.length > 0 ? (
 					selectedAction ? (
 						selectedAction
 					) : (
-						<Button
-							variant="link"
-							className="flex items-center justify-center gap-2 text-center text-primary-600"
-							onClick={() =>
-								downloadMultiFiles(
-									table.getFilteredSelectedRowModel()
-										.rows as Row<DocumentColumns>[]
-								)
-							}
-						>
-							Baixar arquivos selecionados{" "}
-							<DownloadIcon className="h-4 w-4" />
-						</Button>
+						<div className="flex flex-grow items-end justify-end gap-2 text-center text-primary-600">
+							<Button
+								variant="link"
+								className="gap-2 text-center text-primary-600"
+								onClick={() =>
+									downloadMultiFiles(
+										table.getFilteredSelectedRowModel()
+											.rows as Row<DocumentColumns>[]
+									)
+								}
+							>
+								Baixar arquivos selecionados{" "}
+								<DownloadIcon className="h-4 w-4" />
+							</Button>
+						</div>
 					)
 				) : null}
 			</section>
 			{/* se verdadeiro aparece o Link para cadastrar novo paciente */}
 			{linkTop ?? null}
 
-			<Table className="rounded-3xl">
+			<TableComponent className="rounded-3xl">
 				<HeaderTable table={table} />
 				<BodyTable table={table} columns={columns} />
 				<TableFooter>
@@ -122,7 +159,7 @@ export function DataTable<TData, TValue>({
 						</TableCell>
 					</TableRow>
 				</TableFooter>
-			</Table>
+			</TableComponent>
 		</section>
 	);
 }
