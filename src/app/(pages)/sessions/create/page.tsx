@@ -4,6 +4,7 @@ import Link from "next/link";
 import CriarSessao from './criar-sessao.svg';
 import psiImage from "/public/img/avatar.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 export default function CreateSession() {
   return (
@@ -19,9 +20,9 @@ export default function CreateSession() {
 
         <div className="flex-1">
           <h1 className="text-lg font-semibold text-primary-700 mb-6">Informações do paciente:</h1>
-          <div className="flex flex-col md:flex-row md:space-x-10">
+          <div className="flex flex-col items-center justify-center md:items-start md:flex-row md:space-x-10 mb-6">
 
-            <div className="flex items-start space-x-4 mb-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start space-x-4 mb-2 md:mb-0">
               <Image
                 src={psiImage}
                 alt="Profile"
@@ -50,14 +51,22 @@ export default function CreateSession() {
           <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Data da primeira sessão:</label>
+              <label
+                className="block text-gray-700 font-medium mb-2">
+                Data da primeira sessão:
+              </label>
               <input
                 type="date"
-                className="w-full h-11 rounded border border-primary-400 p-2 focus:ring focus:ring-primary-400"
+                className="w-full h-11 rounded border 
+                  border-primary-400 p-2 focus:ring focus:ring-primary-400"
               />
-              <label className="block text-gray-700 font-medium mt-4 mb-2">Frequência das sessões:</label>
+              <label
+                className="block text-gray-700 font-medium mt-4 mb-2">
+                Frequência das sessões:
+              </label>
               <Select>
-                <SelectTrigger className="w-full h-11 border-primary-400 focus:ring focus:ring-primary-400">
+                <SelectTrigger
+                  className="w-full h-11  border-primary-400 focus:ring focus:ring-primary-400">
                   <SelectValue placeholder="Selecione a frequência das sessões..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -66,11 +75,14 @@ export default function CreateSession() {
                   <SelectItem value="MENSAL">Mensal</SelectItem>
                 </SelectContent>
               </Select>
-              <label className="block text-gray-700 font-medium mt-4 mb-2">Valor da sessão:</label>
+              <label
+                className="block text-gray-700 font-medium mt-4 mb-2">
+                Valor da sessão:
+              </label>
               <input
                 type="text"
                 placeholder="R$ 100,00"
-                className="w-full rounded border border-primary-400 p-2 focus:ring focus:ring-primary-400"
+                className="w-full h-11 rounded border border-primary-400 p-2 focus:ring focus:ring-primary-400"
               />
             </div>
 
@@ -92,7 +104,7 @@ export default function CreateSession() {
               <input
                 type="number"
                 placeholder="10"
-                className="w-full rounded border border-primary-400 p-2 focus:ring focus:ring-primary-400"
+                className="w-full rounded border h-11 border-primary-400 p-2 focus:ring focus:ring-primary-400"
               />
               <label className="block text-gray-700 font-medium mt-4 mb-2">Forma de pagamento:</label>
               <Select>
@@ -110,7 +122,12 @@ export default function CreateSession() {
             </div>
             <div className="pb-10 w-full md:col-span-2 flex justify-center">
               {/* <div className="w-full flex items-center justify-center"> */}
-                <button>Salvar</button>
+              <Button
+                // onClick={handleSubmit}
+                className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70"
+              >
+                Confirmar
+              </Button>
               {/* </div> */}
             </div>
           </form>
