@@ -9,6 +9,7 @@ import {
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
+	Row,
 	useReactTable
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,8 @@ import {
 	SelectContent,
 	SelectItem
 } from "@/components/ui/select";
+import { UpdateBillDialog } from "./updateBillDialog";
+import { DocumentColumns } from "../documents/columns";
 
 export default function BillsPage() {
 	const [data, setData] = useState({} as BillsColumns[]);
@@ -86,10 +89,10 @@ export default function BillsPage() {
 						>
 							<SelectTrigger
 								className={
-									"w-full max-w-[200px] border-primary-600 px-2 focus:ring-primary-500"
+									"w-full max-w-[200px] border-primary-600 px-2 text-gray-500 focus:ring-0"
 								}
 							>
-								<SelectValue placeholder="Selecione o tipo  " />
+								<SelectValue placeholder="Selecione o tipo" />
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="TODOS">Todos</SelectItem>
@@ -118,22 +121,25 @@ export default function BillsPage() {
 					/>
 				}
 				selectedAction={
-					<div className="flex flex-grow items-end justify-end gap-2 text-center text-primary-600">
-						<Button
-							variant="link"
-							className="gap-2 text-center text-primary-600"
-							onClick={() =>
-								console.log(
-									table
-										.getFilteredSelectedRowModel()
-										.rows.map((row) => row.original)
-								)
-							}
-						>
-							Atualizar contas selecionadas
-							<CurrencyDollarIcon className="h-4 w-4" />
-						</Button>
-					</div>
+					<UpdateBillDialog
+						triggerButton={
+							<Button
+								variant="link"
+								className="gap-2 text-center text-primary-600"
+								onClick={() =>
+									console.log(
+										table
+											.getFilteredSelectedRowModel()
+											.rows.map((row) => row.original)
+									)
+								}
+							>
+								Atualizar contas selecionadas
+								<CurrencyDollarIcon className="h-4 w-4" />
+							</Button>
+						}
+						bills={table.getFilteredSelectedRowModel().rows}
+					/>
 				}
 			/>
 		</main>

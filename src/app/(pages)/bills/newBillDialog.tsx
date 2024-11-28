@@ -21,18 +21,19 @@ import {
 import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { set, z } from "zod";
 import { BillsColumns } from "./columns";
 import { setBills } from "@/services/billsService";
 
-type CancelSessionDialogProps = {
+type newBillDialogProps = {
 	triggerButton: ReactNode;
 };
 
-export function NewBillDialog({ triggerButton }: CancelSessionDialogProps) {
+export function NewBillDialog({ triggerButton }: newBillDialogProps) {
   const [value, setValue] = useState(0);
+	const [isOpened, setOpen] = useState(false);
 	const billsSchema = z.object({
-		title: z.string().min(1, "Título é um campo obrigatório."),
+		name: z.string().min(1, "Título é um campo obrigatório."),
 		value: z.number().positive("O valor deve ser maior que 0"),
 		billType: z
 			.string()
@@ -54,6 +55,7 @@ export function NewBillDialog({ triggerButton }: CancelSessionDialogProps) {
 		// } else {
 		toast.success("Conta criada com sucesso.");
     console.log(response)
+		setOpen(false);
 		// }
 	};
 	const methods = useForm<BillsColumns>({
@@ -68,7 +70,7 @@ export function NewBillDialog({ triggerButton }: CancelSessionDialogProps) {
 
 	return (
 		<>
-			<Dialog>
+			<Dialog open={isOpened} onOpenChange={setOpen}>
 				<DialogTrigger asChild>{triggerButton}</DialogTrigger>
 				<DialogContent className="lg:w-[40vw]">
 					<DialogHeader>
@@ -91,7 +93,7 @@ export function NewBillDialog({ triggerButton }: CancelSessionDialogProps) {
 								<div>
 									<InputText
 										type="text"
-										name="title"
+										name="name"
 										id="title"
 										label="Nome da conta:"
 										placeholder="Título"
@@ -206,11 +208,9 @@ export function NewBillDialog({ triggerButton }: CancelSessionDialogProps) {
 							</div>
 						</div>
 						<div className="flex w-full justify-end gap-4">
-							<DialogClose asChild >
 								<Button className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70" type="submit">
 									Confirmar
 								</Button>
-							</DialogClose>
 						</div>
 					</form>
 				</DialogContent>
