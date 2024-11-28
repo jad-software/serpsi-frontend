@@ -4,10 +4,10 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-	DialogDescription,
+	DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { InputText } from "@/components/form/InputText";
 import {
@@ -22,14 +22,18 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { set, z } from "zod";
 import { BillsColumns } from "./columns";
-import { setBills } from "@/services/billsService";
+import { updateOneBill } from "@/services/billsService";
 
-type newBillDialogProps = {
+type updateOneBillDialogProps = {
 	triggerButton: ReactNode;
+	bill: BillsColumns;
 };
 
-export function NewBillDialog({ triggerButton }: newBillDialogProps) {
-  const [value, setValue] = useState(0);
+export function UpdateOneBillDialog({
+	triggerButton,
+	bill
+}: updateOneBillDialogProps) {
+	
 	const [isOpened, setOpen] = useState(false);
 	const billsSchema = z.object({
 		name: z.string().min(1, "Título é um campo obrigatório."),
@@ -44,23 +48,32 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 			}, z.coerce.date().optional())
 			.refine((val) => val !== undefined, {
 				message: "Data de vencimento é obrigatória."
-			})
+			}),
+		paymentDate: z.preprocess((val) => {
+			return val === "" ? undefined : val;
+		}, z.coerce.date().optional())
 	});
 
 	const onSubmit = async (data: BillsColumns) => {
-		const response = await setBills(data);
+		const response = await updateOneBill(data);
 		// if (response?.error) {
 		// 	toast.error("Algo de errado aconteceu.");
 		// } else {
 		toast.success("Conta criada com sucesso.");
-    console.log(response)
+		console.log(response);
 		setOpen(false);
 		// }
 	};
 	const methods = useForm<BillsColumns>({
-		resolver: zodResolver(billsSchema)
+		resolver: zodResolver(billsSchema),
 	});
-  const changeMeetValue = (value: string) => {
+	const [value, setValue] = useState(0);
+	useEffect(() => {
+		methods.reset({...bill});
+	}, [bill, methods]);
+
+
+	const changeMeetValue = (value: string) => {
 		let number = +value.slice(2).replaceAll(".", "").replaceAll(",", ".");
 		setValue(number);
 		methods.setValue("value", +number);
@@ -164,10 +177,11 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 													);
 											return nextState;
 										}}
-                    {...methods.register("value", {
-                      valueAsNumber: true,
-                      onChange: (e) => changeMeetValue(e.target.value)
-                    })}
+										{...methods.register("value", {
+											valueAsNumber: true,
+											onChange: (e) =>
+												changeMeetValue(e.target.value)
+										})}
 									/>
 								</div>
 								<div>
@@ -207,9 +221,12 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 							</div>
 						</div>
 						<div className="flex w-full justify-end gap-4">
-								<Button className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70" type="submit">
-									Confirmar
-								</Button>
+							<Button
+								className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70"
+								type="submit"
+							>
+								Confirmar
+							</Button>
 						</div>
 					</form>
 				</DialogContent>

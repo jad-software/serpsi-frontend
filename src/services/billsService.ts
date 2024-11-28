@@ -127,7 +127,7 @@ export async function setBills(data: BillsColumns) {
   return data;
 }
 
-export async function updateBills(data: BillsColumns[], paymentDate: Date) {
+export async function updateManyBills(data: BillsColumns[], paymentDate: Date) {
   // const jwt = cookies().get("Authorization")?.value!;
   // const sub = cookies().get("sub")?.value!;
   // if (jwt) {
@@ -147,3 +147,25 @@ export async function updateBills(data: BillsColumns[], paymentDate: Date) {
   // }
   return data;
 }
+
+export async function updateOneBill(data: BillsColumns) {
+  // const jwt = cookies().get("Authorization")?.value!;
+  // const sub = cookies().get("sub")?.value!;
+  // if (jwt) {
+  //   let response = await fetch(
+  //     process.env.BACKEND_URL + "/bills" + sub,
+  //     {
+  //       method: "PUT",
+  //       next: { revalidate: 30 },
+  //       headers: {
+  //         Authorization: jwt,
+  //         "Content-Type": "application/json"
+  //       },
+  //       body: JSON.stringify(data)
+  //     }
+  //   );
+  //   return response;
+  // }
+  return data;
+}
+

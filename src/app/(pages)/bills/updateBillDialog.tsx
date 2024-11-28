@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { BillsColumns } from "./columns";
-import { updateBills } from "@/services/billsService";
+import { updateManyBills } from "@/services/billsService";
 import { Row } from "@tanstack/react-table";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 
@@ -59,7 +59,7 @@ export function UpdateBillDialog({
 	const [isOpened, setOpen] = useState(false);
 	const onSubmit = async (data: UpdateBills) => {
 		console.log("data", data);
-		const response = await updateBills(data.bills, data.paymentDate);
+		const response = await updateManyBills(data.bills, data.paymentDate);
 		// if (response?.error) {
 		// 	toast.error("Algo de errado aconteceu.");
 		// } else {
