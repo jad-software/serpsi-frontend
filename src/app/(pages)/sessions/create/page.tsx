@@ -14,13 +14,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 const sessionSchema = z.object({
   startDate: z.string().min(1, "A data da primeira sessão é obrigatória."),
-  frequency: z.string().min(1, "A frequência da Sessão é obrifatória"),
+  frequency: z.string().min(1, "A frequência da Sessão é obrigatória"),
   sessionValue: z
     .string()
     .regex(
       /^R\$ (\d{1,3}(\.\d{3})*|\d+),\d{2}$/,
-      "O valor da sessão deve ser um valor monetário válido (ex: R$ 123,45 ou R$ 1.234,56)."
-    ).min(1, 'O valor da sessão é obrigátorio'),
+      "O valor da sessão é obrigatório"
+    ).refine(
+      (value) => {
+        const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100; 
+        return numericValue > 0;
+      },
+      {
+        message: "O valor da sessão deve ser maior que R$ 0",
+      }
+    ),
   startTime: z.string().min(1, "O horário da sessão é obrigatório."),
   sessionCount: z.number().positive("O número de sessões deve ser maior que zero."),
   paymentMethod: z.string().optional(),
@@ -47,19 +55,18 @@ export default function CreateSession() {
   const { register, handleSubmit, formState, control, setValue } = methods;
   const { errors } = formState;
 
-  // Função para formatar valores no formato monetário
+
   const formatToCurrency = (value: string) => {
-    if (!value) return "R$ 0,00"; // Valor vazio retorna o padrão
-    const numericValue = value.replace(/[^\d]/g, ""); // Remove tudo que não é número
-    const num = parseFloat(numericValue) / 100; // Divide por 100 para adicionar as casas decimais
-    return `R$ ${num.toFixed(2).replace(".", ",")}`; // Formata para moeda brasileira
+    if (!value) return "R$ 0,00";
+    const numericValue = value.replace(/[^\d]/g, "");
+    const num = parseFloat(numericValue) / 100; 
+    return `R$ ${num.toFixed(2).replace(".", ",")}`; 
   };
 
-  // Função para lidar com mudanças no campo "Valor da Sessão"
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/[^\d]/g, ""); // Remove caracteres inválidos
-    const formattedValue = formatToCurrency(rawValue); // Formata o valor para moeda
-    setValue("sessionValue", formattedValue, { shouldValidate: true }); // Atualiza o valor no formulário
+    const rawValue = e.target.value.replace(/[^\d]/g, ""); 
+    const formattedValue = formatToCurrency(rawValue); 
+    setValue("sessionValue", formattedValue, { shouldValidate: true });
   };
 
   const onSubmit = (data: SessionData) => {
