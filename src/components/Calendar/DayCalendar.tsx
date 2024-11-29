@@ -64,6 +64,7 @@ export default function DayView({ dateSelected }: DayViewProps) {
 						alt="Sem Consultas"
 						width={256}
 						height={256}
+						className="w-4/5 sm:w-1/4 lg:w-1/2"
 					/>
 					<br />
 					<p className="text-center text-gray-600">

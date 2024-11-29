@@ -5,6 +5,7 @@ import {
 } from "@heroicons/react/outline";
 
 import { useState, useEffect } from "react";
+import { Button } from "../ui/button";
 
 interface DayCardProps {
 	day: number;
@@ -25,10 +26,22 @@ function DayCard({
 	const selectedClass = selected
 		? " rounded-md border bg-primary-600 text-white"
 		: "";
-	const hasMeetingClass = hasMeeting ? " bg-primary-600" : " bg-white";
+
+	const getMeetingClass = () => {
+		if (hasMeeting) {
+			if (selected) {
+				return " bg-white";
+			}
+			return " bg-primary-600";
+		}
+	};
+	const hasMeetingClass = getMeetingClass();
 
 	return (
-		<div className="flex h-full min-h-10 w-full min-w-10 border">
+		<div
+			className="flex h-full min-h-10 w-full min-w-10 cursor-pointer border hover:bg-gray-100"
+			onClick={props.onClick}
+		>
 			<div
 				className={
 					"flex w-full flex-grow flex-col items-center justify-center" +
@@ -57,6 +70,7 @@ export default function MonthView({
 	const [firstDayOffset, setFirstDayOffset] = useState(0);
 	const [previousMonthDays, setPreviousMonthDays] = useState<number[]>([]);
 	const [nextMonthDays, setNextMonthDays] = useState<number[]>([]);
+	const [showDateInput, setShowDateInput] = useState(false);
 
 	useEffect(() => {
 		const year = selectedDate.getFullYear();
@@ -87,11 +101,32 @@ export default function MonthView({
 		setNextMonthDays(nextDays);
 	}, [selectedDate]);
 
-	const handleDateClick = (day: number, disabled: boolean = false) => {
-		if (disabled || !onDateSelect) return;
+	const handleDateClick = (
+		day: number,
+		isPrevMonth: boolean = false,
+		isNextMonth: boolean = false
+	) => {
+		const year = selectedDate.getFullYear();
+		const month = selectedDate.getMonth();
 
-		const newDate = new Date(selectedDate);
-		newDate.setDate(day);
+		let targetMonth = month;
+		let targetYear = year;
+
+		if (isPrevMonth) {
+			targetMonth = month - 1;
+			if (targetMonth < 0) {
+				targetMonth = 11;
+				targetYear--;
+			}
+		} else if (isNextMonth) {
+			targetMonth = month + 1;
+			if (targetMonth > 11) {
+				targetMonth = 0;
+				targetYear++;
+			}
+		}
+
+		const newDate = new Date(targetYear, targetMonth, day);
 		onDateSelect(newDate);
 	};
 
@@ -124,22 +159,87 @@ export default function MonthView({
 		}
 	};
 
+	const handlePreviousMonth = () => {
+		const newDate = new Date(selectedDate);
+		newDate.setMonth(selectedDate.getMonth() - 1);
+		onDateSelect(newDate);
+	};
+
+	const handleNextMonth = () => {
+		const newDate = new Date(selectedDate);
+		newDate.setMonth(selectedDate.getMonth() + 1);
+		onDateSelect(newDate);
+	};
+
+	const handleDateInput = () => {
+		const dateInput = document.getElementById(
+			"date-picker"
+		) as HTMLInputElement;
+		if (dateInput) {
+			dateInput.showPicker();
+		}
+	};
+
+	const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const selectedDate = new Date(e.target.value);
+		const actualDate = new Date(selectedDate);
+		actualDate.setDate(selectedDate.getDate() + 1);
+		onDateSelect(actualDate);
+	};
+
 	const mes = getMonthString(selectedDate.getMonth());
 	const ano = selectedDate.getFullYear();
 
+	const formatDateValue = () => {
+		try {
+			return selectedDate.toISOString().split("T")[0];
+		} catch (error) {
+			return new Date().toISOString().split("T")[0];
+		}
+	};
+
+	// Add this useEffect to handle invalid dates
+	useEffect(() => {
+		if (!selectedDate || isNaN(selectedDate.getTime())) {
+			onDateSelect(new Date());
+		}
+	}, [selectedDate, onDateSelect]);
+
 	return (
-		<section className="hidden min-h-[30rem] w-2/5 flex-col rounded-xl border border-primary-600 bg-white px-8 py-5 lg:flex">
+		<section className="hidden min-h-[30rem] w-2/5 flex-col rounded-xl border border-primary-600 bg-white px-4 py-5 lg:flex">
 			<div className="flex w-full items-center justify-between">
-				<ChevronLeftIcon width={24} />
+				<Button
+					variant={"ghost"}
+					onClick={handlePreviousMonth}
+					size={"icon"}
+				>
+					<ChevronLeftIcon width={24} />
+				</Button>
 				<div className="flex w-1/3 items-end justify-center">
-					<h1 className="text-3xl">
+					<h1 className="lg:text-3xl">
 						{mes},&nbsp;{ano}
 					</h1>
-					<span>
-						<PencilIcon width={20} className="mb-2 ml-1" />
+					<span
+						onClick={handleDateInput}
+						className="ml-1 cursor-pointer p-2 hover:rounded-full hover:bg-gray-100"
+					>
+						<PencilIcon width={20} className="" />
 					</span>
+					<input
+						id="date-picker"
+						type="date"
+						className="invisible absolute"
+						value={formatDateValue()}
+						onChange={handleDateInputChange}
+					/>
 				</div>
-				<ChevronRightIcon width={24} />
+				<Button
+					variant={"ghost"}
+					onClick={handleNextMonth}
+					size={"icon"}
+				>
+					<ChevronRightIcon width={24} />
+				</Button>
 			</div>
 			<div className="mt-3 grid w-full flex-grow grid-cols-7 text-center text-sm">
 				<span>Dom.</span>
@@ -155,7 +255,7 @@ export default function MonthView({
 						key={`prev-${day}`}
 						day={day}
 						disabled
-						onClick={() => handleDateClick(day, true)}
+						onClick={() => handleDateClick(day, true, false)}
 					/>
 				))}
 
@@ -165,7 +265,7 @@ export default function MonthView({
 						key={`current-${day}`}
 						day={day}
 						selected={day === selectedDate.getDate()}
-						onClick={() => handleDateClick(day)}
+						onClick={() => handleDateClick(day, false, false)}
 					/>
 				))}
 
@@ -175,7 +275,7 @@ export default function MonthView({
 						key={`next-${day}`}
 						day={day}
 						disabled
-						onClick={() => handleDateClick(day, true)}
+						onClick={() => handleDateClick(day, false, true)}
 					/>
 				))}
 			</div>
