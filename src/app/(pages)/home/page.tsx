@@ -14,6 +14,7 @@ import { useState } from "react";
 
 export default function Home() {
 	const [viewMode, setViewMode] = useState<"day" | "week">("day");
+	const [dateSelected, setDateSelected] = useState<Date>(new Date());
 	return (
 		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-12">
 			<div className="mb-2 mt-1 flex w-full flex-col items-center justify-between md:flex-row">
@@ -41,8 +42,11 @@ export default function Home() {
 				/>
 			</div>
 			<div className="flex h-full w-full flex-grow items-center justify-around rounded-xl border border-primary-600 bg-primary-100 p-8 lg:p-0">
-				<MonthView />
-				<DayView />
+				<MonthView
+					selectedDate={dateSelected}
+					onDateSelect={setDateSelected}
+				/>
+				<DayView dateSelected={dateSelected} />
 			</div>
 		</main>
 	);
