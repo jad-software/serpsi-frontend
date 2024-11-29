@@ -31,18 +31,18 @@ export default function CreateSession() {
                 className="h-24 w-24 rounded-full object-cover"
               />
               <div>
-                <p><strong>Nome:</strong> Roberto Santos</p>
-                <p><strong>Nascimento:</strong> 31/12/2000</p>
-                <p><strong>CPF:</strong> 000.000.000-00</p>
-                <p><strong>Tel:</strong> (00) 00000-0000</p>
+                <p>Nome: Roberto Santos</p>
+                <p>Nascimento: 31/12/2000</p>
+                <p>CPF: 000.000.000-00</p>
+                <p>Tel: (00) 00000-0000</p>
               </div>
             </div>
 
             <div>
-              <p><strong>Responsável:</strong> Roberta Mãe</p>
-              <p><strong>Nascimento:</strong> 31/12/2000</p>
-              <p><strong>CPF:</strong> 000.000.000-00</p>
-              <p><strong>Tel:</strong> (00) 00000-0000</p>
+              <p>Responsável: Roberta Mãe</p>
+              <p>Nascimento: 31/12/2000</p>
+              <p>CPF: 000.000.000-00</p>
+              <p>Tel: (00) 00000-0000</p>
             </div>
           </div>
 
@@ -107,9 +107,9 @@ export default function CreateSession() {
                 className="w-full rounded border h-11 border-primary-400 p-2 focus:ring focus:ring-primary-400"
               />
               <label className="block text-gray-700 font-medium mt-4 mb-2">Forma de pagamento:</label>
-              <Select>
-                <SelectTrigger className="w-full h-11 border-primary-400 focus:ring focus:ring-primary-400">
-                  <SelectValue placeholder="Selecione a forma de pagamento..." />
+              <Select disabled>
+                <SelectTrigger className="w-full h-11 border-primary-400 focus:ring focus:ring-primary-400 bg-gray-100">
+                  <SelectValue placeholder="A Definir" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="DINHEIRO">Dinheiro</SelectItem>
