@@ -5,6 +5,7 @@ import Link from "next/link";
 import CriarSessao from './criar-sessao.svg';
 import psiImage from "/public/img/avatar.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import InputMask from "react-input-mask-next";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
@@ -14,7 +15,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const sessionSchema = z.object({
   startDate: z.string().min(1, "A data da primeira sessão é obrigatória."),
   frequency: z.string().min(1, "A frequência da Sessão é obrifatória"),
-  sessionValue: z.string().min(1, "O valor da sessão é obrigatório."),
+  sessionValue: z
+    .string()
+    .regex(
+      /^R\$ (\d{1,3}(\.\d{3})*|\d+),\d{2}$/,
+      "O valor da sessão deve ser um valor monetário válido (ex: R$ 123,45 ou R$ 1.234,56)."
+    ).min(1, 'O valor da sessão é obrigátorio'),
   startTime: z.string().min(1, "O horário da sessão é obrigatório."),
   sessionCount: z.number().positive("O número de sessões deve ser maior que zero."),
   paymentMethod: z.string().optional(),
@@ -38,13 +44,28 @@ export default function CreateSession() {
     mode: "onChange",
   });
 
-  const { register, handleSubmit, formState, control } = methods;
+  const { register, handleSubmit, formState, control, setValue } = methods;
   const { errors } = formState;
+
+  // Função para formatar valores no formato monetário
+  const formatToCurrency = (value: string) => {
+    if (!value) return "R$ 0,00"; // Valor vazio retorna o padrão
+    const numericValue = value.replace(/[^\d]/g, ""); // Remove tudo que não é número
+    const num = parseFloat(numericValue) / 100; // Divide por 100 para adicionar as casas decimais
+    return `R$ ${num.toFixed(2).replace(".", ",")}`; // Formata para moeda brasileira
+  };
+
+  // Função para lidar com mudanças no campo "Valor da Sessão"
+  const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/[^\d]/g, ""); // Remove caracteres inválidos
+    const formattedValue = formatToCurrency(rawValue); // Formata o valor para moeda
+    setValue("sessionValue", formattedValue, { shouldValidate: true }); // Atualiza o valor no formulário
+  };
 
   const onSubmit = (data: SessionData) => {
     console.log("Form Data:", data);
-    // Adicione sua lógica de envio de dados aqui
   };
+
   return (
     <main className="flex flex-col items-center justify-center px-4 py-5 lg:px-10 bg-white">
       <div className="mb-4 w-full">
@@ -141,10 +162,16 @@ export default function CreateSession() {
                 <input
                   type="text"
                   {...register("sessionValue")}
-                  placeholder="R$ 100,00"
-                  className={`w-full h-11 rounded border ${errors.sessionValue ? 'border-red-500' : 'border-primary-400'} p-2 focus:ring`}
+                  onChange={handleCurrencyChange}
+                  placeholder="R$ 0,00"
+                  className={`w-full h-11 rounded border ${errors.sessionValue ? "border-red-500" : "border-primary-400"
+                    } p-2 focus:ring`}
                 />
-                {errors.sessionValue && <p className="text-sm text-red-500">{errors.sessionValue.message}</p>}
+                {errors.sessionValue && (
+                  <p className="text-sm text-red-500">{errors.sessionValue.message}</p>
+                )}
+
+
               </div>
 
               <div>
