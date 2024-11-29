@@ -10,13 +10,20 @@ import { Button } from "@/components/ui/button";
 import { ReactNode, useState } from "react";
 import { InputText } from "@/components/form/InputText";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { BillsColumns } from "./columns";
 import { updateManyBills } from "@/services/billsService";
 import { Row } from "@tanstack/react-table";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from "@/components/ui/select";
 
 type updateManyBillDialogProps = {
 	triggerButton: ReactNode;
@@ -26,6 +33,7 @@ type updateManyBillDialogProps = {
 type UpdateBills = {
 	bills: BillsColumns[];
 	paymentDate: Date;
+	paymentType: string;
 };
 
 export function UpdateManyBillDialog({
@@ -47,6 +55,10 @@ export function UpdateManyBillDialog({
 					})
 			})
 		),
+		paymentType: z
+			.string()
+			.min(5, "Tipo é um campo obrigatório.")
+			.transform((val) => val?.toUpperCase()),
 		paymentDate: z
 			.preprocess((val) => {
 				return val === "" ? undefined : val;
@@ -97,7 +109,7 @@ export function UpdateManyBillDialog({
 						})}
 					>
 						<div className="flex w-full gap-6">
-							<div className="flex max-h-[300px] w-full flex-col overflow-auto">
+							<div className="flex max-h-[200px] w-full flex-col overflow-auto">
 								{bills.map((bill) => (
 									<div
 										key={bill.original.id}
@@ -122,6 +134,46 @@ export function UpdateManyBillDialog({
 										type="date"
 										name="paymentDate"
 										register={methods.register}
+									/>
+								</div>
+								<div>
+									<label
+										htmlFor="paymentType"
+										className="mb-1 w-full text-sm font-normal text-primary-950"
+									>
+										Forma de pagamento:
+									</label>
+									<Controller
+										name="paymentType"
+										control={methods.control}
+										render={({ field }) => (
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<SelectTrigger
+													className={
+														"w-full border-primary-600 focus:ring-primary-500"
+													}
+												>
+													<SelectValue placeholder="Selecione a forma de pagamento  " />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="PIX">
+														Pix
+													</SelectItem>
+													<SelectItem value="TRANSFERÊNCIA">
+														Transferência
+													</SelectItem>
+													<SelectItem value="CARTAO">
+														Cartão
+													</SelectItem>
+													<SelectItem value="DINHEIRO">
+														Dinheiro
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										)}
 									/>
 								</div>
 							</div>

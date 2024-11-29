@@ -12,6 +12,7 @@ export type BillsColumns = {
 	value: number;
 	dueDate: Date;
 	paymentDate?: Date;
+	paymentType?: string;
 };
 
 export const columns: ColumnDef<BillsColumns>[] = [

@@ -57,6 +57,11 @@ export function UpdateOneBillDialog({
 			.refine((val) => val !== undefined, {
 				message: "Data de vencimento é obrigatória."
 			}),
+		paymentType: z
+			.string()
+			.min(5, "Tipo é um campo obrigatório.")
+			.optional()
+			.transform((val) => val?.toUpperCase()),
 		paymentDate: z.preprocess((val) => {
 			return val === "" ? undefined : val;
 		}, z.coerce.date().optional())
@@ -65,6 +70,7 @@ export function UpdateOneBillDialog({
 	const onSubmit = async (data: BillsColumns) => {
 		if (!hasPaymentDate) {
 			data.paymentDate = undefined;
+			data.paymentType = undefined;
 		}
 		const response = await updateOneBill(data);
 		// if (response?.error) {
@@ -82,9 +88,7 @@ export function UpdateOneBillDialog({
 		methods.reset({ ...bill });
 		setValue(bill.value);
 		setDueDate(bill.dueDate as Date);
-		setHasPaymentDate(false);
 		if (bill.paymentDate) {
-			console.log("tem paymentDate");
 			setHasPaymentDate(true);
 			setPaymentDate(bill.paymentDate as Date);
 		}
@@ -123,9 +127,9 @@ export function UpdateOneBillDialog({
 							) : null}
 						</DialogTitle>
 						<DialogDescription>
-							{isUpdating ? (
-								<p>Atualize as informações da conta.</p>
-							) : null}
+							{isUpdating
+								? "Atualize as informações da conta."
+								: null}
 						</DialogDescription>
 					</DialogHeader>
 					<form
@@ -203,67 +207,50 @@ export function UpdateOneBillDialog({
 										htmlFor="paymentDate"
 										className="mb-1 w-full text-sm font-normal text-primary-950"
 									>
-										Data de Pagamento:
+										Data de Pagamento:{" "}
 									</label>
 									{isUpdating ? (
 										<>
 											<Checkbox
 												checked={hasPaymentDate}
 												onCheckedChange={() => {
-													if (!hasPaymentDate) {
-														methods.unregister(
-															"paymentDate"
-														);
-													}
 													setHasPaymentDate(
 														!hasPaymentDate
 													);
 												}}
 												className="h-4 w-4"
 											/>
-											{hasPaymentDate ? (
-												<Input
-													className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
-													type="date"
-													error={
-														methods.formState.errors
-															.paymentDate
-															?.message
-													}
-													value={
-														(paymentDate as Date)
-															.toISOString()
-															.split("T")[0]
-													}
-													{...methods.register(
-														"paymentDate",
-														{
-															setValueAs: (
-																val
-															) => {
-																setPaymentDate(
-																	new Date(
-																		val
-																	)
-																);
-																return val;
-															},
-															onChange: (e) =>
-																setPaymentDate(
-																	new Date(
-																		e.target.value
-																	)
+											<Input
+												className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
+												type="date"
+												disabled={!hasPaymentDate}
+												error={
+													methods.formState.errors
+														.paymentDate?.message
+												}
+												value={
+													(paymentDate as Date)
+														.toISOString()
+														.split("T")[0]
+												}
+												{...methods.register(
+													"paymentDate",
+													{
+														setValueAs: (val) => {
+															setPaymentDate(
+																new Date(val)
+															);
+															return val;
+														},
+														onChange: (e) =>
+															setPaymentDate(
+																new Date(
+																	e.target.value
 																)
-														}
-													)}
-												/>
-											) : (
-												<Input
-													className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
-													type="date"
-													disabled
-												/>
-											)}
+															)
+													}
+												)}
+											/>
 										</>
 									) : (
 										<p className="mb-1 w-full text-sm font-normal text-primary-950">
@@ -405,6 +392,59 @@ export function UpdateOneBillDialog({
 									) : (
 										<p className="mb-1 w-full text-sm font-normal text-primary-950">
 											{methods.getValues("billType")}
+										</p>
+									)}
+								</div>
+								<div>
+									<label
+										htmlFor="paymentType"
+										className="mb-1 w-full text-sm font-normal text-primary-950"
+									>
+										Forma de pagamento:
+									</label>
+									{isUpdating ? (
+										<Controller
+											name="paymentType"
+											control={methods.control}
+											render={({ field }) => (
+												<Select
+													disabled={!hasPaymentDate}
+													onValueChange={
+														field.onChange
+													}
+													value={field.value}
+												>
+													<SelectTrigger
+														className={
+															"w-full border-primary-600 focus:ring-primary-500"
+														}
+													>
+														<SelectValue placeholder="Selecione a forma de pagamento  " />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="PIX">
+															Pix
+														</SelectItem>
+														<SelectItem value="TRANSFERÊNCIA">
+															Transferência
+														</SelectItem>
+														<SelectItem value="CARTAO">
+															Cartão
+														</SelectItem>
+														<SelectItem value="DINHEIRO">
+															Dinheiro
+														</SelectItem>
+													</SelectContent>
+												</Select>
+											)}
+										/>
+									) : (
+										<p className="mb-1 w-full text-sm font-normal text-primary-950">
+											{hasPaymentDate
+												? methods.getValues(
+														"paymentType"
+													)
+												: "-"}
 										</p>
 									)}
 								</div>
