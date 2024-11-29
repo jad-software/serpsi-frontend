@@ -4,7 +4,7 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-	DialogDescription,
+	DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ReactNode, useState } from "react";
@@ -29,7 +29,7 @@ type newBillDialogProps = {
 };
 
 export function NewBillDialog({ triggerButton }: newBillDialogProps) {
-  const [value, setValue] = useState(0);
+	const [value, setValue] = useState(0);
 	const [isOpened, setOpen] = useState(false);
 	const billsSchema = z.object({
 		name: z.string().min(1, "Título é um campo obrigatório."),
@@ -53,14 +53,14 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 		// 	toast.error("Algo de errado aconteceu.");
 		// } else {
 		toast.success("Conta criada com sucesso.");
-    console.log(response)
+		console.log(response);
 		setOpen(false);
 		// }
 	};
 	const methods = useForm<BillsColumns>({
 		resolver: zodResolver(billsSchema)
 	});
-  const changeMeetValue = (value: string) => {
+	const changeMeetValue = (value: string) => {
 		let number = +value.slice(2).replaceAll(".", "").replaceAll(",", ".");
 		setValue(number);
 		methods.setValue("value", +number);
@@ -90,23 +90,38 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 						<div className="flex w-full gap-6">
 							<div className="flex w-full flex-col gap-4">
 								<div>
-									<InputText
+									<label
+										htmlFor="name"
+										className="mb-1 w-full text-sm font-normal text-primary-950"
+									>
+										Nome da conta:
+									</label>
+									<Input
+										className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
 										type="text"
-										name="name"
-										id="title"
-										label="Nome da conta:"
 										placeholder="Título"
-										register={methods.register}
+										error={
+											methods.formState.errors.name
+												?.message
+										}
+										{...methods.register("name")}
 									/>
 								</div>
 								<div>
-									<InputText
-										id="due-date"
-										label="Data de vencimento:"
-										placeholder="dd/mm/aaaa"
+									<label
+										htmlFor="dueDate"
+										className="mb-1 w-full text-sm font-normal text-primary-950"
+									>
+										Data de vencimento:
+									</label>
+									<Input
+										className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
 										type="date"
-										name="dueDate"
-										register={methods.register}
+										error={
+											methods.formState.errors.dueDate
+												?.message
+										}
+										{...methods.register("dueDate")}
 									/>
 								</div>
 							</div>
@@ -124,6 +139,10 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 										id="value"
 										placeholder="Valor da conta"
 										mask={"R$ 999.999.999,99"}
+										error={
+											methods.formState.errors.value
+												?.message
+										}
 										beforeMaskedStateChange={({
 											nextState
 										}) => {
@@ -164,10 +183,11 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 													);
 											return nextState;
 										}}
-                    {...methods.register("value", {
-                      valueAsNumber: true,
-                      onChange: (e) => changeMeetValue(e.target.value)
-                    })}
+										{...methods.register("value", {
+											valueAsNumber: true,
+											onChange: (e) =>
+												changeMeetValue(e.target.value)
+										})}
 									/>
 								</div>
 								<div>
@@ -203,13 +223,24 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 											</Select>
 										)}
 									/>
+									{methods.formState.errors.billType && (
+										<p className="text-sm text-red-400">
+											{
+												methods.formState.errors
+													.billType?.message
+											}
+										</p>
+									)}
 								</div>
 							</div>
 						</div>
 						<div className="flex w-full justify-end gap-4">
-								<Button className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70" type="submit">
-									Confirmar
-								</Button>
+							<Button
+								className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70"
+								type="submit"
+							>
+								Confirmar
+							</Button>
 						</div>
 					</form>
 				</DialogContent>

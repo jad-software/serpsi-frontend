@@ -9,7 +9,6 @@ import {
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
-	Row,
 	useReactTable
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
@@ -22,8 +21,7 @@ import {
 	SelectContent,
 	SelectItem
 } from "@/components/ui/select";
-import { UpdateBillDialog } from "./updateBillDialog";
-import { DocumentColumns } from "../documents/columns";
+import { UpdateManyBillDialog } from "./updateManyBillDialog";
 
 export default function BillsPage() {
 	const [data, setData] = useState({} as BillsColumns[]);
@@ -121,7 +119,7 @@ export default function BillsPage() {
 					/>
 				}
 				selectedAction={
-					<UpdateBillDialog
+					<UpdateManyBillDialog
 						triggerButton={
 							<Button
 								variant="link"

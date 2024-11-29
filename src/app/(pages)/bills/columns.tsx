@@ -3,14 +3,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { UpdateOneBillDialog } from "./updateOneBillDialog";
+import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 
 export type BillsColumns = {
 	id: string;
 	name: string;
 	billType: string;
 	value: number;
-	paymentDate: string;
-	dueDate: string;
+	dueDate: Date;
+	paymentDate?: Date;
 };
 
 export const columns: ColumnDef<BillsColumns>[] = [
@@ -48,10 +49,14 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		size: 70,
 		cell: ({ row }) => (
 			<UpdateOneBillDialog
-			bill={row.original}
-			triggerButton={
-				<PencilAltIcon width={24} height={24} className="text-primary-600" />
-			}
+				bill={row.original}
+				triggerButton={
+					<PencilAltIcon
+						width={24}
+						height={24}
+						className="text-primary-600"
+					/>
+				}
 			/>
 		)
 	},
@@ -64,12 +69,21 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		accessorKey: "billType",
 		header: "Tipo",
 		cell: (e) => {
+			let value = e.getValue() as string;
+			if(e.row.original.paymentDate){
+				if(value.toUpperCase() == "A PAGAR"){
+					value = "PAGO"
+				}
+				else if(value.toUpperCase() == "A RECEBER"){
+					value = "RECEBIDO"
+				}
+			}
 			let className =
-				e.getValue() == "A pagar" || e.getValue() == "A receber"
+			value.toUpperCase() == "A PAGAR" || value.toUpperCase() == "A RECEBER"
 					? "text-orange-600"
 					: "text-green-600";
-			return (e.getValue() as string) ? (
-				<p className={className}>{e.getValue() as string}</p>
+			return (value as string) ? (
+				<p className={className}>{value.at(0)?.toUpperCase() + value.slice(1).toLowerCase()}</p>
 			) : (
 				<p>-</p>
 			);
@@ -89,14 +103,21 @@ export const columns: ColumnDef<BillsColumns>[] = [
 	{
 		accessorKey: "dueDate",
 		header: "Data de vencimento",
+		cell: (e) => {
+			return e.getValue() ? (
+				<p>{formatDateToddmmYYYY(e.getValue() as Date)}</p>
+			) : (
+				<p>-</p>
+			);
+		},
 		size: 250
 	},
 	{
 		accessorKey: "paymentDate",
 		header: "Data da pagamento",
 		cell: (e) => {
-			return (e.getValue() as string) ? (
-				<p>{e.getValue() as string}</p>
+			return e.getValue() ? (
+				<p>{formatDateToddmmYYYY(e.getValue() as Date)}</p>
 			) : (
 				<p>-</p>
 			);

@@ -18,7 +18,7 @@ import { updateManyBills } from "@/services/billsService";
 import { Row } from "@tanstack/react-table";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 
-type updateBillDialogProps = {
+type updateManyBillDialogProps = {
 	triggerButton: ReactNode;
 	bills: Row<BillsColumns>[];
 };
@@ -28,10 +28,10 @@ type UpdateBills = {
 	paymentDate: Date;
 };
 
-export function UpdateBillDialog({
+export function UpdateManyBillDialog({
 	triggerButton,
 	bills
-}: updateBillDialogProps) {
+}: updateManyBillDialogProps) {
 	const updateBillsSchema = z.object({
 		bills: z.array(
 			z.object({
@@ -63,7 +63,7 @@ export function UpdateBillDialog({
 		// if (response?.error) {
 		// 	toast.error("Algo de errado aconteceu.");
 		// } else {
-		toast.success("Conta criada com sucesso.");
+		toast.success("Contas atualizadas com sucesso.");
 		setOpen(false);
 		// }
 	};
