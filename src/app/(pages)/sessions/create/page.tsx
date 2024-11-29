@@ -1,3 +1,4 @@
+"use client"
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,8 +6,45 @@ import CriarSessao from './criar-sessao.svg';
 import psiImage from "/public/img/avatar.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { z } from "zod";
+import { useForm, FormProvider, Controller } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const sessionSchema = z.object({
+  startDate: z.string().min(1, "A data da primeira sessão é obrigatória."),
+  frequency: z.string().min(1, "A frequência da Sessão é obrifatória"),
+  sessionValue: z.string().min(1, "O valor da sessão é obrigatório."),
+  startTime: z.string().min(1, "O horário da sessão é obrigatório."),
+  sessionCount: z.number().positive("O número de sessões deve ser maior que zero."),
+  paymentMethod: z.string().optional(),
+});
+
+type SessionData = z.infer<typeof sessionSchema>;
+
 
 export default function CreateSession() {
+
+  const methods = useForm<SessionData>({
+    resolver: zodResolver(sessionSchema),
+    defaultValues: {
+      startDate: "",
+      frequency: "",
+      sessionValue: "",
+      startTime: "",
+      sessionCount: 1,
+      paymentMethod: "",
+    },
+    mode: "onChange",
+  });
+
+  const { register, handleSubmit, formState, control } = methods;
+  const { errors } = formState;
+
+  const onSubmit = (data: SessionData) => {
+    console.log("Form Data:", data);
+    // Adicione sua lógica de envio de dados aqui
+  };
   return (
     <main className="flex flex-col items-center justify-center px-4 py-5 lg:px-10 bg-white">
       <div className="mb-4 w-full">
@@ -48,89 +86,135 @@ export default function CreateSession() {
 
 
           <h2 className="text-lg font-semibold text-primary-700 mb-4">Criar próximas sessões:</h2>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Data da primeira sessão:
+                </label>
+                <input
+                  type="date"
+                  {...register("startDate")}
+                  className={`w-full h-11 rounded border ${errors.startDate ? 'border-red-500' : 'border-primary-400'} p-2 focus:ring`}
+                />
+                {errors.startDate && <p className="text-sm text-red-500">{errors.startDate.message}</p>}
 
-            <div>
-              <label
-                className="block text-gray-700 font-medium mb-2">
-                Data da primeira sessão:
-              </label>
-              <input
-                type="date"
-                className="w-full h-11 rounded border 
-                  border-primary-400 p-2 focus:ring focus:ring-primary-400"
-              />
-              <label
-                className="block text-gray-700 font-medium mt-4 mb-2">
-                Frequência das sessões:
-              </label>
-              <Select>
-                <SelectTrigger
-                  className="w-full h-11  border-primary-400 focus:ring focus:ring-primary-400">
-                  <SelectValue placeholder="Selecione a frequência das sessões..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SEMANAL">Semanal</SelectItem>
-                  <SelectItem value="QUINZENAL">Quinzenal</SelectItem>
-                  <SelectItem value="MENSAL">Mensal</SelectItem>
-                </SelectContent>
-              </Select>
-              <label
-                className="block text-gray-700 font-medium mt-4 mb-2">
-                Valor da sessão:
-              </label>
-              <input
-                type="text"
-                placeholder="R$ 100,00"
-                className="w-full h-11 rounded border border-primary-400 p-2 focus:ring focus:ring-primary-400"
-              />
-            </div>
+                <label className="block text-gray-700 font-medium mt-4 mb-2">
+                  Frequência das sessões:
+                </label>
 
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Horário da primeira sessão:</label>
-              <Select>
-                <SelectTrigger className="w-full h-11 border-primary-400 focus:ring focus:ring-primary-400">
-                  <SelectValue placeholder="Selecione o horário..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="08:00">08:00</SelectItem>
-                  <SelectItem value="09:00">09:00</SelectItem>
-                  <SelectItem value="10:00">10:00</SelectItem>
-                  <SelectItem value="11:00">11:00</SelectItem>
-                  <SelectItem value="12:00">12:00</SelectItem>
-                </SelectContent>
-              </Select>
-              <label className="block text-gray-700 font-medium mt-4 mb-2">Número de sessões:</label>
-              <input
-                type="number"
-                placeholder="10"
-                className="w-full rounded border h-11 border-primary-400 p-2 focus:ring focus:ring-primary-400"
-              />
-              <label className="block text-gray-700 font-medium mt-4 mb-2">Forma de pagamento:</label>
-              <Select disabled>
-                <SelectTrigger className="w-full h-11 border-primary-400 focus:ring focus:ring-primary-400 bg-gray-100">
-                  <SelectValue placeholder="A Definir" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DINHEIRO">Dinheiro</SelectItem>
-                  <SelectItem value="CARTAO">Cartão</SelectItem>
-                  <SelectItem value="PIX">PIX</SelectItem>
-                  <SelectItem value="TRANSFERENCIA">Transferência</SelectItem>
-                  <SelectItem value="PENDENTE">Pendente</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="pb-10 w-full md:col-span-2 flex justify-center">
-              {/* <div className="w-full flex items-center justify-center"> */}
-              <Button
-                // onClick={handleSubmit}
-                className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70"
-              >
-                Confirmar
-              </Button>
-              {/* </div> */}
-            </div>
-          </form>
+                <Controller
+                  name="frequency"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={
+                        field.onChange
+                      }
+                      value={
+                        field.value
+                      }
+                    >
+                      <SelectTrigger
+                        className={
+                          errors
+                            .frequency
+                            ? "w-full h-11 border-red-500 focus:ring-red-600"
+                            : "w-full h-11 border-primary-400 focus:ring-primary-500"
+                        }
+                      >
+                        <SelectValue placeholder="Selecione a frequência das sessões..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SEMANAL">Semanal</SelectItem>
+                        <SelectItem value="QUINZENAL">Quinzenal</SelectItem>
+                        <SelectItem value="MENSAL">Mensal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.frequency && <p className="text-sm text-red-500">{errors.frequency.message}</p>}
+
+                <label className="block text-gray-700 font-medium mt-4 mb-2">
+                  Valor da sessão:
+                </label>
+                <input
+                  type="text"
+                  {...register("sessionValue")}
+                  placeholder="R$ 100,00"
+                  className={`w-full h-11 rounded border ${errors.sessionValue ? 'border-red-500' : 'border-primary-400'} p-2 focus:ring`}
+                />
+                {errors.sessionValue && <p className="text-sm text-red-500">{errors.sessionValue.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Horário da primeira sessão:
+                </label>
+                <Controller
+                  name="startTime"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={
+                        field.onChange
+                      }
+                      value={
+                        field.value
+                      }
+                    >
+                      <SelectTrigger
+                        className={
+                          errors
+                            .startTime
+                            ? "w-full h-11 border-red-500 focus:ring-red-600"
+                            : "w-full h-11 border-primary-400 focus:ring-primary-500"
+                        }
+                      >
+                        <SelectValue placeholder="Selecione o horário..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="08:00">08:00</SelectItem>
+                        <SelectItem value="09:00">09:00</SelectItem>
+                        <SelectItem value="10:00">10:00</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.startTime && <p className="text-sm text-red-500">{errors.startTime.message}</p>}
+
+                <label className="block text-gray-700 font-medium mt-4 mb-2">
+                  Número de sessões:
+                </label>
+                <input
+                  type="number"
+                  {...register("sessionCount", { valueAsNumber: true })}
+                  placeholder="10"
+                  className={`w-full h-11 rounded border ${errors.sessionCount ? 'border-red-500' : 'border-primary-400'} p-2 focus:ring`}
+                />
+                {errors.sessionCount && <p className="text-sm text-red-500">{errors.sessionCount.message}</p>}
+
+                <label className="block text-gray-700 font-medium mt-4 mb-2">
+                  Forma de pagamento:
+                </label>
+                <Select {...register("paymentMethod")} disabled>
+                  <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
+                    <SelectValue placeholder="A Definir" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DINHEIRO">Dinheiro</SelectItem>
+                    <SelectItem value="CARTAO">Cartão</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="pb-10 w-full md:col-span-2 flex justify-center">
+                <Button type="submit" className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70">
+                  Confirmar
+                </Button>
+              </div>
+            </form>
+          </FormProvider>
         </div>
 
         <div className="hidden lg:flex items-center">
