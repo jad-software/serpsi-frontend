@@ -6,8 +6,8 @@ import { PlusCircleIcon } from "@heroicons/react/solid";
 export type Patient = {
 	id: string;
 	name: string;
-	paymentPlan: "Mensal" | "Bimestral" | "Trimestral" | "Avulso";
-	documento: string;
+	count_meetings: number;
+	cpf: string;
 };
 
 export const columns: ColumnDef<Patient>[] = [

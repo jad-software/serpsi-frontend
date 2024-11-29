@@ -1,103 +1,48 @@
 "use client";
 
-import { Table, TableCell, TableFooter, TableRow } from "@/components/ui/table";
+import {
+	Table as TableComponent,
+	TableCell,
+	TableFooter,
+	TableRow
+} from "@/components/ui/table";
 import {
 	ColumnDef,
-	getCoreRowModel,
-	useReactTable,
-	getPaginationRowModel,
-	getFilteredRowModel,
-	Row
+	Table
 } from "@tanstack/react-table";
-import { Input } from "../ui/input";
-import Link from "next/link";
 import { PaginationTable } from "./pagination-table";
 import { HeaderTable } from "./header-table";
 import { BodyTable } from "./body-table";
-import { DownloadIcon, SearchIcon } from "@heroicons/react/outline";
-import { useState } from "react";
-import { Button } from "../ui/button";
-import { DownloadFile } from "@/services/utils/downloadFile";
-import { DocumentColumns } from "@/app/(pages)/documents/columns";
+import { ReactNode, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
-	linkTop?: boolean;
-	filteringColumn: string;
-	filteringPlaceHolder: string,
+	linkTop?: ReactNode;
+	selectedAction?: ReactNode;
+	filteringNode: ReactNode;
+	table: Table<TData>;
 }
 export function DataTable<TData, TValue>({
 	columns,
-	data,
 	linkTop,
-	filteringColumn,
-	filteringPlaceHolder
+	selectedAction,
+	filteringNode,
+	table
 }: DataTableProps<TData, TValue>) {
-	const [rowSelection, setRowSelection] = useState({});
-	const table = useReactTable({
-		data,
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		onRowSelectionChange: setRowSelection,
-		state: {
-			rowSelection
-		}
-	});
-
 	return (
 		<section className="flex flex-col items-start gap-2 rounded-[20px] lg:w-4/5">
 			{/* seção de filtros para a tabela */}
-			<section className="flex w-full items-center justify-between gap-4">
-				<div className="border-1 flex max-w-[300px] items-center rounded-lg border px-2">
-					<SearchIcon className="h-6 w-6" />
-					<Input
-						id="busca"
-						className="border-0 text-start focus-visible:ring-0"
-						placeholder={`Procurar por ${filteringPlaceHolder}...`}
-						value={
-							(table
-								.getColumn(filteringColumn)
-								?.getFilterValue() as string) ?? ""
-						}
-						onChange={(event) =>
-							table
-								.getColumn(filteringColumn)
-								?.setFilterValue(event.target.value)
-						}
-					/>
-				</div>
+			<section className="flex w-full items-center justify-start gap-4">
+				{filteringNode ?? null}
 				{/** seção para arquivos selecionados. disponivel apenas para documentos por enquanto */}
-				{table.getFilteredSelectedRowModel().rows.length > 0 ? (
-					<Button
-						variant="link"
-						className="flex items-center justify-center gap-2 text-center text-primary-600"
-						onClick={() =>
-							downloadMultiFiles(
-								table.getFilteredSelectedRowModel().rows as Row<DocumentColumns>[]
-							)
-						}
-					>
-						Baixar arquivos selecionados{" "}
-						<DownloadIcon className="h-4 w-4" />
-					</Button>
-				) : null}
+				{table.getFilteredSelectedRowModel().rows.length > 0 && selectedAction
+					? selectedAction
+					: null}
 			</section>
 			{/* se verdadeiro aparece o Link para cadastrar novo paciente */}
-			{linkTop ? (
-				<section>
-					<Link
-						href="/patients/register"
-						className="text-sm font-medium text-primary-600 underline"
-					>
-						Cadastrar novo paciente
-					</Link>
-				</section>
-			) : null}
+			{linkTop ?? null}
 
-			<Table className="rounded-3xl">
+			<TableComponent className="rounded-3xl">
 				<HeaderTable table={table} />
 				<BodyTable table={table} columns={columns} />
 				<TableFooter>
@@ -111,7 +56,7 @@ export function DataTable<TData, TValue>({
 											.length
 									}{" "}
 									<span className="font-normal">
-										documento(s) selecionados de
+										linha(s) selecionadas de
 									</span>{" "}
 									{table.getPreFilteredRowModel().rows.length}
 								</p>
@@ -124,14 +69,8 @@ export function DataTable<TData, TValue>({
 						</TableCell>
 					</TableRow>
 				</TableFooter>
-			</Table>
+			</TableComponent>
 		</section>
 	);
 }
-async function downloadMultiFiles(rows: Row<DocumentColumns>[]) {
-	await Promise.all(
-		rows.map((value) => {
-			DownloadFile(value.original.docLink, value.original.name + " - " + value.original.title);
-		})
-	);
-}
+
