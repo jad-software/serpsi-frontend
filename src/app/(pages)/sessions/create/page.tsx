@@ -13,7 +13,22 @@ import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const sessionSchema = z.object({
-  startDate: z.string().min(1, "A data da primeira sessão é obrigatória."),
+  startDate: z
+  .string()
+  .min(1, "A data da primeira sessão é obrigatória.")
+  .refine(
+    (value) => {
+      const [year, month, day] = value.split("-").map(Number);
+      const inputDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      return inputDate.getTime() >= today.getTime();
+    },
+    {
+      message: "A data não pode estar no passado.",
+    }
+  ),
   frequency: z.string().min(1, "A frequência da Sessão é obrigatória"),
   sessionValue: z
     .string()
@@ -22,7 +37,7 @@ const sessionSchema = z.object({
       "O valor da sessão é obrigatório"
     ).refine(
       (value) => {
-        const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100; 
+        const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100;
         return numericValue > 0;
       },
       {
@@ -59,13 +74,13 @@ export default function CreateSession() {
   const formatToCurrency = (value: string) => {
     if (!value) return "R$ 0,00";
     const numericValue = value.replace(/[^\d]/g, "");
-    const num = parseFloat(numericValue) / 100; 
-    return `R$ ${num.toFixed(2).replace(".", ",")}`; 
+    const num = parseFloat(numericValue) / 100;
+    return `R$ ${num.toFixed(2).replace(".", ",")}`;
   };
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/[^\d]/g, ""); 
-    const formattedValue = formatToCurrency(rawValue); 
+    const rawValue = e.target.value.replace(/[^\d]/g, "");
+    const formattedValue = formatToCurrency(rawValue);
     setValue("sessionValue", formattedValue, { shouldValidate: true });
   };
 
