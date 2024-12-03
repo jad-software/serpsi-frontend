@@ -108,14 +108,14 @@ export function UpdateManyBillDialog({
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<div className="flex w-full gap-6">
+						<section className="flex w-full gap-6">
 							<div className="flex max-h-[200px] w-full flex-col overflow-auto">
 								{bills.map((bill) => (
 									<div
 										key={bill.original.id}
 										className="border-y border-primary-300"
 									>
-										<p>Título: {bill.original.name}</p>
+										<h2>Título: {bill.original.name}</h2>
 										<p>
 											Venc.:{" "}
 											{formatDateToddmmYYYY(
@@ -177,7 +177,7 @@ export function UpdateManyBillDialog({
 									/>
 								</div>
 							</div>
-						</div>
+						</section>
 						<div className="flex w-full justify-end gap-4">
 							<Button
 								className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70"
