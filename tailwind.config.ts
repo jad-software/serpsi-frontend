@@ -13,10 +13,15 @@ const config: Config = {
 				fadeIn: {
 					"0%": { backgroundColor: "#FFFFFF" },
 					"100%": { backgroundColor: "#E0F3FE" }
+				},
+				loadingPulse: {
+					"0%, 100%": { opacity: "1" },
+					"50%": { opacity: "0.2" }
 				}
 			},
 			animation: {
-				fadeIn: "fadeIn 0.1s ease-in-out forwards"
+				fadeIn: "fadeIn 0.1s ease-in-out forwards",
+				loadingPulse: "loadingPulse 1s ease-in-out infinite"
 			},
 			backgroundImage: {
 				"gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

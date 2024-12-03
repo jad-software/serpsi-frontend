@@ -10,11 +10,37 @@ import {
 	SelectTrigger,
 	SelectValue
 } from "@/components/ui/select";
-import { useState } from "react";
+import { getBusyDays, MonthSessions } from "@/services/calendarService";
+import { useEffect, useState } from "react";
 
 export default function Home() {
 	const [viewMode, setViewMode] = useState<"day" | "week">("day");
 	const [dateSelected, setDateSelected] = useState<Date>(new Date());
+	const [previousMonth, setPreviousMonth] = useState<number>(
+		dateSelected.getMonth()
+	);
+	const [busyDays, setBusyDays] = useState<MonthSessions>([]);
+
+	useEffect(() => {
+		const fetchBusyDays = async () => {
+			if (viewMode === "week") return;
+			if (previousMonth === dateSelected.getMonth() + 1) return;
+
+			setPreviousMonth(dateSelected.getMonth() + 1);
+			try {
+				const response = await getBusyDays(
+					dateSelected.getMonth() + 1,
+					dateSelected.getFullYear()
+				);
+				console.log(response);
+				setBusyDays(response);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+		fetchBusyDays();
+	}, [dateSelected, viewMode, previousMonth]);
+
 	return (
 		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-12">
 			<div className="mb-2 mt-1 flex w-full flex-col items-center justify-between md:flex-row">
@@ -45,6 +71,7 @@ export default function Home() {
 				<MonthView
 					selectedDate={dateSelected}
 					onDateSelect={setDateSelected}
+					busyDays={busyDays}
 				/>
 				<DayView dateSelected={dateSelected} />
 			</div>

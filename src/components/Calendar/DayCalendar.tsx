@@ -68,7 +68,7 @@ export default function DayView({ dateSelected }: DayViewProps) {
 					/>
 					<br />
 					<p className="text-center text-gray-600">
-						Não temos consultas agendadas para o dia{" "}
+						Não existem consultas agendadas para o dia{" "}
 						{dateSelected.getDate()}
 						{"/"}
 						{dateSelected.getMonth() + 1}

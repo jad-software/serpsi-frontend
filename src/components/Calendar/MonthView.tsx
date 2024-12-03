@@ -6,71 +6,24 @@ import {
 
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-
-interface DayCardProps {
-	day: number;
-	hasMeeting?: boolean;
-	disabled?: boolean;
-	selected?: boolean;
-	onClick?: () => void;
-}
-
-function DayCard({
-	day,
-	hasMeeting = false,
-	disabled = false,
-	selected = false,
-	...props
-}: DayCardProps) {
-	const disabledClass = disabled ? " text-black/40" : "";
-	const selectedClass = selected
-		? " rounded-md border bg-primary-600 text-white"
-		: "";
-
-	const getMeetingClass = () => {
-		if (hasMeeting) {
-			if (selected) {
-				return " bg-white";
-			}
-			return " bg-primary-600";
-		}
-	};
-	const hasMeetingClass = getMeetingClass();
-
-	return (
-		<div
-			className="flex h-full min-h-10 w-full min-w-10 cursor-pointer border hover:bg-gray-100"
-			onClick={props.onClick}
-		>
-			<div
-				className={
-					"flex w-full flex-grow flex-col items-center justify-center" +
-					selectedClass
-				}
-			>
-				<span className={"text-3xl" + disabledClass}>{day}</span>
-				<div
-					className={"mx-2 h-1 w-4/5 rounded-lg" + hasMeetingClass}
-				></div>
-			</div>
-		</div>
-	);
-}
+import { MonthSessions } from "@/services/calendarService";
+import DayCard from "./DayCard";
 
 interface MonthViewProps {
 	selectedDate: Date;
 	onDateSelect: (date: Date) => void;
+	busyDays: MonthSessions;
 }
 
 export default function MonthView({
 	selectedDate,
-	onDateSelect
+	onDateSelect,
+	busyDays
 }: MonthViewProps) {
 	const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
 	const [firstDayOffset, setFirstDayOffset] = useState(0);
 	const [previousMonthDays, setPreviousMonthDays] = useState<number[]>([]);
 	const [nextMonthDays, setNextMonthDays] = useState<number[]>([]);
-	const [showDateInput, setShowDateInput] = useState(false);
 
 	useEffect(() => {
 		const year = selectedDate.getFullYear();
@@ -241,44 +194,54 @@ export default function MonthView({
 					<ChevronRightIcon width={24} />
 				</Button>
 			</div>
-			<div className="mt-3 grid w-full flex-grow grid-cols-7 text-center text-sm">
-				<span>Dom.</span>
-				<span>Seg.</span>
-				<span>Ter.</span>
-				<span>Qua.</span>
-				<span>Qui.</span>
-				<span>Sex.</span>
-				<span>Sáb.</span>
-				{/* Previous month days */}
-				{previousMonthDays.map((day) => (
-					<DayCard
-						key={`prev-${day}`}
-						day={day}
-						disabled
-						onClick={() => handleDateClick(day, true, false)}
-					/>
-				))}
 
-				{/* Current month days */}
-				{daysInMonth.map((day) => (
-					<DayCard
-						key={`current-${day}`}
-						day={day}
-						selected={day === selectedDate.getDate()}
-						onClick={() => handleDateClick(day, false, false)}
-					/>
-				))}
+			{busyDays.length <= 0 && (
+				<div className="animate-loadingPulse flex flex-grow items-center justify-center text-center">
+					<p>Carregando...</p>
+				</div>
+			)}
 
-				{/* Next month days */}
-				{nextMonthDays.map((day) => (
-					<DayCard
-						key={`next-${day}`}
-						day={day}
-						disabled
-						onClick={() => handleDateClick(day, false, true)}
-					/>
-				))}
-			</div>
+			{busyDays.length > 0 && (
+				<div className="mt-3 grid w-full flex-grow grid-cols-7 text-center text-sm">
+					<span>Dom.</span>
+					<span>Seg.</span>
+					<span>Ter.</span>
+					<span>Qua.</span>
+					<span>Qui.</span>
+					<span>Sex.</span>
+					<span>Sáb.</span>
+					{/* Previous month days */}
+					{previousMonthDays.map((day) => (
+						<DayCard
+							key={`prev-${day}`}
+							day={day}
+							disabled
+							onClick={() => handleDateClick(day, true, false)}
+						/>
+					))}
+
+					{/* Current month days */}
+					{daysInMonth.map((day, index) => (
+						<DayCard
+							key={`current-${day}`}
+							day={day}
+							selected={day === selectedDate.getDate()}
+							onClick={() => handleDateClick(day, false, false)}
+							hasMeeting={busyDays[index].existsSession}
+						/>
+					))}
+
+					{/* Next month days */}
+					{nextMonthDays.map((day) => (
+						<DayCard
+							key={`next-${day}`}
+							day={day}
+							disabled
+							onClick={() => handleDateClick(day, false, true)}
+						/>
+					))}
+				</div>
+			)}
 		</section>
 	);
 }
