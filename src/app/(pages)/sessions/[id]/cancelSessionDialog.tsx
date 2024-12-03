@@ -45,7 +45,7 @@ export function CancelSessionDialog({
             <Button
               className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-600/70"
             >
-              Nã0
+              Não
             </Button>
           </DialogClose>
         </div>

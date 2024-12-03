@@ -23,7 +23,7 @@ const routeTitles: { [key: string]: string } = {
 	register: "Cadastro",
 	documents: "Documentos",
 	bills: "Financeiro",
-	schedule_definer: "Minha agenda",
+	"schedule-definer": "Minha agenda",
 	"past-sessions": "Histórico de sessões",
 	"select-patient": "Selecionar paciente",
 	profile: "Meus dados",
