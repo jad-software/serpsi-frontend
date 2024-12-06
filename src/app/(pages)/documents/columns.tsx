@@ -62,7 +62,7 @@ export const columns: ColumnDef<DocumentColumns>[] = [
 	},
 	{
 		accessorKey: "name",
-		header: "Nome",
+		header: "Paciente",
 		size: 250
 	},
 	{

@@ -2,7 +2,10 @@
 import classNames from "classnames";
 import { Input } from "../ui/input";
 import { UseFormRegister } from "react-hook-form";
-import InputMask from "react-input-mask-next";
+import InputMask, {
+	BeforeMaskedStateChangeStates,
+	InputState
+} from "react-input-mask-next";
 
 interface InputTextProps {
 	id: string;
@@ -31,10 +34,9 @@ export function InputText({
 }: InputTextProps) {
 	const inputClassNames = classNames("w-full rounded-md  p-2 text-left", {
 		"border placeholder:text-gray-500 ": variant === "primary",
-		"border border-primary-500 bg-vidro text-primary-800":
-			variant === "secondary",
+		"border bg-primary-50 text-primary-800": variant === "secondary",
 		"border-red-500 focus-visible:ring-red-600 outline-red-600": error,
-		"border-primary-400 focus-visible:ring-primary-500 outline-primary-500":
+		"border-primary-600 focus-visible:ring-primary-600 outline-primary-600":
 			!error
 	});
 
