@@ -10,26 +10,28 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from 'next/navigation'
 import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
-
+import {  getData } from "@/services/myPatientService";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { Patient } from "@/models";
 
 const sessionSchema = z.object({
   startDate: z
-  .string()
-  .min(1, "A data da primeira sessão é obrigatória.")
-  .refine(
-    (value) => {
-      const [year, month, day] = value.split("-").map(Number);
-      const inputDate = new Date(year, month - 1, day);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    .string()
+    .min(1, "A data da primeira sessão é obrigatória.")
+    .refine(
+      (value) => {
+        const [year, month, day] = value.split("-").map(Number);
+        const inputDate = new Date(year, month - 1, day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-      return inputDate.getTime() >= today.getTime();
-    },
-    {
-      message: "A data não pode estar no passado.",
-    }
-  ),
+        return inputDate.getTime() >= today.getTime();
+      },
+      {
+        message: "A data não pode estar no passado.",
+      }
+    ),
   frequency: z.string().min(1, "A frequência da Sessão é obrigatória"),
   sessionValue: z
     .string()
@@ -48,6 +50,7 @@ const sessionSchema = z.object({
   startTime: z.string().min(1, "O horário da sessão é obrigatório."),
   sessionCount: z.number().positive("O número de sessões deve ser maior que zero."),
   paymentMethod: z.string().optional(),
+  
 });
 
 type SessionData = z.infer<typeof sessionSchema>;
@@ -56,9 +59,21 @@ type SessionData = z.infer<typeof sessionSchema>;
 export default function CreateSession() {
 
   const searchParams = useSearchParams()
- 
+  const [data, setData] = useState({} as Patient);
   const id = searchParams.get('id')
-  console.log('id',id)
+  useEffect(() => {
+      async function fetchData() {
+        if(id){
+
+          const data = await getData(id);
+          console.log(data)
+
+          setData(data);
+        }
+      }
+      fetchData();
+    }, [id]);
+
   const methods = useForm<SessionData>({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
