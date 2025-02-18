@@ -43,6 +43,7 @@ export default function BillsPage() {
 	async function refreshData() {
 		const updatedData = await getData();
 		setData(updatedData);
+		setRowSelection({})
 	}
 
 	useEffect(() => {
@@ -121,6 +122,9 @@ export default function BillsPage() {
 				}
 				selectedAction={
 					<UpdateManyBillDialog
+						onSuccess={() => {
+							refreshData();
+						}}
 						triggerButton={
 							<Button
 								variant="link"

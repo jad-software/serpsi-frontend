@@ -45,7 +45,7 @@ export function UpdateManyBillDialog({
 	onSuccess
 }: updateManyBillDialogProps) {
 	const updateBillsSchema = z.object({
-		bills: z.array(
+		_bills: z.array(
 			z.object({
 				_id: z.object({ _id: z.string() }),
 				_title: z.string().min(1, "Título é um campo obrigatório."),
@@ -62,7 +62,7 @@ export function UpdateManyBillDialog({
 		_paymentMethod: z.object({
 			_paymentType: z
 				.string()
-				.min(5, "Tipo é um campo obrigatório.")
+				.min(2, "Tipo é um campo obrigatório.")
 				.optional()
 				.transform((val) => val?.toUpperCase()),
 			_paymentDate: z.preprocess((val) => {
@@ -73,12 +73,11 @@ export function UpdateManyBillDialog({
 
 	const [isOpened, setOpen] = useState(false);
 	const onSubmit = async (data: UpdateBills) => {
-		console.log("data", data);
-		try{
-		const response = await updateManyBills(data._bills, data._paymentMethod._paymentDate);
-		toast.success("Contas atualizadas com sucesso.");
-		setOpen(false);
-		onSuccess?.();
+		try {
+			await updateManyBills(data._bills, data._paymentMethod);
+			toast.success("Contas atualizadas com sucesso.");
+			setOpen(false);
+			onSuccess?.();
 		}
 		catch (error) {
 			toast.error("Erro ao atualizar conta.");
@@ -144,7 +143,7 @@ export function UpdateManyBillDialog({
 								</div>
 								<div>
 									<label
-										htmlFor="paymentType"
+										htmlFor="_paymentMethod._paymentType"
 										className="mb-1 w-full text-sm font-normal text-primary-950"
 									>
 										Forma de pagamento:
@@ -168,7 +167,7 @@ export function UpdateManyBillDialog({
 													<SelectItem value="PIX">
 														Pix
 													</SelectItem>
-													<SelectItem value="TRANSFERÊNCIA">
+													<SelectItem value="TRANSFERENCIA">
 														Transferência
 													</SelectItem>
 													<SelectItem value="CARTAO">

@@ -61,7 +61,8 @@ export function UpdateOneBillDialog({
 
 	const onSubmit = async (data: BillsColumns) => {
 		try {
-			const response = await updateOneBill(data);
+			
+			const response = await updateOneBill({...bill, ...data});
 			toast.success("Conta atualizada com sucesso.");
 			console.log(response);
 			setOpen(false);
