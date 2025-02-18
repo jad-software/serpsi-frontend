@@ -71,7 +71,7 @@ export async function updateManyBills(data: BillsColumns[], paymentMethod: { _pa
   }
   let response = await fetch(`${process.env.BACKEND_URL}/bills/payment`,
     {
-      method: "POST",
+      method: "PUT",
       headers: {
         Authorization: jwt,
         "Content-Type": "application/json"
@@ -95,7 +95,7 @@ export async function updateOneBill(data: BillsColumns) {
     title: data._title,
     billType: data._billType
   };
-  let response = await fetch(`${process.env.BACKEND_URL}/bills/${data._id._id}`,
+  let response = await fetch(`${process.env.BACKEND_URL}/bills/editing/${data._id._id}`,
     {
       method: "PUT",
       headers: {
