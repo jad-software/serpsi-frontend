@@ -7,6 +7,7 @@ import psiImage from "/public/img/avatar.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import InputMask from "react-input-mask-next";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from 'next/navigation'
 import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 
@@ -54,6 +55,10 @@ type SessionData = z.infer<typeof sessionSchema>;
 
 export default function CreateSession() {
 
+  const searchParams = useSearchParams()
+ 
+  const id = searchParams.get('id')
+  console.log('id',id)
   const methods = useForm<SessionData>({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
