@@ -3,6 +3,10 @@ import PatientSessionCard from "./PatientSessionCard";
 import NoData from "./no_data.svg";
 import { Button } from "../ui/button";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getMeetingsInDateRange } from "@/services/calendarService";
+import { MeetingType } from "@/services/calendarService";
+import { toast } from "sonner";
 
 interface DayViewProps {
 	dateSelected: Date;
@@ -43,39 +47,62 @@ export default function DayView({ dateSelected }: DayViewProps) {
 	};
 
 	const daySelected = getDayString(dateSelected);
+	const [meetings, setMeetings] = useState<MeetingType[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchMeetingsForDate = async () => {
+			setLoading(true);
+			try {
+				const response = await getMeetingsInDateRange(dateSelected);
+				setMeetings(response);
+				setLoading(false);
+			} catch (error) {
+				setLoading(false);
+				return toast.error(
+					"Houve um erro ao buscar por sessões para esse dia."
+				);
+			}
+		};
+
+		fetchMeetingsForDate();
+	}, [dateSelected, daySelected]);
 	return (
 		<section className="flex h-[30rem] w-full flex-col lg:w-2/5">
 			<h1 className="mb-2 text-center text-2xl md:text-left md:text-4xl">
 				{daySelected}
 			</h1>
 			<div className="h-3/4 overflow-y-auto pr-4">
-				{/* <PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard />
-				<PatientSessionCard /> */}
-				<div className="flex h-full w-full flex-grow flex-col items-center justify-center">
-					<Image
-						src={NoData}
-						alt="Sem Consultas"
-						width={256}
-						height={256}
-						className="w-4/5 sm:w-1/4 lg:w-1/2"
-					/>
-					<br />
-					<p className="text-center text-gray-600">
-						Não existem consultas agendadas para o dia{" "}
-						{dateSelected.getDate()}
-						{"/"}
-						{dateSelected.getMonth() + 1}
-						{"/"}
-						{dateSelected.getFullYear()}
-					</p>
-				</div>
+				{loading && (
+					<div className="flex h-full flex-grow animate-loadingPulse items-center justify-center text-center">
+						<p>Carregando...</p>
+					</div>
+				)}
+				{loading === false && meetings.length === 0 && (
+					<div className="flex h-full w-full flex-grow flex-col items-center justify-center">
+						<Image
+							src={NoData}
+							alt="Sem Consultas"
+							width={256}
+							height={256}
+							className="w-4/5 sm:w-1/4 lg:w-1/2"
+						/>
+						<br />
+						<p className="text-center text-gray-600">
+							Não existem consultas agendadas para o dia{" "}
+							{dateSelected.getDate()}
+							{"/"}
+							{dateSelected.getMonth() + 1}
+							{"/"}
+							{dateSelected.getFullYear()}
+						</p>
+					</div>
+				)}
+				{loading === false &&
+					meetings.length > 0 &&
+					meetings.map((meeting) => (
+						<PatientSessionCard key={meeting.meeting_id} />
+					))}
 			</div>
 			<div className="mt-2 flex w-full items-center justify-end">
 				<Button

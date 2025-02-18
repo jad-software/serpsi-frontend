@@ -15,7 +15,9 @@ import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
 	const [viewMode, setViewMode] = useState<"day" | "week">("day");
-	const [dateSelected, setDateSelected] = useState<Date>(new Date());
+	const [dateSelected, setDateSelected] = useState<Date>(
+		new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000)
+	);
 	const [previousMonth, setPreviousMonth] = useState<number>(
 		dateSelected.getMonth()
 	);

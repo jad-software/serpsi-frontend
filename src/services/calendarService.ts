@@ -6,7 +6,16 @@ type DaySession = {
 	existsSession: boolean;
 };
 
+type Meeting = {
+	meeting_schedule: string;
+	meeting_status: string;
+	meeting_id: string;
+	patient_id: string;
+	person_name: string;
+};
+
 export type MonthSessions = DaySession[];
+export type MeetingType = Meeting;
 
 export async function getBusyDays(
 	month: number,
@@ -36,9 +45,14 @@ export async function getBusyDays(
 	}
 }
 
-export async function getMeetingsInDateRange(startDate: Date, endDate?: Date) {
+export async function getMeetingsInDateRange(
+	startDate: Date,
+	endDate?: Date
+): Promise<Meeting[]> {
 	const jwt = cookies().get("Authorization")?.value!;
 	if (jwt) {
+		startDate.setHours(0, 0, 0, 0);
+		if (endDate) endDate.setHours(0, 0, 0, 0);
 		const request = endDate
 			? "/meetings/interval?startDate=" +
 				startDate.toISOString() +
