@@ -26,10 +26,10 @@ export const columns: ColumnDef<Patient>[] = [
 	},
 	{
 		accessorKey: "count_meetings",
-		header: "Qtd Sessões Restantes",
-    // meta: {
-    //   CSS
-    // },
+    header: () => (
+			<div className="flex justify-center items-center ">Qtd Sessões Restantes</div>
+		),
+
     cell: ({ row }) => {
       const value: string = row.getValue("count_meetings");
 
