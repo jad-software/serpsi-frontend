@@ -13,12 +13,14 @@ interface MonthViewProps {
 	selectedDate: Date;
 	onDateSelect: (date: Date) => void;
 	busyDays: MonthSessions;
+	isFetching: boolean;
 }
 
 export default function MonthView({
 	selectedDate,
 	onDateSelect,
-	busyDays
+	busyDays,
+	isFetching
 }: MonthViewProps) {
 	const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
 	const [firstDayOffset, setFirstDayOffset] = useState(0);
@@ -195,13 +197,13 @@ export default function MonthView({
 				</Button>
 			</div>
 
-			{busyDays.length <= 0 && (
-				<div className="animate-loadingPulse flex flex-grow items-center justify-center text-center">
+			{isFetching && (
+				<div className="flex flex-grow animate-loadingPulse items-center justify-center text-center">
 					<p>Carregando...</p>
 				</div>
 			)}
 
-			{busyDays.length > 0 && (
+			{!isFetching && (
 				<div className="mt-3 grid w-full flex-grow grid-cols-7 text-center text-sm">
 					<span>Dom.</span>
 					<span>Seg.</span>
@@ -227,7 +229,11 @@ export default function MonthView({
 							day={day}
 							selected={day === selectedDate.getDate()}
 							onClick={() => handleDateClick(day, false, false)}
-							hasMeeting={busyDays[index].existsSession}
+							hasMeeting={
+								busyDays[index] !== undefined
+									? busyDays[index].existsSession
+									: false
+							}
 						/>
 					))}
 

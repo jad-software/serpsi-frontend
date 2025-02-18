@@ -15,7 +15,11 @@ export async function getBusyDays(
 	const jwt = cookies().get("Authorization")?.value;
 	if (jwt) {
 		const response = await fetch(
-			process.env.BACKEND_URL + "/meetings/busydays?month=" + month,
+			process.env.BACKEND_URL +
+				"/meetings/busydays?month=" +
+				month +
+				"&year=" +
+				year,
 			{
 				method: "GET",
 				headers: {

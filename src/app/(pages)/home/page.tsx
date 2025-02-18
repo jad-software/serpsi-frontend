@@ -11,7 +11,7 @@ import {
 	SelectValue
 } from "@/components/ui/select";
 import { getBusyDays, MonthSessions } from "@/services/calendarService";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
 	const [viewMode, setViewMode] = useState<"day" | "week">("day");
@@ -20,26 +20,41 @@ export default function Home() {
 		dateSelected.getMonth()
 	);
 	const [busyDays, setBusyDays] = useState<MonthSessions>([]);
+	const [isFetching, setIsFetching] = useState(false);
 
-	useEffect(() => {
-		const fetchBusyDays = async () => {
+	const fetchBusyDays = useCallback(
+		async (selectedDate: Date) => {
 			if (viewMode === "week") return;
-			if (previousMonth === dateSelected.getMonth() + 1) return;
+			if (previousMonth === selectedDate.getMonth() + 1) return;
 
-			setPreviousMonth(dateSelected.getMonth() + 1);
+			setIsFetching(true);
+			setPreviousMonth(selectedDate.getMonth() + 1);
 			try {
 				const response = await getBusyDays(
-					dateSelected.getMonth() + 1,
-					dateSelected.getFullYear()
+					selectedDate.getMonth() + 1,
+					selectedDate.getFullYear()
 				);
 				console.log(response);
 				setBusyDays(response);
 			} catch (error) {
 				console.error(error);
+			} finally {
+				setIsFetching(false);
 			}
-		};
-		fetchBusyDays();
-	}, [dateSelected, viewMode, previousMonth]);
+		},
+		[viewMode, previousMonth]
+	);
+
+	useEffect(() => {
+		fetchBusyDays(dateSelected);
+	}, [dateSelected, viewMode, fetchBusyDays]);
+
+	const handleDateSelect = async (date: Date) => {
+		if (date.getTime() !== dateSelected.getTime()) {
+			setDateSelected(date);
+			await fetchBusyDays(date);
+		}
+	};
 
 	return (
 		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-12">
@@ -70,8 +85,9 @@ export default function Home() {
 			<div className="flex h-full w-full flex-grow items-center justify-around rounded-xl border border-primary-600 bg-primary-100 p-8 lg:p-0">
 				<MonthView
 					selectedDate={dateSelected}
-					onDateSelect={setDateSelected}
+					onDateSelect={handleDateSelect}
 					busyDays={busyDays}
+					isFetching={isFetching}
 				/>
 				<DayView dateSelected={dateSelected} />
 			</div>
