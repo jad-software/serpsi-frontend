@@ -28,6 +28,7 @@ import {
 type updateManyBillDialogProps = {
 	triggerButton: ReactNode;
 	bills: Row<BillsColumns>[];
+	onSuccess?: () => void;
 };
 
 type UpdateBills = {
@@ -40,7 +41,8 @@ type UpdateBills = {
 
 export function UpdateManyBillDialog({
 	triggerButton,
-	bills
+	bills,
+	onSuccess
 }: updateManyBillDialogProps) {
 	const updateBillsSchema = z.object({
 		bills: z.array(
@@ -72,9 +74,16 @@ export function UpdateManyBillDialog({
 	const [isOpened, setOpen] = useState(false);
 	const onSubmit = async (data: UpdateBills) => {
 		console.log("data", data);
+		try{
 		const response = await updateManyBills(data._bills, data._paymentMethod._paymentDate);
 		toast.success("Contas atualizadas com sucesso.");
 		setOpen(false);
+		onSuccess?.();
+		}
+		catch (error) {
+			toast.error("Erro ao atualizar conta.");
+			console.log(error);
+		}
 	};
 
 	const methods = useForm<UpdateBills>({

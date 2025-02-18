@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { ReactNode, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { InputText } from "@/components/form/InputText";
 import {
 	Select,
 	SelectContent,
@@ -26,9 +25,10 @@ import { setBills } from "@/services/billsService";
 
 type newBillDialogProps = {
 	triggerButton: ReactNode;
+	onSuccess?: () => void;
 };
 
-export function NewBillDialog({ triggerButton }: newBillDialogProps) {
+export function NewBillDialog({ triggerButton, onSuccess }: newBillDialogProps) {
 	const [value, setValue] = useState(0);
 	const [isOpened, setOpen] = useState(false);
 	const billsSchema = z.object({
@@ -49,13 +49,14 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 
 	const onSubmit = async (data: BillsColumns) => {
 		const response = await setBills(data);
-		// if (response?.error) {
-		// 	toast.error("Algo de errado aconteceu.");
-		// } else {
-		toast.success("Conta criada com sucesso.");
-		console.log(response);
-		setOpen(false);
-		// }
+		try {
+			toast.success("Conta criada com sucesso.");
+			console.log(response);
+			setOpen(false);
+			onSuccess?.();
+		} catch (error) {
+			toast.error("Erro ao criar conta.");
+		}
 	};
 	const methods = useForm<BillsColumns>({
 		resolver: zodResolver(billsSchema)

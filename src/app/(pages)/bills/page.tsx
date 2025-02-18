@@ -27,9 +27,10 @@ import { toast } from "sonner";
 export default function BillsPage() {
 	const [data, setData] = useState({} as BillsColumns[]);
 	const [rowSelection, setRowSelection] = useState({});
+
 	let table = useReactTable({
 		data,
-		columns,
+		columns: columns(() => refreshData()),
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -39,17 +40,18 @@ export default function BillsPage() {
 		}
 	});
 
+	async function refreshData() {
+		const updatedData = await getData();
+		setData(updatedData);
+	}
+
 	useEffect(() => {
-		toast.promise(async () => setData(await getData()), {
-			loading: "Carregando contas...",
-			success: "Contas carregadas com sucesso.",
-			error: "Erro ao carregar contas."
-		});
-	}, [setData]);
+		refreshData();
+	}, []);
 	return (
 		<main className="flex h-full w-full flex-col items-center justify-center bg-white p-3">
 			<DataTable
-				columns={columns}
+				columns={columns(() => refreshData())}
 				table={table}
 				filteringNode={
 					<div className="flex w-full justify-start gap-4">
@@ -106,6 +108,7 @@ export default function BillsPage() {
 				}
 				linkTop={
 					<NewBillDialog
+						onSuccess={refreshData}
 						triggerButton={
 							<Link
 								href=""
@@ -130,7 +133,7 @@ export default function BillsPage() {
 									)
 								}
 							>
-								Atualizar contas selecionadas
+								Adicionar pagamento para as contas selecionadas
 								<CurrencyDollarIcon className="h-4 w-4" />
 							</Button>
 						}

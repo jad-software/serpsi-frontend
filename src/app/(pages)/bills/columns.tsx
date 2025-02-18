@@ -16,7 +16,7 @@ export type BillsColumns = {
 	}
 };
 
-export const columns: ColumnDef<BillsColumns>[] = [
+export const columns = (refreshData: () => void): ColumnDef<BillsColumns>[] => [
 	{
 		id: "select",
 		header: ({ table }) => (
@@ -51,6 +51,7 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		size: 70,
 		cell: ({ row }) => (
 			<UpdateOneBillDialog
+				onSuccess={refreshData}
 				bill={row.original}
 				triggerButton={
 					<PencilAltIcon
