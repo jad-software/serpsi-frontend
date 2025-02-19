@@ -123,7 +123,7 @@ export default function CreateSession() {
   return (
     <main className="flex flex-col items-center justify-center px-4 py-5 lg:px-10 bg-white">
       <div className="mb-4 w-full">
-        <Link href={"/patients"} className="flex items-center text-gray-500">
+        <Link href={"/sessions/select"} className="flex items-center text-gray-500">
           <ChevronLeftIcon className="w-6 h-6" />
           <span className="ml-2 text-lg ">Agendar Sessões</span>
         </Link>
