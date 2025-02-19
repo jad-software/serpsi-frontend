@@ -76,10 +76,7 @@ export default function CreateSession() {
   useEffect(() => {
     async function fetchData() {
       if (id) {
-
         const data = await getData(id);
-        console.log(data)
-
         setData(data);
       }
     }
@@ -151,10 +148,10 @@ export default function CreateSession() {
               </div>
             </div>
 
-            <div className="overflow-scroll">
-              {data._parents && data._parents.map(p => (
+            <div className="flex flex-col gap-2 md:flex-row overflow-scroll">
+              {data._parents && data._parents.map((p, index) => (
                 <div key={p._id._id}>
-                  <p>Responsável: {p._name}</p>
+                  <p>Responsável {index+1}: {p._name}</p>
                   <p>Nascimento: {formatDateToddmmYYYY(p._birthdate)}</p>
                   <p>CPF: {p._cpf._cpf}</p>
                   <p>Tel: {formatPhone(p._phone)}</p>
