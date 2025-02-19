@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from 'next/navigation'
 import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
-import {  getData } from "@/services/myPatientService";
+import { getData } from "@/services/myPatientService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { Patient } from "@/models";
+import { Patient, Phone } from "@/models";
+import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 
 const sessionSchema = z.object({
   startDate: z
@@ -50,29 +51,40 @@ const sessionSchema = z.object({
   startTime: z.string().min(1, "O horário da sessão é obrigatório."),
   sessionCount: z.number().positive("O número de sessões deve ser maior que zero."),
   paymentMethod: z.string().optional(),
-  
+
 });
 
 type SessionData = z.infer<typeof sessionSchema>;
+
+function formatPhone(phoneObj: Phone): string {
+  const ddd = phoneObj._ddd.replace("+", "");
+  const number = phoneObj._number.trim();
+  if (number.length === 9) {
+    return `(${ddd})${number.slice(0, 5)}-${number.slice(5)}`;
+  } else {
+    return `(${ddd}) ${number}`;
+  }
+}
+
 
 
 export default function CreateSession() {
 
   const searchParams = useSearchParams()
   const [data, setData] = useState({} as Patient);
-  const id = searchParams.get('id')
+  const id = searchParams.get('id');
   useEffect(() => {
-      async function fetchData() {
-        if(id){
+    async function fetchData() {
+      if (id) {
 
-          const data = await getData(id);
-          console.log(data)
+        const data = await getData(id);
+        console.log(data)
 
-          setData(data);
-        }
+        setData(data);
       }
-      fetchData();
-    }, [id]);
+    }
+    fetchData();
+  }, [id]);
 
   const methods = useForm<SessionData>({
     resolver: zodResolver(sessionSchema),
@@ -125,25 +137,31 @@ export default function CreateSession() {
 
             <div className="flex flex-col md:flex-row items-center md:items-start space-x-4 mb-2 md:mb-0">
               <Image
-                src={psiImage}
+                src={data._person ? data._person._profilePicture : psiImage}
                 alt="Profile"
                 width={100}
                 height={100}
                 className="h-24 w-24 rounded-full object-cover"
               />
               <div>
-                <p>Nome: Roberto Santos</p>
-                <p>Nascimento: 31/12/2000</p>
-                <p>CPF: 000.000.000-00</p>
-                <p>Tel: (00) 00000-0000</p>
+                <p>Nome: {data._person && data._person._name}</p>
+                <p>Nascimento: {data._person && formatDateToddmmYYYY(data._person._birthdate)}</p>
+                <p>CPF: {data._person && data._person._cpf._cpf }</p>
+                <p>Tel:{data._person && formatPhone(data._person._phone)}</p>
               </div>
             </div>
 
-            <div>
-              <p>Responsável: Roberta Mãe</p>
-              <p>Nascimento: 31/12/2000</p>
-              <p>CPF: 000.000.000-00</p>
-              <p>Tel: (00) 00000-0000</p>
+            <div className="overflow-scroll">
+              {data._parents && data._parents.map(p => (
+                <div key={p._id._id}>
+                  <p>Responsável: {p._name}</p>
+                  <p>Nascimento: {formatDateToddmmYYYY(p._birthdate)}</p>
+                  <p>CPF: {p._cpf._cpf}</p>
+                  <p>Tel: {formatPhone(p._phone)}</p>
+                </div>
+              ))}
+
+              
             </div>
           </div>
 
