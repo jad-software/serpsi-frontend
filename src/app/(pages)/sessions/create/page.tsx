@@ -280,11 +280,11 @@ export default function CreateSession() {
                         <SelectValue placeholder="Selecione o horário..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {aVTime.map((av, index) => {
+                        {aVTime.length > 0 ?  aVTime.map((av, index) => {
                           return (
                             <SelectItem key={index} value={av}>{av}</SelectItem>
                           )
-                        })}
+                        }): <p>Nenhum horário disponível para esse dia</p>}
                       </SelectContent>
                     </Select>
                   )}
