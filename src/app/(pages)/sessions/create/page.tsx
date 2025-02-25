@@ -14,7 +14,8 @@ import { getData } from "@/services/myPatientService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Patient, Phone } from "@/models";
-import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
+import { formatDateToddmmYYYY, formatDateToYYYYmmdd } from "@/services/utils/formatDate";
+import { getHourAvailableByDate } from "@/services/meetingsService";
 
 const sessionSchema = z.object({
   startDate: z
@@ -67,7 +68,6 @@ function formatPhone(phoneObj: Phone): string {
 }
 
 
-
 export default function CreateSession() {
 
   const searchParams = useSearchParams()
@@ -83,6 +83,8 @@ export default function CreateSession() {
     fetchData();
   }, [id]);
 
+
+
   const methods = useForm<SessionData>({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
@@ -96,9 +98,22 @@ export default function CreateSession() {
     mode: "onChange",
   });
 
-  const { register, handleSubmit, formState, control, setValue } = methods;
+  const { register, handleSubmit, formState, control, setValue, watch } = methods;
   const { errors } = formState;
 
+  const handleStartDateBlur = async (startDateformated: string) => {
+    if (!errors.startDate) {
+      try {
+        console.log(startDateformated)
+        const data = await getHourAvailableByDate(startDateformated);
+        console.log("Resposta da API:", data);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      }
+    }
+  }
+
+  const startDate = watch("startDate");
 
   const formatToCurrency = (value: string) => {
     if (!value) return "R$ 0,00";
@@ -116,6 +131,7 @@ export default function CreateSession() {
   const onSubmit = (data: SessionData) => {
     console.log("Form Data:", data);
   };
+
 
   return (
     <main className="flex flex-col items-center justify-center px-4 py-5 lg:px-10 bg-white">
@@ -143,7 +159,7 @@ export default function CreateSession() {
               <div>
                 <p>Nome: {data._person && data._person._name}</p>
                 <p>Nascimento: {data._person && formatDateToddmmYYYY(data._person._birthdate)}</p>
-                <p>CPF: {data._person && data._person._cpf._cpf }</p>
+                <p>CPF: {data._person && data._person._cpf._cpf}</p>
                 <p>Tel:{data._person && formatPhone(data._person._phone)}</p>
               </div>
             </div>
@@ -151,14 +167,14 @@ export default function CreateSession() {
             <div className="flex flex-col gap-2 md:flex-row overflow-scroll">
               {data._parents && data._parents.map((p, index) => (
                 <div key={p._id._id}>
-                  <p>Responsável {index+1}: {p._name}</p>
+                  <p>Responsável {index + 1}: {p._name}</p>
                   <p>Nascimento: {formatDateToddmmYYYY(p._birthdate)}</p>
                   <p>CPF: {p._cpf._cpf}</p>
                   <p>Tel: {formatPhone(p._phone)}</p>
                 </div>
               ))}
 
-              
+
             </div>
           </div>
 
@@ -173,6 +189,7 @@ export default function CreateSession() {
                 <input
                   type="date"
                   {...register("startDate")}
+                  onBlur={() => handleStartDateBlur(formatDateToYYYYmmdd(new Date(startDate)))}
                   className={`w-full h-11 rounded border ${errors.startDate ? 'border-red-500' : 'border-primary-400'} p-2 focus:ring`}
                 />
                 {errors.startDate && <p className="text-sm text-red-500">{errors.startDate.message}</p>}
