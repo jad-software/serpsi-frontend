@@ -72,6 +72,7 @@ export default function CreateSession() {
 
   const searchParams = useSearchParams()
   const [data, setData] = useState({} as Patient);
+  const [aVTime, setAvTime] = useState<string[]>([]);
   const id = searchParams.get('id');
   useEffect(() => {
     async function fetchData() {
@@ -104,9 +105,16 @@ export default function CreateSession() {
   const handleStartDateBlur = async (startDateformated: string) => {
     if (!errors.startDate) {
       try {
+        setAvTime([]);
         console.log(startDateformated)
         const data = await getHourAvailableByDate(startDateformated);
         console.log("Resposta da API:", data);
+        for (var time of data) {
+          time.availableTimes.forEach((timeOfDay: string) => {
+            setAvTime(prevState => [...prevState, timeOfDay]);
+          })
+
+        }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
@@ -275,9 +283,11 @@ export default function CreateSession() {
                         <SelectValue placeholder="Selecione o horário..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="08:00">08:00</SelectItem>
-                        <SelectItem value="09:00">09:00</SelectItem>
-                        <SelectItem value="10:00">10:00</SelectItem>
+                        {aVTime.map((av, index) => {
+                          return (
+                            <SelectItem key={index} value={av}>{av}</SelectItem>
+                          )
+                        })}
                       </SelectContent>
                     </Select>
                   )}
