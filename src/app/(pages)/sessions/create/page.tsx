@@ -105,16 +105,13 @@ export default function CreateSession() {
   const handleStartDateBlur = async (startDateformated: string) => {
     if (!errors.startDate) {
       try {
-        setAvTime([]);
-        console.log(startDateformated)
-        const data = await getHourAvailableByDate(startDateformated);
-        console.log("Resposta da API:", data);
-        for (var time of data) {
-          time.availableTimes.forEach((timeOfDay: string) => {
-            setAvTime(prevState => [...prevState, timeOfDay]);
-          })
+        const data: {
+          day: string;
+          availableTimes: string[]
+        }[] = await getHourAvailableByDate(startDateformated);
 
-        }
+        const allTimes = data.flatMap(item => item.availableTimes);
+        setAvTime(allTimes);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
