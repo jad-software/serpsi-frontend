@@ -28,25 +28,29 @@ import {
 type updateManyBillDialogProps = {
 	triggerButton: ReactNode;
 	bills: Row<BillsColumns>[];
+	onSuccess?: () => void;
 };
 
 type UpdateBills = {
-	bills: BillsColumns[];
-	paymentDate: Date;
-	paymentType: string;
+	_bills: BillsColumns[];
+	_paymentMethod: {
+		_paymentDate: Date;
+		_paymentType: string;
+	}
 };
 
 export function UpdateManyBillDialog({
 	triggerButton,
-	bills
+	bills,
+	onSuccess
 }: updateManyBillDialogProps) {
 	const updateBillsSchema = z.object({
-		bills: z.array(
+		_bills: z.array(
 			z.object({
-				id: z.string(),
-				name: z.string().min(1, "Título é um campo obrigatório."),
-				value: z.number().positive("O valor deve ser maior que 0"),
-				dueDate: z
+				_id: z.object({ _id: z.string() }),
+				_title: z.string().min(1, "Título é um campo obrigatório."),
+				_amount: z.number().positive("O valor deve ser maior que 0"),
+				_dueDate: z
 					.preprocess((val) => {
 						return val === "" ? undefined : val;
 					}, z.coerce.date().optional())
@@ -55,36 +59,37 @@ export function UpdateManyBillDialog({
 					})
 			})
 		),
-		paymentType: z
-			.string()
-			.min(5, "Tipo é um campo obrigatório.")
-			.transform((val) => val?.toUpperCase()),
-		paymentDate: z
-			.preprocess((val) => {
+		_paymentMethod: z.object({
+			_paymentType: z
+				.string()
+				.min(2, "Tipo é um campo obrigatório.")
+				.optional()
+				.transform((val) => val?.toUpperCase()),
+			_paymentDate: z.preprocess((val) => {
 				return val === "" ? undefined : val;
 			}, z.coerce.date().optional())
-			.refine((val) => val !== undefined, {
-				message: "Data de pagamento é obrigatória."
-			})
+		})
 	});
 
 	const [isOpened, setOpen] = useState(false);
 	const onSubmit = async (data: UpdateBills) => {
-		console.log("data", data);
-		const response = await updateManyBills(data.bills, data.paymentDate);
-		// if (response?.error) {
-		// 	toast.error("Algo de errado aconteceu.");
-		// } else {
-		toast.success("Contas atualizadas com sucesso.");
-		setOpen(false);
-		// }
+		try {
+			await updateManyBills(data._bills, data._paymentMethod);
+			toast.success("Contas atualizadas com sucesso.");
+			setOpen(false);
+			onSuccess?.();
+		}
+		catch (error) {
+			toast.error("Erro ao atualizar conta.");
+			console.log(error);
+		}
 	};
 
 	const methods = useForm<UpdateBills>({
 		resolver: zodResolver(updateBillsSchema)
 	});
 	methods.setValue(
-		"bills",
+		"_bills",
 		bills.map((bill) => bill.original)
 	);
 
@@ -112,39 +117,39 @@ export function UpdateManyBillDialog({
 							<div className="flex max-h-[200px] w-full flex-col overflow-auto">
 								{bills.map((bill) => (
 									<div
-										key={bill.original.id}
+										key={bill.original._id._id}
 										className="border-y border-primary-300"
 									>
-										<h2>Título: {bill.original.name}</h2>
+										<h2>Título: {bill.original._title}</h2>
 										<p>
 											Venc.:{" "}
 											{formatDateToddmmYYYY(
-												new Date(bill.original.dueDate)
+												new Date(bill.original._dueDate)
 											)}
 										</p>
 									</div>
 								))}{" "}
 							</div>
-							<div className="flex w-full flex-col gap-4">
+							<section className="flex w-full flex-col gap-4">
 								<div>
 									<InputText
 										id="payment-date"
 										label="Data de pagamento:"
 										placeholder="dd/mm/aaaa"
 										type="date"
-										name="paymentDate"
+										name="_paymentMethod._paymentDate"
 										register={methods.register}
 									/>
 								</div>
 								<div>
 									<label
-										htmlFor="paymentType"
+										htmlFor="_paymentMethod._paymentType"
 										className="mb-1 w-full text-sm font-normal text-primary-950"
 									>
 										Forma de pagamento:
 									</label>
 									<Controller
-										name="paymentType"
+										name="_paymentMethod._paymentType"
 										control={methods.control}
 										render={({ field }) => (
 											<Select
@@ -162,7 +167,7 @@ export function UpdateManyBillDialog({
 													<SelectItem value="PIX">
 														Pix
 													</SelectItem>
-													<SelectItem value="TRANSFERÊNCIA">
+													<SelectItem value="TRANSFERENCIA">
 														Transferência
 													</SelectItem>
 													<SelectItem value="CARTAO">
@@ -176,7 +181,7 @@ export function UpdateManyBillDialog({
 										)}
 									/>
 								</div>
-							</div>
+							</section>
 						</section>
 						<div className="flex w-full justify-end gap-4">
 							<Button

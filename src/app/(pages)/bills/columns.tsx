@@ -6,16 +6,17 @@ import { UpdateOneBillDialog } from "./updateOneBillDialog";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 
 export type BillsColumns = {
-	id: string;
-	name: string;
-	billType: string;
-	value: number;
-	dueDate: Date;
-	paymentDate?: Date;
-	paymentType?: string;
+	_id: { _id: string };
+	_title: string;
+	_billType: string;
+	_amount: number;
+	_dueDate: Date;
+	_paymentMethod?: {
+		_paymentType: string, _paymentDate: Date
+	}
 };
 
-export const columns: ColumnDef<BillsColumns>[] = [
+export const columns = (refreshData: () => void): ColumnDef<BillsColumns>[] => [
 	{
 		id: "select",
 		header: ({ table }) => (
@@ -50,6 +51,7 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		size: 70,
 		cell: ({ row }) => (
 			<UpdateOneBillDialog
+				onSuccess={refreshData}
 				bill={row.original}
 				triggerButton={
 					<PencilAltIcon
@@ -62,25 +64,25 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		)
 	},
 	{
-		accessorKey: "name",
+		accessorKey: "_title",
 		header: "Nome",
 		size: 250
 	},
 	{
-		accessorKey: "billType",
+		accessorKey: "_billType",
 		header: "Tipo",
 		cell: (e) => {
 			let value = e.getValue() as string;
-			if(e.row.original.paymentDate){
-				if(value.toUpperCase() == "A PAGAR"){
+			if (e.row.original._paymentMethod?._paymentDate) {
+				if (value.toUpperCase() == "A PAGAR") {
 					value = "PAGO"
 				}
-				else if(value.toUpperCase() == "A RECEBER"){
+				else if (value.toUpperCase() == "A RECEBER") {
 					value = "RECEBIDO"
 				}
 			}
 			let className =
-			value.toUpperCase() == "A PAGAR" || value.toUpperCase() == "A RECEBER"
+				value.toUpperCase() == "A PAGAR" || value.toUpperCase() == "A RECEBER"
 					? "text-orange-600"
 					: "text-green-600";
 			return (value as string) ? (
@@ -92,7 +94,7 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		size: 250
 	},
 	{
-		accessorKey: "value",
+		accessorKey: "_amount",
 		header: "Valor",
 		cell: (e) => {
 			return (
@@ -102,7 +104,7 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		size: 250
 	},
 	{
-		accessorKey: "dueDate",
+		accessorKey: "_dueDate",
 		header: "Data de vencimento",
 		cell: (e) => {
 			return e.getValue() ? (
@@ -114,7 +116,7 @@ export const columns: ColumnDef<BillsColumns>[] = [
 		size: 250
 	},
 	{
-		accessorKey: "paymentDate",
+		accessorKey: "_paymentMethod._paymentDate",
 		header: "Data da pagamento",
 		cell: (e) => {
 			return e.getValue() ? (

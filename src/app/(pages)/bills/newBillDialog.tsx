@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { ReactNode, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { InputText } from "@/components/form/InputText";
 import {
 	Select,
 	SelectContent,
@@ -26,19 +25,20 @@ import { setBills } from "@/services/billsService";
 
 type newBillDialogProps = {
 	triggerButton: ReactNode;
+	onSuccess?: () => void;
 };
 
-export function NewBillDialog({ triggerButton }: newBillDialogProps) {
+export function NewBillDialog({ triggerButton, onSuccess }: newBillDialogProps) {
 	const [value, setValue] = useState(0);
 	const [isOpened, setOpen] = useState(false);
 	const billsSchema = z.object({
-		name: z.string().min(1, "Título é um campo obrigatório."),
-		value: z.number().positive("O valor deve ser maior que 0"),
-		billType: z
+		_title: z.string().min(1, "Título é um campo obrigatório."),
+		_amount: z.number().positive("O valor deve ser maior que 0"),
+		_billType: z
 			.string()
 			.min(5, "Tipo é um campo obrigatório.")
 			.transform((val) => val.toUpperCase()),
-		dueDate: z
+		_dueDate: z
 			.preprocess((val) => {
 				return val === "" ? undefined : val;
 			}, z.coerce.date().optional())
@@ -49,13 +49,14 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 
 	const onSubmit = async (data: BillsColumns) => {
 		const response = await setBills(data);
-		// if (response?.error) {
-		// 	toast.error("Algo de errado aconteceu.");
-		// } else {
-		toast.success("Conta criada com sucesso.");
-		console.log(response);
-		setOpen(false);
-		// }
+		try {
+			toast.success("Conta criada com sucesso.");
+			console.log(response);
+			setOpen(false);
+			onSuccess?.();
+		} catch (error) {
+			toast.error("Erro ao criar conta.");
+		}
 	};
 	const methods = useForm<BillsColumns>({
 		resolver: zodResolver(billsSchema)
@@ -63,7 +64,7 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 	const changeMeetValue = (value: string) => {
 		let number = +value.slice(2).replaceAll(".", "").replaceAll(",", ".");
 		setValue(number);
-		methods.setValue("value", +number);
+		methods.setValue("_amount", +number);
 		return value;
 	};
 
@@ -101,10 +102,10 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 										type="text"
 										placeholder="Título"
 										error={
-											methods.formState.errors.name
+											methods.formState.errors._title
 												?.message
 										}
-										{...methods.register("name")}
+										{...methods.register("_title")}
 									/>
 								</div>
 								<div>
@@ -118,10 +119,10 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 										className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
 										type="date"
 										error={
-											methods.formState.errors.dueDate
+											methods.formState.errors._dueDate
 												?.message
 										}
-										{...methods.register("dueDate")}
+										{...methods.register("_dueDate")}
 									/>
 								</div>
 							</div>
@@ -140,7 +141,7 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 										placeholder="Valor da conta"
 										mask={"R$ 999.999.999,99"}
 										error={
-											methods.formState.errors.value
+											methods.formState.errors._amount
 												?.message
 										}
 										beforeMaskedStateChange={({
@@ -183,7 +184,7 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 													);
 											return nextState;
 										}}
-										{...methods.register("value", {
+										{...methods.register("_amount", {
 											valueAsNumber: true,
 											onChange: (e) =>
 												changeMeetValue(e.target.value)
@@ -198,7 +199,7 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 										Tipo:
 									</label>
 									<Controller
-										name="billType"
+										name="_billType"
 										control={methods.control}
 										render={({ field }) => (
 											<Select
@@ -223,11 +224,11 @@ export function NewBillDialog({ triggerButton }: newBillDialogProps) {
 											</Select>
 										)}
 									/>
-									{methods.formState.errors.billType && (
+									{methods.formState.errors._billType && (
 										<p className="text-sm text-red-400">
 											{
 												methods.formState.errors
-													.billType?.message
+													._billType?.message
 											}
 										</p>
 									)}

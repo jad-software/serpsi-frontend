@@ -1,165 +1,127 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { DocumentColumns } from "@/app/(pages)/documents/columns";
-import { formatDateToddmmYYYY } from "./utils/formatDate";
 import { BillsColumns } from "@/app/(pages)/bills/columns";
+import { revalidateTag } from "next/cache";
 
 export async function getData(): Promise<BillsColumns[]> {
-  // const jwt = cookies().get("Authorization")?.value!;
-  // const sub = cookies().get("sub")?.value!;
-  // if (jwt) {
-  // 		let data = await fetch(
-  // 			process.env.BACKEND_URL + "/bills" + sub,
-  // 			{
-  // 				method: "GET",
-  // 				next: { revalidate: 30 },
-  // 				headers: {
-  // 					Authorization: jwt
-  // 				}
-  // 			}
-  // 		);
-  // 	let documents = await data.json();
-  // 	})
-  // 	return response;
-  // }
-  return [
-    {
-      id: "1",
-      name: "Roberto Santos",
-      billType: "A RECEBER", 
-      value: 100.00,
-      dueDate: new Date("2021-12-01"),
+  const jwt = cookies().get("Authorization")?.value!;
+  if (!jwt) {
+    throw new Error(
+      "Token de autenticação não encontrado. Por favor, faça login novamente."
+    );
+  }
+  let data = await fetch(`${process.env.BACKEND_URL}/bills`, {
+    method: "GET",
+    next: {
+      tags: ["bills"]
     },
-    {
-      id: "2",
-      name: "João",
-      billType: "A RECEBER",
-      value: 200.10,
-      dueDate: new Date("2021-01-01"),
+    headers: {
+      Authorization: jwt
     },
-    {
-      id: "3",
-      name: "João", 
-      billType: "A RECEBER",
-      value: 300.50,
-      dueDate: new Date("2021-01-01"),
-    },
-    {
-      id: "4",
-      name: "Pedro",
-      billType: "A RECEBER",
-      value: 200.10,
-      paymentDate: new Date("2021-01-01"),
-      dueDate: new Date("2021-01-01"),
-    },
-    {
-      id: "5",
-      name: "Luz",
-      billType: "A PAGAR",
-      value: 300.50,
-      paymentDate: new Date("2021-01-01"),
-      dueDate: new Date("2021-01-01"),
-    },
-    {
-      id: "6",
-      name: "Água",
-      billType: "A PAGAR",
-      value: 300.50,
-      dueDate: new Date("2021-12-31"),
-    },
-    {
-      id: "7",
-      name: "João",
-      billType: "A RECEBER",
-      value: 200.10,
-      dueDate: new Date("2021-11-30"),
-    },
-    {
-      id: "8",
-      name: "João",
-      billType: "A RECEBER",
-      value: 300.50,
-      dueDate: new Date("2021-01-01"),
-    },
-    {
-      id: "9",
-      name: "Pedro",
-      billType: "A RECEBER",
-      value: 200.10,
-      paymentDate: new Date("2021-01-01"),
-      dueDate: new Date("2021-01-01"),
-    },
-    {
-      id: "10",
-      name: "Luz",
-      billType: "A PAGAR",
-      value: 300.50,
-      paymentDate: new Date("2021-01-01"),
-      dueDate: new Date("2021-01-01"),
-    },
-  ]
+    cache: "no-store",
+  }
+  );
+  let bills = await data.json();
+  return bills;
 }
 
 export async function setBills(data: BillsColumns) {
-  // const jwt = cookies().get("Authorization")?.value!;
-  // const sub = cookies().get("sub")?.value!;
-  // if (jwt) {
-  //   let response = await fetch(
-  //     process.env.BACKEND_URL + "/bills" + sub,
-  //     {
-  //       method: "POST",
-  //       next: { revalidate: 30 },
-  //       headers: {
-  //         Authorization: jwt,
-  //         "Content-Type": "application/json"
-  //       },
-  //       body: JSON.stringify(data)
-  //     }
-  //   );
-  //   return response;
-  return data;
+
+  const jwt = cookies().get("Authorization")?.value!;
+  const sub = cookies().get("sub")?.value!;
+  if (!jwt) {
+    throw new Error(
+      "Token de autenticação não encontrado. Por favor, faça login novamente."
+    );
+  }
+  const body = {
+    psychologist_id: sub,
+    amount: data._amount,
+    dueDate: data._dueDate,
+    title: data._title,
+    billType: data._billType
+  };
+  let response = await fetch(`${process.env.BACKEND_URL}/bills`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: jwt,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    }
+  );
+  return await response.json();
 }
 
-export async function updateManyBills(data: BillsColumns[], paymentDate: Date) {
-  // const jwt = cookies().get("Authorization")?.value!;
-  // const sub = cookies().get("sub")?.value!;
-  // if (jwt) {
-  //   let response = await fetch(
-  //     process.env.BACKEND_URL + "/bills" + sub,
-  //     {
-  //       method: "PUT",
-  //       next: { revalidate: 30 },
-  //       headers: {
-  //         Authorization: jwt,
-  //         "Content-Type": "application/json"
-  //       },
-  //       body: JSON.stringify(data)
-  //     }
-  //   );
-  //   return response;
-  // }
-  return data;
+export async function updateManyBills(data: BillsColumns[], paymentMethod: { _paymentType: string, _paymentDate: Date }) {
+  const jwt = cookies().get("Authorization")?.value!;
+  if (!jwt) {
+    throw new Error(
+      "Token de autenticação não encontrado. Por favor, faça login novamente."
+    );
+  }
+  const body = {
+    billIds: data.map((bill) => bill._id._id),
+    paymentMethod: {
+      paymentType: paymentMethod._paymentType,
+      paymentDate: paymentMethod._paymentDate.toISOString().split("T")[0]
+    }
+  }
+  let response = await fetch(`${process.env.BACKEND_URL}/bills/payment`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: jwt,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    }
+  );
+  return response.json();
 }
 
 export async function updateOneBill(data: BillsColumns) {
-  // const jwt = cookies().get("Authorization")?.value!;
-  // const sub = cookies().get("sub")?.value!;
-  // if (jwt) {
-  //   let response = await fetch(
-  //     process.env.BACKEND_URL + "/bills" + sub,
-  //     {
-  //       method: "PUT",
-  //       next: { revalidate: 30 },
-  //       headers: {
-  //         Authorization: jwt,
-  //         "Content-Type": "application/json"
-  //       },
-  //       body: JSON.stringify(data)
-  //     }
-  //   );
-  //   return response;
-  // }
-  return data;
+  const jwt = cookies().get("Authorization")?.value!;
+  if (!jwt) {
+    throw new Error(
+      "Token de autenticação não encontrado. Por favor, faça login novamente."
+    );
+  }
+  const body = {
+    amount: data._amount,
+    dueDate: data._dueDate,
+    title: data._title,
+    billType: data._billType
+  };
+  let response = await fetch(`${process.env.BACKEND_URL}/bills/editing/${data._id._id}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: jwt,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    }
+  );
+  return response.json();
 }
 
+export async function deleteBill(data: BillsColumns) {
+  const jwt = cookies().get("Authorization")?.value!;
+  if (!jwt) {
+    throw new Error(
+      "Token de autenticação não encontrado. Por favor, faça login novamente."
+    );
+  }
+  await fetch(
+    process.env.BACKEND_URL + "/bills/" + data._id._id,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: jwt,
+        "Content-Type": "application/json"
+      }
+    });
+}
