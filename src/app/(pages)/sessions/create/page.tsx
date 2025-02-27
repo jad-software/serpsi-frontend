@@ -161,7 +161,7 @@ export default function CreateSession() {
                 height={100}
                 className="h-24 w-24 rounded-full object-cover"
               />
-              <div>
+              <div >
                 <p>Nome: {data._person && data._person._name}</p>
                 <p>Nascimento: {data._person && formatDateToddmmYYYY(data._person._birthdate)}</p>
                 <p>CPF: {data._person && data._person._cpf._cpf}</p>
@@ -169,7 +169,7 @@ export default function CreateSession() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 md:flex-row overflow-scroll">
+            <div className="px-12 flex flex-col gap-2  md:flex-row max-w-96 overflow-x-auto">
               {data._parents && data._parents.map((p, index) => (
                 <div key={p._id._id}>
                   <p>Responsável {index + 1}: {p._name}</p>
