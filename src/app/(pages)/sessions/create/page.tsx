@@ -105,11 +105,11 @@ export default function CreateSession() {
   const handleStartDateBlur = async (startDateformated: string) => {
     if (!errors.startDate) {
       try {
+        setValue('startTime', '');
         const data: {
           day: string;
           availableTimes: string[]
         }[] = await getHourAvailableByDate(startDateformated);
-
         const allTimes = data.flatMap(item => item.availableTimes);
         setAvTime(allTimes);
       } catch (error) {
