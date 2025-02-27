@@ -134,7 +134,12 @@ export default function CreateSession() {
   };
 
   const onSubmit = (data: SessionData) => {
-    console.log("Form Data:", data);
+    const {startDate, startTime, frequency, sessionValue, sessionCount} = data;
+    const schedule = `${startDate}T${startTime}z`;
+    const meetingFrequency = +frequency;
+    const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
+    const quantity = sessionCount;
+    console.log("Form Data:",  schedule, meetingFrequency, +amount, quantity);
   };
 
 
