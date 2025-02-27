@@ -226,9 +226,10 @@ export default function CreateSession() {
                         <SelectValue placeholder="Selecione a frequência das sessões..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SEMANAL">Semanal</SelectItem>
-                        <SelectItem value="QUINZENAL">Quinzenal</SelectItem>
-                        <SelectItem value="MENSAL">Mensal</SelectItem>
+                        <SelectItem value="1">Semanal</SelectItem>
+                        <SelectItem value="2">Quinzenal</SelectItem>
+                        <SelectItem value="4">Mensal</SelectItem>
+                        <SelectItem value="0">Avulso</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -280,11 +281,12 @@ export default function CreateSession() {
                         <SelectValue placeholder="Selecione o horário..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {aVTime.length > 0 ?  aVTime.map((av, index) => {
+                        {aVTime.length > 0 ? aVTime.map((av, index) => {
                           return (
-                            <SelectItem key={index} value={av}>{av}</SelectItem>
+                            <SelectItem key={index} 
+                              value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
                           )
-                        }): <p>Nenhum horário disponível para esse dia</p>}
+                        }) : <p>Nenhum horário disponível para esse dia</p>}
                       </SelectContent>
                     </Select>
                   )}
