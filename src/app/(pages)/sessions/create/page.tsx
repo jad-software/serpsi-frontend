@@ -17,6 +17,8 @@ import { Patient, Phone } from "@/models";
 import { formatDateToddmmYYYY, formatDateToYYYYmmdd } from "@/services/utils/formatDate";
 import { createMeeting, getHourAvailableByDate } from "@/services/meetingsService";
 import { toast } from "sonner";
+import { formatToCurrency } from "@/services/utils/formatCurrency";
+import { formatPhone } from "@/services/utils/formatPhone";
 
 const sessionSchema = z.object({
   startDate: z
@@ -57,17 +59,6 @@ const sessionSchema = z.object({
 });
 
 type SessionData = z.infer<typeof sessionSchema>;
-
-function formatPhone(phoneObj: Phone): string {
-  const ddd = phoneObj._ddd.replace("+", "");
-  const number = phoneObj._number.trim();
-  if (number.length === 9) {
-    return `(${ddd})${number.slice(0, 5)}-${number.slice(5)}`;
-  } else {
-    return `(${ddd}) ${number}`;
-  }
-}
-
 
 export default function CreateSession() {
 
@@ -122,13 +113,6 @@ export default function CreateSession() {
 
   const startDate = watch("startDate");
 
-  const formatToCurrency = (value: string) => {
-    if (!value) return "R$ 0,00";
-    const numericValue = value.replace(/[^\d]/g, "");
-    const num = parseFloat(numericValue) / 100;
-    return `R$ ${num.toFixed(2).replace(".", ",")}`;
-  };
-
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/[^\d]/g, "");
     const formattedValue = formatToCurrency(rawValue);
@@ -139,7 +123,6 @@ export default function CreateSession() {
     setLoading(true);
     const { startDate, startTime, frequency, sessionValue, sessionCount } = data;
     const schedule = `${startDate}T${startTime}z`;
-    console.log('schedule', schedule);
     const meetingFrequency = +frequency;
     const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
 
@@ -161,9 +144,7 @@ export default function CreateSession() {
         return "Erro ao criar sessão, certifique se todos os horários estão livres"
       }
     })
-
   };
-
 
   return (
     <main className="flex flex-col items-center justify-center px-4 py-5 lg:px-10 bg-white">
@@ -192,7 +173,7 @@ export default function CreateSession() {
                 <p>Nome: {data._person && data._person._name}</p>
                 <p>Nascimento: {data._person && formatDateToddmmYYYY(data._person._birthdate)}</p>
                 <p>CPF: {data._person && data._person._cpf._cpf}</p>
-                <p>Tel:{data._person && formatPhone(data._person._phone)}</p>
+                <p>Tel: {data._person && formatPhone(data._person._phone, false)}</p>
               </div>
             </div>
 
@@ -202,10 +183,9 @@ export default function CreateSession() {
                   <p>Responsável {index + 1}: {p._name}</p>
                   <p>Nascimento: {formatDateToddmmYYYY(p._birthdate)}</p>
                   <p>CPF: {p._cpf._cpf}</p>
-                  <p>Tel: {formatPhone(p._phone)}</p>
+                  <p>Tel: {formatPhone(p._phone, false)}</p>
                 </div>
               ))}
-
 
             </div>
           </div>
@@ -334,29 +314,6 @@ export default function CreateSession() {
                 <label className="block text-gray-700 font-medium mt-4 mb-2">
                   Forma de pagamento:
                 </label>
-                {/* <Controller
-                  name="paymentMethod"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                    disabled
-                      onValueChange={
-                        field.onChange
-                      }
-                      value={
-                        field.value
-                      }
-                    >
-                
-                  <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
-                    <SelectValue placeholder="A Definir" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DINHEIRO">Dinheiro</SelectItem>
-                    <SelectItem value="CARTAO">Cartão</SelectItem>
-                  </SelectContent>
-                </Select>
-                  )} */}
                 <Controller
                   name="paymentMethod"
                   control={control}
