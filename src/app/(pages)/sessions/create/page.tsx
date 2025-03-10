@@ -15,7 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Patient, Phone } from "@/models";
 import { formatDateToddmmYYYY, formatDateToYYYYmmdd } from "@/services/utils/formatDate";
-import { getHourAvailableByDate } from "@/services/meetingsService";
+import { createMeeting, getHourAvailableByDate } from "@/services/meetingsService";
+import { toast } from "sonner";
 
 const sessionSchema = z.object({
   startDate: z
@@ -133,13 +134,30 @@ export default function CreateSession() {
     setValue("sessionValue", formattedValue, { shouldValidate: true });
   };
 
-  const onSubmit = (data: SessionData) => {
+  const onSubmit = async (data: SessionData) => {
     const {startDate, startTime, frequency, sessionValue, sessionCount} = data;
     const schedule = `${startDate}T${startTime}z`;
+    console.log('schedule', schedule);
     const meetingFrequency = +frequency;
     const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
-    const quantity = sessionCount;
-    console.log("Form Data:",  schedule, meetingFrequency, +amount, quantity);
+    console.log("Form Data:",  schedule, meetingFrequency, +amount, sessionCount, id);
+    try {
+     const response =  await createMeeting({
+        amount: +amount,
+        frequency: meetingFrequency,
+        patient: id || '',
+        psychologist: "",
+        quantity: sessionCount,
+        schedule: schedule
+      });
+      toast.success("Sessão Criada com sucesso!");
+      console.log('response', response);
+    } catch (error) {
+      toast.error("Erro ao criar sessão, certifique se todos os horários estão livres");
+    } finally {
+      // setIsLoading(false);
+    }
+
   };
 
 

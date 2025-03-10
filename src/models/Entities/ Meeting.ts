@@ -1,8 +1,8 @@
-export interface Address {
-  _schedule: string;
-  _patient: string;
-  _psychologist: string;
-  _quantity: number;
-  _frequency: number;
-  _amount: number;
+export interface Meeting {
+  schedule: string | Date;
+  patient: string;
+  psychologist: string;
+  quantity: number;
+  frequency: number;
+  amount: number;
 }
