@@ -74,6 +74,7 @@ export default function CreateSession() {
   const searchParams = useSearchParams()
   const [data, setData] = useState({} as Patient);
   const [aVTime, setAvTime] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const id = searchParams.get('id');
   useEffect(() => {
     async function fetchData() {
@@ -135,28 +136,31 @@ export default function CreateSession() {
   };
 
   const onSubmit = async (data: SessionData) => {
-    const {startDate, startTime, frequency, sessionValue, sessionCount} = data;
+    setLoading(true);
+    const { startDate, startTime, frequency, sessionValue, sessionCount } = data;
     const schedule = `${startDate}T${startTime}z`;
     console.log('schedule', schedule);
     const meetingFrequency = +frequency;
     const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
-    console.log("Form Data:",  schedule, meetingFrequency, +amount, sessionCount, id);
-    try {
-     const response =  await createMeeting({
-        amount: +amount,
-        frequency: meetingFrequency,
-        patient: id || '',
-        psychologist: "",
-        quantity: sessionCount,
-        schedule: schedule
-      });
-      toast.success("Sessão Criada com sucesso!");
-      console.log('response', response);
-    } catch (error) {
-      toast.error("Erro ao criar sessão, certifique se todos os horários estão livres");
-    } finally {
-      // setIsLoading(false);
-    }
+
+    toast.promise(createMeeting({
+      amount: +amount,
+      frequency: meetingFrequency,
+      patient: id || '',
+      psychologist: "",
+      quantity: sessionCount,
+      schedule: schedule
+    }), {
+      loading: "Carregando...",
+      success: (result) => {
+        setLoading(false);
+        return "Sessão Criada com sucesso!";
+      },
+      error: (result) => {
+        setLoading(false)
+        return "Erro ao criar sessão, certifique se todos os horários estão livres"
+      }
+    })
 
   };
 
@@ -306,7 +310,7 @@ export default function CreateSession() {
                       <SelectContent>
                         {aVTime.length > 0 ? aVTime.map((av, index) => {
                           return (
-                            <SelectItem key={index} 
+                            <SelectItem key={index}
                               value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
                           )
                         }) : <p>Nenhum horário disponível para esse dia</p>}
@@ -342,8 +346,11 @@ export default function CreateSession() {
               </div>
 
               <div className="pb-10 w-full md:col-span-2 flex justify-center">
-                <Button type="submit" className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70">
-                  Confirmar
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70">
+                  {loading ? "Carregando" : "Confirmar"}
                 </Button>
               </div>
             </form>

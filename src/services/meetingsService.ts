@@ -1,6 +1,7 @@
 "use server";
 import { Meeting } from "@/models/Entities/ Meeting";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function getSessions(id: string) {
   const jwt = cookies().get("Authorization")?.value!;
@@ -66,6 +67,6 @@ export async function createMeeting(meetingData: Meeting) {
     console.log('ErrorData',errorData);
 		throw new Error(errorData.message || "Erro ao criar o paciente.");
 	}
-  return response.json();
+  return redirect("/sessions/select");
 
 }
