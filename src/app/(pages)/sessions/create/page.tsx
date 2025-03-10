@@ -334,7 +334,20 @@ export default function CreateSession() {
                 <label className="block text-gray-700 font-medium mt-4 mb-2">
                   Forma de pagamento:
                 </label>
-                <Select {...register("paymentMethod")} disabled>
+                {/* <Controller
+                  name="paymentMethod"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                    disabled
+                      onValueChange={
+                        field.onChange
+                      }
+                      value={
+                        field.value
+                      }
+                    >
+                
                   <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
                     <SelectValue placeholder="A Definir" />
                   </SelectTrigger>
@@ -343,6 +356,34 @@ export default function CreateSession() {
                     <SelectItem value="CARTAO">Cartão</SelectItem>
                   </SelectContent>
                 </Select>
+                  )} */}
+                <Controller
+                  name="paymentMethod"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={
+                        field.onChange
+                      }
+                      value={
+                        field.value
+                      }
+                      disabled
+                    >
+                      <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
+                        <SelectValue placeholder="A Definir" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {aVTime.length > 0 ? aVTime.map((av, index) => {
+                          return (
+                            <SelectItem key={index}
+                              value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
+                          )
+                        }) : <p>Nenhum horário disponível para esse dia</p>}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
 
               <div className="pb-10 w-full md:col-span-2 flex justify-center">
