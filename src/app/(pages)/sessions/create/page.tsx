@@ -12,13 +12,14 @@ import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { getData } from "@/services/myPatientService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Patient, Phone } from "@/models";
 import { formatDateToddmmYYYY, formatDateToYYYYmmdd } from "@/services/utils/formatDate";
 import { createMeeting, getHourAvailableByDate } from "@/services/meetingsService";
 import { toast } from "sonner";
 import { formatToCurrency } from "@/services/utils/formatCurrency";
 import { formatPhone } from "@/services/utils/formatPhone";
+import { getProfileData } from "@/services/profileService";
 
 const sessionSchema = z.object({
   startDate: z
@@ -40,8 +41,8 @@ const sessionSchema = z.object({
   frequency: z.string().min(1, "A frequência da Sessão é obrigatória"),
   sessionValue: z
     .string()
-    .regex(
-      /^R\$ (\d{1,3}(\.\d{3})*|\d+),\d{2}$/,
+    .min(
+      1,
       "O valor da sessão é obrigatório"
     ).refine(
       (value) => {
@@ -66,25 +67,15 @@ export default function CreateSession() {
   const [data, setData] = useState({} as Patient);
   const [aVTime, setAvTime] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  let sessionValue = useRef('R$ 0,00');
   const id = searchParams.get('id');
-  useEffect(() => {
-    async function fetchData() {
-      if (id) {
-        const data = await getData(id);
-        setData(data);
-      }
-    }
-    fetchData();
-  }, [id]);
-
-
 
   const methods = useForm<SessionData>({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
       startDate: "",
       frequency: "",
-      sessionValue: "",
+      sessionValue: sessionValue.current,
       startTime: "",
       sessionCount: 1,
       paymentMethod: "",
@@ -94,6 +85,36 @@ export default function CreateSession() {
 
   const { register, handleSubmit, formState, control, setValue, watch } = methods;
   const { errors } = formState;
+
+
+
+  useEffect(() => {
+    async function fetchData() {
+      if (id) {
+        const data = await getData(id);
+        setData(data);
+      }
+    }
+    fetchData();
+
+  }, [id]);
+
+  useEffect(() => {
+    async function getProfile() {
+      const value = await getProfileData();
+      const numericValue = parseFloat(value._meetValue);
+      const formattedValue = numericValue.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      sessionValue.current = formattedValue;
+      setValue("sessionValue", formattedValue, { shouldValidate: true });
+    }
+    getProfile();
+  }, [setValue]);
+
+
 
   const handleStartDateBlur = async (startDateformated: string) => {
     if (!errors.startDate) {
