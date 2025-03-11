@@ -84,3 +84,29 @@ export async function getMeeting(id: string) {
     return await response.json();
   }
 }
+
+export async function updateMeetingStatus(id: string, status: string) {
+
+  const jwt = cookies().get("Authorization")?.value;
+  if (jwt) {
+    const response = await fetch(
+      process.env.BACKEND_URL + "/meetings/status/" + id, {
+      method: 'PATCH',
+      headers: {
+        Authorization: jwt,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        status: status
+      })
+    }
+    )
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log('ErrorData', errorData);
+      throw new Error(errorData.message || "Erro ao mudar status de Sessão.");
+    }
+    return response.json();
+  }
+}

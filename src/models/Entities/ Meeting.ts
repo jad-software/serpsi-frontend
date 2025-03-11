@@ -11,6 +11,7 @@ export interface Meeting {
 
 export interface MeetingData {
   _patient: Patient;
+  _status: string;
   _document: [
     {
       _title: string,
@@ -19,6 +20,9 @@ export interface MeetingData {
   ];
   _schedule: string | Date;
   _bill: {
+    _id: {
+      _id: string
+    },
     _amount: number,
     _dueDate: string,
     _title: string,
