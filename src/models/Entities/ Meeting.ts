@@ -1,3 +1,5 @@
+import { Patient } from "./Patient";
+
 export interface Meeting {
   schedule: string | Date;
   patient: string;
@@ -5,4 +7,21 @@ export interface Meeting {
   quantity: number;
   frequency: number;
   amount: number;
+}
+
+export interface MeetingData {
+  _patient: Patient;
+  _document: [
+    {
+      _title: string,
+      _docLink: string,
+    }
+  ];
+  _schedule: string | Date;
+  _bill: {
+    _amount: number,
+    _dueDate: string,
+    _title: string,
+    _billType: string
+  };
 }

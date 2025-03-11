@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ListComponent } from "../../patients/[id]/listComponent";
 import { PencilAltIcon } from "@heroicons/react/outline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RichTextEditor from "@/components/richEditor/richEditor";
 import TurndownService from "turndown";
 import { ConfirmSessionDialog } from "./confirmSessionDialog";
 import { CancelSessionDialog } from "./cancelSessionDialog";
 import { toast } from "sonner";
+import { getMeeting } from "@/services/meetingsService";
+import { MeetingData } from "@/models/Entities/ Meeting";
+import { formatToCurrency } from "@/services/utils/formatCurrency";
+import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
+import { formatPhone } from "@/services/utils/formatPhone";
 
 type FileData = {
 	id: string;
@@ -31,12 +36,35 @@ const initialData: FileData[] = [
 		title: "Sessão Roberto2.pdf"
 	}
 ];
-export default function SpecificSessions() {
+export default function SpecificSessions({
+	params
+}: {
+	params: { id: string };
+}) {
 	const [data, setData] = useState<FileData[]>(initialData);
 	const [content, setContent] = useState<string>("");
+	// const [meetingData, setMeetingData] = useState({
+	// 	_documents: [],
+	// 	_status: '',
+	// 	_patient: {
+	// 		_person: {
+	// 			_name: '',
+	// 			_profilePicture: ''
+	// 		}
+	// 	}
+	// })
+	const [meetingData, setMeetingData] = useState({} as MeetingData);
+
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const turndownService = new TurndownService();
-
+	useEffect(() => {
+		async function getMeetingData() {
+			const response = await getMeeting(params.id);
+			console.log(response);
+			setMeetingData(response);
+		}
+		getMeetingData();
+	}, [params.id])
 	const handleSubmit = () => {
 		const markdownContent = turndownService.turndown(content);
 
@@ -75,14 +103,17 @@ export default function SpecificSessions() {
 					<div className="flex w-3/4 flex-col items-center">
 						<Image
 							className="mb-4 h-24 w-24 rounded-full"
-							src={psiImage}
+							src={
+								meetingData._patient?._person?._profilePicture
+									? meetingData._patient._person._profilePicture
+									: psiImage}
 							alt="Profile"
 							width={100}
 							height={100}
 						/>
 						<div className="mb-2 flex flex-row items-center justify-center gap-2">
 							<span className="text-lg text-gray-900">
-								Roberto Santos
+								{meetingData._patient?._person?._name}
 							</span>
 							<Link href={"/patients/"}>
 								<PencilAltIcon
@@ -121,12 +152,12 @@ export default function SpecificSessions() {
 				<Square>
 					<SquareHeader titulo="Informações do paciente:" />
 					<div className="grid grid-cols-1 gap-3 overflow-x-auto text-gray-900 md:grid-cols-2">
-						<p>Nascimento: 31/12/2000</p>
-						<p>Responsável: Roberta Mãe</p>
-						<p>CPF: 000.000.000-00</p>
-						<p>CPF Responsável: 000.000.000-00</p>
-						<p>Tel: (00) 00000 - 0000</p>
-						<p>Tel Responsável: (00) 00000 - 0000</p>
+						<p>Nascimento: {formatDateToddmmYYYY(meetingData?._patient?._person?._birthdate)}</p>
+						<p>Responsável: AJUSTAR</p>
+						<p>CPF: {meetingData?._patient?._person._cpf._cpf}</p>
+						<p>CPF Responsável: AJUSTAR</p>
+						<p>Tel: {meetingData?._patient?._person._phone && formatPhone(meetingData._patient._person._phone, false)}</p>
+						<p>Tel Responsável: AJUSTAR</p>
 					</div>
 				</Square>
 
@@ -141,8 +172,8 @@ export default function SpecificSessions() {
 								Forma de pagamento:
 							</label>
 							<select className="w-full rounded border border-r-8 border-transparent p-2 outline outline-primary-400">
-								<option>Pendente</option>
-								<option>Pago</option>
+								<option value={'A RECEBER'} >Pendente</option>
+								<option value={'A PAGAR'}>Pago</option>
 							</select>
 						</div>
 						<div className="flex flex-col">
@@ -155,10 +186,18 @@ export default function SpecificSessions() {
 							<input
 								id="valor-sessao"
 								type="text"
-								value="R$ 100,00"
+								value={
+									meetingData?._bill?._amount !== undefined
+										? meetingData._bill._amount.toLocaleString("pt-BR", {
+											style: "currency",
+											currency: "BRL",
+										})
+										: ""
+								}
 								className="w-full rounded border border-gray-300 bg-gray-100 p-2 text-gray-500"
 								disabled
 							/>
+
 						</div>
 					</div>
 				</Square>
@@ -181,13 +220,13 @@ export default function SpecificSessions() {
 				<Square className="md:col-span-1">
 					<SquareHeader titulo="Arquivos desta sessão:" />
 					<ul className="md:max-h-30 max-h-40 overflow-auto">
-						{data.length > 0 ? (
-							data.map((followUp, index) => (
+						{meetingData?._document?.length > 0 ? (
+							meetingData?._document.map((followUp, index) => (
 								<ListComponent
-									link={followUp.docLink}
-									content={followUp.title}
-									id={followUp.id}
-									key={followUp.id}
+									link={followUp._docLink}
+									content={followUp._title}
+									id={index.toString()}
+									key={index}
 									variant={
 										index === 0 ? "IsFirst" : "NotFirst"
 									}
