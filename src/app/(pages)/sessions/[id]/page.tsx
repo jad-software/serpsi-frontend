@@ -151,14 +151,25 @@ export default function SpecificSessions({
 				{/* Informações do paciente */}
 				<Square>
 					<SquareHeader titulo="Informações do paciente:" />
-					<div className="grid grid-cols-1 gap-3 overflow-x-auto text-gray-900 md:grid-cols-2">
-						<p>Nascimento: {formatDateToddmmYYYY(meetingData?._patient?._person?._birthdate)}</p>
-						<p>Responsável: AJUSTAR</p>
-						<p>CPF: {meetingData?._patient?._person._cpf._cpf}</p>
-						<p>CPF Responsável: AJUSTAR</p>
-						<p>Tel: {meetingData?._patient?._person._phone && formatPhone(meetingData._patient._person._phone, false)}</p>
-						<p>Tel Responsável: AJUSTAR</p>
+					<div className="flex flex-col gap-3 md:flex-row md:gap-9 overflow-auto">
+						<div>
+							<p>Nascimento: {formatDateToddmmYYYY(meetingData?._patient?._person?._birthdate)}</p>
+							<p>CPF: {meetingData?._patient?._person._cpf._cpf}</p>
+							<p>Tel: {meetingData?._patient?._person._phone && formatPhone(meetingData._patient._person._phone, false)}</p>
+						</div>
+						{meetingData?._patient?._parents.map((parrent, index) => {
+							return (
+								<div key={parrent._id._id}>
+									<p>Responsável {index + 1}: {parrent._name}</p>
+
+									<p>CPF Responsável {index + 1}: {parrent._cpf._cpf}</p>
+									<p>Tel Responsável {index + 1}: {parrent._phone && formatPhone(parrent._phone, false)}</p>
+								</div>
+							)
+						})}
+
 					</div>
+
 				</Square>
 
 				{/* Forma de pagamento e valor */}
