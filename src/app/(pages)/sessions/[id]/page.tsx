@@ -133,6 +133,15 @@ export default function SpecificSessions({
 									className="cursor-pointer text-primary-600"
 								/>
 							</Link>
+							
+						</div>
+						{(meetingData?._status === 'CONFIRMADO' || meetingData?._status === 'CANCELADO') &&
+							<>
+								<p className={`${meetingData?._status === 'CONFIRMADO' ? 'text-cyan-600' : 'text-red-600'}`}>
+									{`Sessão ${meetingData?._status === 'CONFIRMADO' ? 'Confirmada' : 'Cancelada'}`} 
+								</p>
+								</>}
+
 						</div>
 						<div className="flex w-full flex-col gap-2 md:flex-row md:justify-center md:space-x-14">
 							{
@@ -162,7 +171,7 @@ export default function SpecificSessions({
 								/>
 							}
 
-						</div>
+						
 					</div>
 				</Square>
 
