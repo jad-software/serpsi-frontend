@@ -115,8 +115,30 @@ export async function updateMeetingStatus(id: string, status: string) {
 export async function updateMeetingPaymentMethod(billId: string, paymentMethod: PaymentMethod) {
   const jwt = cookies().get("Authorization")?.value;
   if (jwt) {
+    const billIds: string[] = [];
+    billIds.push(billId);
+    
+    const sendData = {
+      billIds,
+      paymentMethod
+    }
     const response = await fetch(
-      process.env.BACKEND_URL + ''
+      process.env.BACKEND_URL + '/bills/payment/' + billId,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: jwt,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify(sendData)
+      }
     )
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log('ErrorData', errorData);
+      throw new Error(errorData.message || "Erro ao mudar método de pagamento de Sessão.");
+    }
+    return response.json();
   }
 }

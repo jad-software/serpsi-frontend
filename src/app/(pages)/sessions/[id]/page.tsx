@@ -12,11 +12,12 @@ import TurndownService from "turndown";
 import { ConfirmSessionDialog } from "./confirmSessionDialog";
 import { CancelSessionDialog } from "./cancelSessionDialog";
 import { toast } from "sonner";
-import { getMeeting, updateMeetingStatus } from "@/services/meetingsService";
+import { getMeeting, updateMeetingPaymentMethod, updateMeetingStatus } from "@/services/meetingsService";
 import { MeetingData } from "@/models/Entities/ Meeting";
 import { formatToCurrency } from "@/services/utils/formatCurrency";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
+import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod";
 
 type FileData = {
 	id: string;
@@ -67,17 +68,28 @@ export default function SpecificSessions({
 	};
 
 	const handleConfirmSession = async (paymentType: string) => {
-		console.log('PaymentType', paymentType);
-		toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
-			loading: "carregando",
-			success: () => {
-				setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
-				return "Sessão cancelada";
-			},
-			error: () => {
-				return "Algo deu errado"
-			}
-		})
+		const paymentMethod: PaymentMethod = {
+			paymentDate: meetingData._bill._dueDate,
+			paymentType: paymentType as PaymentPossibilities
+		};
+		
+		const result = await updateMeetingPaymentMethod(meetingData._bill._id._id, paymentMethod);
+		if(result){
+			toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
+				loading: "carregando",
+				success: () => {
+					setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
+					
+	
+					return "Sessão Confirmada";
+				},
+				error: () => {
+					return "Algo deu errado"
+				}
+			})
+		}
+
+	
 	};
 
 	const handleCancelSession = () => {
@@ -133,45 +145,45 @@ export default function SpecificSessions({
 									className="cursor-pointer text-primary-600"
 								/>
 							</Link>
-							
+
 						</div>
 						{(meetingData?._status === 'CONFIRMADO' || meetingData?._status === 'CANCELADO') &&
 							<>
 								<p className={`${meetingData?._status === 'CONFIRMADO' ? 'text-cyan-600' : 'text-red-600'}`}>
-									{`Sessão ${meetingData?._status === 'CONFIRMADO' ? 'Confirmada' : 'Cancelada'}`} 
+									{`Sessão ${meetingData?._status === 'CONFIRMADO' ? 'Confirmada' : 'Cancelada'}`}
 								</p>
-								</>}
+							</>}
 
-						</div>
-						<div className="flex w-full flex-col gap-2 md:flex-row md:justify-center md:space-x-14">
-							{
-								meetingData?._status === 'ABERTO' &&
-								<ConfirmSessionDialog
-									onConfirm={handleConfirmSession}
-									triggerButton={
-										<button className="w-full flex-1 rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70">
-											Confirmar{" "}
-											<br className="hidden md:inline" />
-											Sessão
-										</button>
-									}
-								/>
-							}
-							{
-								(meetingData?._status === 'ABERTO' || meetingData?._status !== 'CANCELADO') &&
-								<CancelSessionDialog
-									onCancel={handleCancelSession}
-									triggerButton={
-										<button className="flex-1 rounded border border-primary-600 bg-transparent p-2 text-primary-600 hover:bg-primary-100/70 hover:text-primary-600 md:w-48">
-											Cancelar{" "}
-											<br className="hidden md:inline" />
-											Sessão
-										</button>
-									}
-								/>
-							}
+					</div>
+					<div className="flex w-full flex-col gap-2 md:flex-row md:justify-center md:space-x-14">
+						{
+							meetingData?._status === 'ABERTO' &&
+							<ConfirmSessionDialog
+								onConfirm={handleConfirmSession}
+								triggerButton={
+									<button className="w-full flex-1 rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70">
+										Confirmar{" "}
+										<br className="hidden md:inline" />
+										Sessão
+									</button>
+								}
+							/>
+						}
+						{
+							(meetingData?._status === 'ABERTO' || meetingData?._status !== 'CANCELADO') &&
+							<CancelSessionDialog
+								onCancel={handleCancelSession}
+								triggerButton={
+									<button className="flex-1 rounded border border-primary-600 bg-transparent p-2 text-primary-600 hover:bg-primary-100/70 hover:text-primary-600 md:w-48">
+										Cancelar{" "}
+										<br className="hidden md:inline" />
+										Sessão
+									</button>
+								}
+							/>
+						}
 
-						
+
 					</div>
 				</Square>
 

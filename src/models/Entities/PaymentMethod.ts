@@ -1,4 +1,4 @@
-enum PaymentPossibilities{
+export enum PaymentPossibilities{
   DINHEIRO = 'DINHEIRO',
   CARTAO = 'CARTAO',
   TRANSFERENCIA = 'TRANSFERENCIA', 
