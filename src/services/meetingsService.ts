@@ -1,5 +1,6 @@
 "use server";
 import { Meeting } from "@/models/Entities/ Meeting";
+import { PaymentMethod } from "@/models/Entities/PaymentMethod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -108,5 +109,14 @@ export async function updateMeetingStatus(id: string, status: string) {
       throw new Error(errorData.message || "Erro ao mudar status de Sessão.");
     }
     return response.json();
+  }
+}
+
+export async function updateMeetingPaymentMethod(billId: string, paymentMethod: PaymentMethod) {
+  const jwt = cookies().get("Authorization")?.value;
+  if (jwt) {
+    const response = await fetch(
+      process.env.BACKEND_URL + ''
+    )
   }
 }

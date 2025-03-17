@@ -62,12 +62,22 @@ export default function SpecificSessions({
 		const link = document.createElement("a");
 		link.href = URL.createObjectURL(blob);
 		link.download = "document.md";
+		// console.log('link', link);
 		link.click();
 	};
 
-	const handleConfirmSession = async () => {
-		// const teste = await getMeeting(params.id);
-		toast.info("Sessão confirmada");
+	const handleConfirmSession = async (paymentType: string) => {
+		console.log('PaymentType', paymentType);
+		toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
+			loading: "carregando",
+			success: () => {
+				setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
+				return "Sessão cancelada";
+			},
+			error: () => {
+				return "Algo deu errado"
+			}
+		})
 	};
 
 	const handleCancelSession = () => {
