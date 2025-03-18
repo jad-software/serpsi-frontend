@@ -14,11 +14,9 @@ import { CancelSessionDialog } from "./cancelSessionDialog";
 import { toast } from "sonner";
 import { getMeeting, updateMeetingPaymentMethod, updateMeetingStatus } from "@/services/meetingsService";
 import { MeetingData } from "@/models/Entities/ Meeting";
-import { formatToCurrency } from "@/services/utils/formatCurrency";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod";
-import { getCookies } from "@/services/profileService";
 import { handleAditionalFileUpload } from "./handleFileUpload";
 
 type FileData = {
@@ -35,8 +33,9 @@ export default function SpecificSessions({
 	const [data, setData] = useState<FileData[]>([]);
 	const [content, setContent] = useState<string>("");
 	const [meetingData, setMeetingData] = useState({} as MeetingData);
-
+	const [isFileUploading, setIsFileUploading] = useState<boolean>(false);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 	const turndownService = new TurndownService();
 	useEffect(() => {
 		async function getMeetingData() {
@@ -70,8 +69,6 @@ export default function SpecificSessions({
 				loading: "carregando",
 				success: () => {
 					setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
-
-
 					return "Sessão Confirmada";
 				},
 				error: () => {
@@ -98,10 +95,11 @@ export default function SpecificSessions({
 	};
 
 	const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-
+		setIsFileUploading(true);
 		toast.promise(handleAditionalFileUpload(event, params.id), {
 			loading: 'Carregando',
 			success: (result) => {
+				setIsFileUploading(false);
 				setData((prevData) => [
 					...prevData,
 					...result.map((file: { id: string; _docLink: string; _title: string }) => ({
@@ -113,6 +111,7 @@ export default function SpecificSessions({
 				return "Arquivos enviados com sucesso!";
 			},
 			error: () => {
+				setIsFileUploading(false);
 				return "Erro ao enviar arquivos";
 			}
 		})
@@ -270,7 +269,7 @@ export default function SpecificSessions({
 				{/* Arquivos da sessão */}
 				<Square className="md:col-span-1">
 					<SquareHeader titulo="Arquivos desta sessão:" />
-					<ul className="md:max-h-30 max-h-40 overflow-auto">
+					<ul className="md:max-h-30 max-h-40 max-w-80  overflow-auto">
 						{data.length > 0 ? (
 							data.map((followUp, index) => (
 								<ListComponent
@@ -303,6 +302,7 @@ export default function SpecificSessions({
 							accept="application/pdf"
 							className="hidden"
 							multiple={true}
+							disabled={isFileUploading}
 							onChange={handleFileUpload}
 						/>
 					</div>
