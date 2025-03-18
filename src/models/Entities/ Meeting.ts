@@ -12,7 +12,7 @@ export interface Meeting {
 export interface MeetingData {
   _patient: Patient;
   _status: string;
-  _document: [
+  _documents: [
     {
       _title: string,
       _docLink: string,

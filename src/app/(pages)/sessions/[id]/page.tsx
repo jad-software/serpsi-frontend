@@ -18,31 +18,20 @@ import { formatToCurrency } from "@/services/utils/formatCurrency";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod";
+import { getCookies } from "@/services/profileService";
 
 type FileData = {
 	id: string;
-	docLink: string;
-	title: string;
+	_docLink: string;
+	_title: string;
 };
 
-const initialData: FileData[] = [
-	{
-		id: "1",
-		docLink: "https://teste.com",
-		title: "Sessão Roberto.pdf"
-	},
-	{
-		id: "2",
-		docLink: "https://teste2.com",
-		title: "Sessão Roberto2.pdf"
-	}
-];
 export default function SpecificSessions({
 	params
 }: {
 	params: { id: string };
 }) {
-	const [data, setData] = useState<FileData[]>(initialData);
+	const [data, setData] = useState<FileData[]>([]);
 	const [content, setContent] = useState<string>("");
 	const [meetingData, setMeetingData] = useState({} as MeetingData);
 
@@ -53,6 +42,7 @@ export default function SpecificSessions({
 			const response = await getMeeting(params.id);
 			console.log(response);
 			setMeetingData(response);
+			setData(response._documents as FileData[])
 		}
 		getMeetingData();
 	}, [params.id])
@@ -80,7 +70,7 @@ export default function SpecificSessions({
 				success: () => {
 					setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
 					
-	
+
 					return "Sessão Confirmada";
 				},
 				error: () => {
@@ -106,18 +96,46 @@ export default function SpecificSessions({
 		})
 	};
 
-	const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (!event.target.files) return;
-
+	
 		const files = Array.from(event.target.files);
-		const newFiles: FileData[] = files.map((file, index) => ({
-			id: `new-${Date.now()}-${index}`,
-			docLink: URL.createObjectURL(file),
-			title: file.name
-		}));
-
-		setData((prevData) => [...prevData, ...newFiles]); // Atualiza a lista de arquivos
+		const formData = new FormData();
+		const jwt = await getCookies();
+	
+		files.forEach((file) => {
+				formData.append("documents", file);
+		});
+		formData.append("meeting", params.id);
+		try {
+				const response = await fetch(	process.env.NEXT_PUBLIC_BACKEND_URL + "/documents/aditional", {
+						method: "POST",
+						headers:{
+							Authorization: jwt, 
+						},
+						body: formData
+				});
+	
+				if (!response.ok) {
+						throw new Error("Erro ao enviar arquivos");
+				}
+	
+				const result = await response.json();
+				toast.success("Arquivos enviados com sucesso!");
+				setData((prevData) => [
+						...prevData,
+						...result.map((file: { id: string; _docLink: string; _title: string }) => ({
+								id: file.id,
+								_docLink: file._docLink,
+								_title: file._title
+						}))
+				]);
+		} catch (error) {
+				toast.error("Erro ao enviar arquivos");
+				console.error(error);
+		}
 	};
+	
 	return (
 		<div className="container mx-auto p-4">
 			<div className="grid grid-cols-1 gap-4 gap-x-4 md:grid-cols-[max-content_1fr]">
@@ -270,8 +288,8 @@ export default function SpecificSessions({
 				<Square className="md:col-span-1">
 					<SquareHeader titulo="Arquivos desta sessão:" />
 					<ul className="md:max-h-30 max-h-40 overflow-auto">
-						{meetingData?._document?.length > 0 ? (
-							meetingData?._document.map((followUp, index) => (
+						{data.length > 0 ? (
+							data.map((followUp, index) => (
 								<ListComponent
 									link={followUp._docLink}
 									content={followUp._title}
