@@ -19,6 +19,7 @@ import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod";
 import { getCookies } from "@/services/profileService";
+import { handleAditionalFileUpload } from "./handleFileUpload";
 
 type FileData = {
 	id: string;
@@ -62,14 +63,14 @@ export default function SpecificSessions({
 			paymentDate: meetingData._bill._dueDate,
 			paymentType: paymentType as PaymentPossibilities
 		};
-		
+
 		const result = await updateMeetingPaymentMethod(meetingData._bill._id._id, paymentMethod);
-		if(result){
+		if (result) {
 			toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
 				loading: "carregando",
 				success: () => {
 					setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
-					
+
 
 					return "Sessão Confirmada";
 				},
@@ -79,7 +80,7 @@ export default function SpecificSessions({
 			})
 		}
 
-	
+
 	};
 
 	const handleCancelSession = () => {
@@ -97,45 +98,27 @@ export default function SpecificSessions({
 	};
 
 	const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (!event.target.files) return;
-	
-		const files = Array.from(event.target.files);
-		const formData = new FormData();
-		const jwt = await getCookies();
-	
-		files.forEach((file) => {
-				formData.append("documents", file);
-		});
-		formData.append("meeting", params.id);
-		try {
-				const response = await fetch(	process.env.NEXT_PUBLIC_BACKEND_URL + "/documents/aditional", {
-						method: "POST",
-						headers:{
-							Authorization: jwt, 
-						},
-						body: formData
-				});
-	
-				if (!response.ok) {
-						throw new Error("Erro ao enviar arquivos");
-				}
-	
-				const result = await response.json();
-				toast.success("Arquivos enviados com sucesso!");
+
+		toast.promise(handleAditionalFileUpload(event, params.id), {
+			loading: 'Carregando',
+			success: (result) => {
 				setData((prevData) => [
-						...prevData,
-						...result.map((file: { id: string; _docLink: string; _title: string }) => ({
-								id: file.id,
-								_docLink: file._docLink,
-								_title: file._title
-						}))
+					...prevData,
+					...result.map((file: { id: string; _docLink: string; _title: string }) => ({
+						id: file.id,
+						_docLink: file._docLink,
+						_title: file._title
+					}))
 				]);
-		} catch (error) {
-				toast.error("Erro ao enviar arquivos");
-				console.error(error);
-		}
+				return "Arquivos enviados com sucesso!";
+			},
+			error: () => {
+				return "Erro ao enviar arquivos";
+			}
+		})
+
 	};
-	
+
 	return (
 		<div className="container mx-auto p-4">
 			<div className="grid grid-cols-1 gap-4 gap-x-4 md:grid-cols-[max-content_1fr]">
