@@ -146,7 +146,7 @@ export default function CreateSession() {
     const schedule = `${startDate}T${startTime}z`;
     const meetingFrequency = +frequency;
     const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
-
+    
     toast.promise(createMeeting({
       amount: +amount,
       frequency: meetingFrequency,

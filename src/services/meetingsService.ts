@@ -59,6 +59,7 @@ export async function createMeeting(meetingData: Meeting) {
       patient: meetingData.patient,
       psychologist: meetingData.psychologist,
       quantity: meetingData.quantity,
+      amount: meetingData.amount,
       frequency: meetingData.frequency
     })
   });
