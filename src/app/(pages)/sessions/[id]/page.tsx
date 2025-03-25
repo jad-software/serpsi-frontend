@@ -295,7 +295,7 @@ export default function SpecificSessions({
 				{/* Arquivos da sessão */}
 				<Square className="md:col-span-1">
 					<SquareHeader titulo="Arquivos desta sessão:" />
-					<ul className="md:max-h-30 max-h-40 max-w-80  overflow-auto">
+					<ul className="md:max-h-30 max-h-28 max-w-80  overflow-auto">
 						{data.length > 0 ? (
 							data.map((followUp, index) => (
 								<ListComponent
