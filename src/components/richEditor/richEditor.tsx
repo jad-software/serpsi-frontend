@@ -1,24 +1,48 @@
 import dynamic from 'next/dynamic';
-import 'quill/dist/quill.bubble.css'; 
-import 'quill/dist/quill.snow.css'; 
-import '@/components/richEditor/quill-custom.css'
-
+import 'quill/dist/quill.bubble.css';
+import 'quill/dist/quill.snow.css';
+import '@/components/richEditor/quill-custom.css';
+import { useMemo } from 'react';
 
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-// Carregar dinamicamente para evitar problemas com SSR no Next.js
-const QuillNoSSRWrapper = dynamic(() => import('react-quill'), { ssr: false });
+const QuillNoSSRWrapper = dynamic(() => import('react-quill'), { 
+  ssr: false,
+  loading: () => <p>Carregando editor...</p>
+});
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
+  // Configuração dos módulos do Quill
+  const modules = useMemo(() => ({
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image'],
+      ['clean']
+    ],
+    clipboard: {
+      matchVisual: false, // Preserva formatação ao colar
+    }
+  }), []);
+
   return (
     <QuillNoSSRWrapper
       theme="snow"
       value={value}
-      placeholder='Text'
       onChange={onChange}
+      modules={modules}
       className='h-[45vh]'
+      placeholder='Digite o relato da sessão aqui...'
+      formats={[
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet',
+        'link', 'image'
+      ]}
     />
   );
 };

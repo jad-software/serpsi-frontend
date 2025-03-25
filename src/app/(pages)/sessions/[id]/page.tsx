@@ -45,12 +45,18 @@ export default function SpecificSessions({
 			const filteredDocuments = documents.filter(res => res._title !== 'Relato de sessão');
 			setData(filteredDocuments);
 			const sessionReport = documents.filter(res => res._title === 'Relato de sessão');
-    
-			if (sessionReport) {
+
+			if (sessionReport.length > 0) {
 				try {
 					const response = await fetch(sessionReport[sessionReport.length - 1]._docLink);
-					const content = await response.text();
-					setContent(content);
+					const htmlContent = await response.text();
+
+					const cleanHtml = htmlContent
+						.replace(/<body[^>]*>/, '')
+						.replace(/<\/body>/, '')
+						.replace(/<head[^>]*>[\s\S]*<\/head>/, '');
+
+					setContent(cleanHtml);
 				} catch (error) {
 					console.error("Erro ao carregar relato de sessão:", error);
 				}
@@ -58,21 +64,23 @@ export default function SpecificSessions({
 		}
 		getMeetingData();
 	}, [params.id])
-	
-	const handleSubmit = async() => {
-		const markdownContent = turndownService.turndown(content);
 
-		const blob = new Blob([markdownContent], { type: "text/markdown"  });
-		
-		toast.promise(handleSessionReportUpload('Relato de sessão' ,params.id, blob), {
-			loading: 'Carregando',
+	const handleSubmit = async () => {
+		const cleanHtml = content
+			.replace(/ class="[^"]*"/g, '')
+			.replace(/ style="[^"]*"/g, '');
+
+		const blob = new Blob([cleanHtml], { type: "text/html" });
+
+		toast.promise(handleSessionReportUpload('Relato de sessão', params.id, blob), {
+			loading: 'Salvando relato...',
 			success: (result) => {
-				return 'Relato de sessão salva com sucesso'
-			}, 
-			error:() => {
-				return "Algo deu errado no envio do relato"
+				return 'Relato de sessão salvo com sucesso';
+			},
+			error: () => {
+				return "Erro ao salvar o relato";
 			}
-		})
+		});
 	};
 
 	const handleConfirmSession = async (paymentType: string) => {
