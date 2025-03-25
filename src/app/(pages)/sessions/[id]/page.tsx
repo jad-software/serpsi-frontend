@@ -17,7 +17,7 @@ import { MeetingData } from "@/models/Entities/ Meeting";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod";
-import { handleAditionalFileUpload } from "./handleFileUpload";
+import { handleAditionalFileUpload, handleSessionReportUpload } from "./handleFileUpload";
 
 type FileData = {
 	id: string;
@@ -40,21 +40,21 @@ export default function SpecificSessions({
 	useEffect(() => {
 		async function getMeetingData() {
 			const response = await getMeeting(params.id);
-			console.log(response);
 			setMeetingData(response);
-			setData(response._documents as FileData[])
+			const documents = response._documents as FileData[];
+			const filteredDocuments = documents.filter(res => res._title !== 'Relato de sessão');
+			setData(filteredDocuments)
 		}
 		getMeetingData();
 	}, [params.id])
-	const handleSubmit = () => {
+	
+	const handleSubmit = async() => {
 		const markdownContent = turndownService.turndown(content);
 
-		const blob = new Blob([markdownContent], { type: "text/markdown" });
-		const link = document.createElement("a");
-		link.href = URL.createObjectURL(blob);
-		link.download = "document.md";
-		// console.log('link', link);
-		link.click();
+		const blob = new Blob([markdownContent], { type: "text/markdown"  });
+		
+		const result = await handleSessionReportUpload('Relato de sessão' ,params.id, blob);
+		console.log('Result', result);
 	};
 
 	const handleConfirmSession = async (paymentType: string) => {

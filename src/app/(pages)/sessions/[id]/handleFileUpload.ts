@@ -29,3 +29,28 @@ export const handleAditionalFileUpload = async (event: React.ChangeEvent<HTMLInp
   const result = await response.json();
   return result;
 }
+
+export const handleSessionReportUpload = async(title = 'Relato de sessão', meeting: string, sessionReport: Blob) => {
+  const formData = new FormData();
+  const jwt = await getCookies();
+  formData.append('title', title);
+  formData.append('meeting', meeting);
+  formData.append('document', sessionReport, 'relato_sessao.md');
+  
+  const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/documents", {
+    method: "POST",
+    headers: {
+      Authorization: jwt,
+    },
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.log('ErrorData', errorData);
+    throw new Error("Erro ao enviar relato de sessão");
+  }
+
+  const result = await response.json();
+  return result;
+}
