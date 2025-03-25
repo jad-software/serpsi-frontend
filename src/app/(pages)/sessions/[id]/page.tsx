@@ -53,8 +53,15 @@ export default function SpecificSessions({
 
 		const blob = new Blob([markdownContent], { type: "text/markdown"  });
 		
-		const result = await handleSessionReportUpload('Relato de sessão' ,params.id, blob);
-		console.log('Result', result);
+		toast.promise(handleSessionReportUpload('Relato de sessão' ,params.id, blob), {
+			loading: 'Carregando',
+			success: (result) => {
+				return 'Relato de sessão salva com sucesso'
+			}, 
+			error:() => {
+				return "Algo deu errado no envio do relato"
+			}
+		})
 	};
 
 	const handleConfirmSession = async (paymentType: string) => {
@@ -66,7 +73,7 @@ export default function SpecificSessions({
 		const result = await updateMeetingPaymentMethod(meetingData._bill._id._id, paymentMethod);
 		if (result) {
 			toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
-				loading: "carregando",
+				loading: "Carregando",
 				success: () => {
 					setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
 					return "Sessão Confirmada";
