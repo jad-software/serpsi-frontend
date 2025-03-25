@@ -34,3 +34,27 @@
   color: #374151;
   padding: 10px; 
 }
+
+/* Estilos para listas */
+.ql-editor ul,
+.ql-editor ol {
+  padding-left: 1.5em;
+}
+
+.ql-editor ul li:before {
+  content: '•';
+  margin-right: 0.5em;
+}
+
+.ql-editor ol {
+  counter-reset: list-1;
+}
+
+.ql-editor ol li {
+  counter-increment: list-1;
+}
+
+.ql-editor ol li:before {
+  content: counter(list-1) ".";
+  margin-right: 0.5em;
+}
