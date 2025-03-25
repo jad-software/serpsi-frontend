@@ -43,7 +43,18 @@ export default function SpecificSessions({
 			setMeetingData(response);
 			const documents = response._documents as FileData[];
 			const filteredDocuments = documents.filter(res => res._title !== 'Relato de sessão');
-			setData(filteredDocuments)
+			setData(filteredDocuments);
+			const sessionReport = documents.filter(res => res._title === 'Relato de sessão');
+    
+			if (sessionReport) {
+				try {
+					const response = await fetch(sessionReport[sessionReport.length - 1]._docLink);
+					const content = await response.text();
+					setContent(content);
+				} catch (error) {
+					console.error("Erro ao carregar relato de sessão:", error);
+				}
+			}
 		}
 		getMeetingData();
 	}, [params.id])
