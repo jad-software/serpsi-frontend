@@ -339,12 +339,12 @@ export default function SpecificSessions({
 				{/* Botão para ver histórico de sessões */}
 				<Square className="md:col-span-1">
 					<div className="h-full w-full flex items-center justify-center">
-					<Link href={`/patients/${meetingData?._patient?._id?._id}/past-sessions`}
-					className="w-full rounded bg-primary-600 px-4 py-2  text-center text-white hover:bg-primary-600/70">
-						Ver Histórico de Sessões
-					</Link>
+						<Link href={`/patients/${meetingData?._patient?._id?._id}/past-sessions?name=` + meetingData?._patient?._person?._name}
+							className="w-full rounded bg-primary-600 px-4 py-2  text-center text-white hover:bg-primary-600/70">
+							Ver Histórico de Sessões
+						</Link>
 					</div>
-				
+
 				</Square>
 			</div>
 		</div>
