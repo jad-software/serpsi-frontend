@@ -16,7 +16,7 @@ import { getMeeting, updateMeetingPaymentMethod, updateMeetingStatus } from "@/s
 import { MeetingData } from "@/models/Entities/ Meeting";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
-import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod";
+import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod"
 import { handleAditionalFileUpload, handleSessionReportUpload } from "./handleFileUpload";
 
 type FileData = {
@@ -45,7 +45,7 @@ export default function SpecificSessions({
 			const filteredDocuments = documents.filter(res => res._title !== 'Relato de sessão');
 			setData(filteredDocuments);
 			const sessionReport = documents.filter(res => res._title === 'Relato de sessão');
-			console.log('result',response );
+
 			if (sessionReport.length > 0) {
 				try {
 					const response = await fetch(sessionReport[sessionReport.length - 1]._docLink);
@@ -85,23 +85,20 @@ export default function SpecificSessions({
 
 	const handleConfirmSession = async () => {
 
-
-		// const result = await updateMeetingPaymentMethod(meetingData._bill._id._id, paymentMethod);
-			toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
-				loading: "Carregando",
-				success: () => {
-					setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
-					return "Sessão Confirmada";
-				},
-				error: () => {
-					return "Algo deu errado"
-				}
-			})
+		toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
+			loading: "Carregando",
+			success: () => {
+				setMeetingData(prev => ({ ...prev, _status: "CONFIRMADO" }));
+				return "Sessão Confirmada";
+			},
+			error: () => {
+				return "Algo deu errado"
+			}
+		})
 
 	};
 
 	const handleCancelSession = () => {
-		console.log('Sessão cancelada');
 		toast.promise(updateMeetingStatus(params.id, "CANCELADO"), {
 			loading: "carregando",
 			success: () => {
@@ -158,13 +155,15 @@ export default function SpecificSessions({
 							<span className="text-lg text-gray-900">
 								{meetingData._patient?._person?._name}
 							</span>
-							<Link href={"/patients/"}>
-								<PencilAltIcon
-									width={24}
-									height={24}
-									className="cursor-pointer text-primary-600"
-								/>
-							</Link>
+							{meetingData._patient &&
+								<Link href={`/patients/${meetingData._patient._id._id}`}>
+									<PencilAltIcon
+										width={24}
+										height={24}
+										className="cursor-pointer text-primary-600"
+									/>
+								</Link>}
+
 
 						</div>
 						{(meetingData?._status === 'CONFIRMADO' || meetingData?._status === 'CANCELADO') &&
@@ -235,30 +234,21 @@ export default function SpecificSessions({
 				<Square className="p-4 md:col-span-1">
 					<div className="flex flex-col space-y-2">
 						<div className="flex flex-col">
-							{/* <label
-								className="mb-2 text-gray-900"
-								htmlFor="forma-pagamento"
-							>
-								Forma de pagamento:
-							</label>
-							<select className="w-full rounded border border-r-8 border-transparent p-2 outline outline-primary-400">
-								<option value={'A RECEBER'} >Pendente</option>
-								<option value={'A PAGAR'}>Pago</option>
-							</select> */}
+
 							<label
 								className="mb-2 text-gray-900"
 								htmlFor="forma-pagamento"
 							>
-								Forma de pagamento:		
+								Forma de pagamento:
 							</label>
 							<input
 								id="forma-pagamento"
 								type="text"
 								value={
 									meetingData?._bill !== null ? (
-									meetingData?._bill?._paymentMethod._paymentDate !== null
-										? 'Recebido'
-										: "Pendente") : ""
+										meetingData?._bill?._paymentMethod._paymentDate !== null
+											? 'Recebido'
+											: "Pendente") : ""
 								}
 								className="w-full rounded border border-gray-300 bg-gray-100 p-2 text-gray-500"
 								disabled
@@ -347,10 +337,14 @@ export default function SpecificSessions({
 				</Square>
 
 				{/* Botão para ver histórico de sessões */}
-				<Square className="flex items-center justify-center md:col-span-1">
-					<button className="w-full rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-600/70">
+				<Square className="md:col-span-1">
+					<div className="h-full w-full flex items-center justify-center">
+					<Link href={`/patients/${meetingData?._patient?._id?._id}/past-sessions`}
+					className="w-full rounded bg-primary-600 px-4 py-2  text-center text-white hover:bg-primary-600/70">
 						Ver Histórico de Sessões
-					</button>
+					</Link>
+					</div>
+				
 				</Square>
 			</div>
 		</div>
