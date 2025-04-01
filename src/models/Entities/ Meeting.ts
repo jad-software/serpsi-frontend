@@ -23,6 +23,10 @@ export interface MeetingData {
     _id: {
       _id: string
     },
+    _paymentMethod:{
+      _paymentDate: Date,
+      _paymentType: string
+    },
     _amount: number,
     _dueDate: string,
     _title: string,

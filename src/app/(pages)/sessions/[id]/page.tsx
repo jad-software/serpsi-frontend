@@ -45,7 +45,7 @@ export default function SpecificSessions({
 			const filteredDocuments = documents.filter(res => res._title !== 'Relato de sessão');
 			setData(filteredDocuments);
 			const sessionReport = documents.filter(res => res._title === 'Relato de sessão');
-
+			console.log('result',response );
 			if (sessionReport.length > 0) {
 				try {
 					const response = await fetch(sessionReport[sessionReport.length - 1]._docLink);
@@ -83,14 +83,10 @@ export default function SpecificSessions({
 		});
 	};
 
-	const handleConfirmSession = async (paymentType: string) => {
-		const paymentMethod: PaymentMethod = {
-			paymentDate: meetingData._bill._dueDate,
-			paymentType: paymentType as PaymentPossibilities
-		};
+	const handleConfirmSession = async () => {
 
-		const result = await updateMeetingPaymentMethod(meetingData._bill._id._id, paymentMethod);
-		if (result) {
+
+		// const result = await updateMeetingPaymentMethod(meetingData._bill._id._id, paymentMethod);
 			toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
 				loading: "Carregando",
 				success: () => {
@@ -101,8 +97,6 @@ export default function SpecificSessions({
 					return "Algo deu errado"
 				}
 			})
-		}
-
 
 	};
 
@@ -241,7 +235,7 @@ export default function SpecificSessions({
 				<Square className="p-4 md:col-span-1">
 					<div className="flex flex-col space-y-2">
 						<div className="flex flex-col">
-							<label
+							{/* <label
 								className="mb-2 text-gray-900"
 								htmlFor="forma-pagamento"
 							>
@@ -250,7 +244,25 @@ export default function SpecificSessions({
 							<select className="w-full rounded border border-r-8 border-transparent p-2 outline outline-primary-400">
 								<option value={'A RECEBER'} >Pendente</option>
 								<option value={'A PAGAR'}>Pago</option>
-							</select>
+							</select> */}
+							<label
+								className="mb-2 text-gray-900"
+								htmlFor="forma-pagamento"
+							>
+								Forma de pagamento:		
+							</label>
+							<input
+								id="forma-pagamento"
+								type="text"
+								value={
+									meetingData?._bill !== null ? (
+									meetingData?._bill?._paymentMethod._paymentDate !== null
+										? 'Recebido'
+										: "Pendente") : ""
+								}
+								className="w-full rounded border border-gray-300 bg-gray-100 p-2 text-gray-500"
+								disabled
+							/>
 						</div>
 						<div className="flex flex-col">
 							<label
