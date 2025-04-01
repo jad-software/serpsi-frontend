@@ -22,20 +22,15 @@ import {
 	SelectItem
 } from "@/components/ui/select";
 import { UpdateManyBillDialog } from "./updateManyBillDialog";
+import { toast } from "sonner";
 
 export default function BillsPage() {
 	const [data, setData] = useState({} as BillsColumns[]);
-	useEffect(() => {
-		async function fetchData() {
-			const data = await getData();
-			setData(data);
-		}
-		fetchData();
-	}, []);
 	const [rowSelection, setRowSelection] = useState({});
+
 	let table = useReactTable({
 		data,
-		columns,
+		columns: columns(() => refreshData()),
 		getCoreRowModel: getCoreRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -44,10 +39,20 @@ export default function BillsPage() {
 			rowSelection
 		}
 	});
+
+	async function refreshData() {
+		const updatedData = await getData();
+		setData(updatedData);
+		setRowSelection({})
+	}
+
+	useEffect(() => {
+		refreshData();
+	}, []);
 	return (
 		<main className="flex h-full w-full flex-col items-center justify-center bg-white p-3">
 			<DataTable
-				columns={columns}
+				columns={columns(() => refreshData())}
 				table={table}
 				filteringNode={
 					<div className="flex w-full justify-start gap-4">
@@ -59,12 +64,12 @@ export default function BillsPage() {
 								placeholder={`Procurar por nome...`}
 								value={
 									(table
-										.getColumn("name")
+										.getColumn("_title")
 										?.getFilterValue() as string) ?? ""
 								}
 								onChange={(event) =>
 									table
-										.getColumn("name")
+										.getColumn("_title")
 										?.setFilterValue(event.target.value)
 								}
 							/>
@@ -72,17 +77,17 @@ export default function BillsPage() {
 						<Select
 							value={
 								(table
-									.getColumn("billType")
+									.getColumn("_billType")
 									?.getFilterValue() as string) ?? ""
 							}
 							onValueChange={(value) =>
 								value !== "TODOS"
 									? table
-											.getColumn("billType")
-											?.setFilterValue(value)
+										.getColumn("_billType")
+										?.setFilterValue(value)
 									: table
-											.getColumn("billType")
-											?.setFilterValue(undefined)
+										.getColumn("_billType")
+										?.setFilterValue(undefined)
 							}
 						>
 							<SelectTrigger
@@ -98,16 +103,13 @@ export default function BillsPage() {
 								<SelectItem value="A RECEBER">
 									A receber
 								</SelectItem>
-								<SelectItem value="PAGO">Pago</SelectItem>
-								<SelectItem value="RECEBIDO">
-									Recebido
-								</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
 				}
 				linkTop={
 					<NewBillDialog
+						onSuccess={refreshData}
 						triggerButton={
 							<Link
 								href=""
@@ -120,6 +122,9 @@ export default function BillsPage() {
 				}
 				selectedAction={
 					<UpdateManyBillDialog
+						onSuccess={() => {
+							refreshData();
+						}}
 						triggerButton={
 							<Button
 								variant="link"
@@ -132,7 +137,7 @@ export default function BillsPage() {
 									)
 								}
 							>
-								Atualizar contas selecionadas
+								Adicionar pagamento para as contas selecionadas
 								<CurrencyDollarIcon className="h-4 w-4" />
 							</Button>
 						}

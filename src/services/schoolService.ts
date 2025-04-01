@@ -37,30 +37,34 @@ export async function getSchool({
 	...params
 }: TypeSchool): Promise<TypeSchoolData | undefined> {
 	const jwt = cookies().get("Authorization")?.value!;
-	if (jwt) {
-		let request = "";
-		if (params.nome) {
-			request += `name=${params.nome}`;
-		}
-		if (params.cnpj) {
-			if (request.length > 0) request += "&";
-			request += `CNPJ=${params.cnpj}`;
-		}
-
-		const response = await fetch(
-			`${process.env.BACKEND_URL}/school/search?${request}`,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: jwt
-				}
-			}
+	if (!jwt) {
+		throw new Error(
+			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
-
-		if (!response.ok) {
-			return;
-		}
-		return await response.json();
 	}
+	let request = "";
+	if (params.nome) {
+		request += `name=${params.nome}`;
+	}
+	if (params.cnpj) {
+		if (request.length > 0) request += "&";
+		request += `CNPJ=${params.cnpj}`;
+	}
+
+	const response = await fetch(
+		`${process.env.BACKEND_URL}/school/search?${request}`,
+		{
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: jwt
+			}
+		}
+	);
+
+	if (!response.ok) {
+		return;
+	}
+	return await response.json();
+
 }
