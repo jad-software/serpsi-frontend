@@ -1,8 +1,6 @@
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-
+import DOMPurify from 'dompurify';
 
 function Markdown({ url, className }: { url: string; className: string }) {
 	const [markdownContent, setMarkdownContent] = useState("");
@@ -11,7 +9,8 @@ function Markdown({ url, className }: { url: string; className: string }) {
 		fetch(url)
 			.then((response) => response.text())
 			.then((text) => {
-				setMarkdownContent(text);
+				const purifiedText = DOMPurify.sanitize(text);
+				setMarkdownContent(purifiedText);
 			});
 	}, [url]);
 
