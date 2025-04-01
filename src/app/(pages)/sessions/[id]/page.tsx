@@ -320,7 +320,9 @@ export default function SpecificSessions({
 					<div className="mt-2 flex justify-end">
 						<label
 							htmlFor="arquivos"
-							className="cursor-pointer rounded-md border border-primary-600 bg-transparent p-2 text-primary-600 hover:bg-primary-100/70 hover:text-primary-600"
+							className={`cursor-pointer rounded-md border border-primary-600 bg-transparent p-2 
+                text-primary-600 hover:bg-primary-100/70 hover:text-primary-600
+                ${isFileUploading || meetingData._status === 'CANCELADO' ? 'opacity-50 cursor-not-allowed' : ''}`}
 						>
 							Adicionar Arquivos
 						</label>
@@ -330,7 +332,7 @@ export default function SpecificSessions({
 							accept="application/pdf"
 							className="hidden"
 							multiple={true}
-							disabled={isFileUploading}
+							disabled={isFileUploading || meetingData._status === 'CANCELADO'}
 							onChange={handleFileUpload}
 						/>
 					</div>

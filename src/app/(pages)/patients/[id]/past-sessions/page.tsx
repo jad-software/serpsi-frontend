@@ -52,12 +52,12 @@ export default function PastSessionsPage({
 							placeholder={`Procurar por nome...`}
 							value={
 								(table
-									.getColumn("name")
+									.getColumn("person_name")
 									?.getFilterValue() as string) ?? ""
 							}
 							onChange={(event) =>
 								table
-									.getColumn("name")
+									.getColumn("person_name")
 									?.setFilterValue(event.target.value)
 							}
 						/>
