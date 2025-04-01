@@ -1,8 +1,13 @@
 import dynamic from 'next/dynamic';
-import 'quill/dist/quill.bubble.css';
+import 'quill/dist/quill.bubble.css'; // ou o estilo que você preferir
 import 'quill/dist/quill.snow.css';
 import '@/components/richEditor/quill-custom.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+
+const QuillNoSSRWrapper = dynamic(() => import('react-quill-new'), { 
+  ssr: false,
+  loading: () => <p>Carregando editor...</p>
+});
 
 interface RichTextEditorProps {
   value: string;
@@ -10,25 +15,32 @@ interface RichTextEditorProps {
   readOnly: boolean;
 }
 
-const QuillNoSSRWrapper = dynamic(() => import('react-quill'), { 
-  ssr: false,
-  loading: () => <p>Carregando editor...</p>
-});
-
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, readOnly }) => {
   // Configuração dos módulos do Quill
   const modules = useMemo(() => ({
     toolbar: [
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Isso está correto para o toolbar
       ['link', 'image'],
       ['clean']
     ],
     clipboard: {
       matchVisual: false, // Preserva formatação ao colar
-    }
+    },
   }), []);
+
+  useEffect(() => {
+    const quillContainer = document.querySelector('.ql-editor');
+    if (quillContainer) {
+      const scrollElement = quillContainer.querySelector('.ql-scroll') as HTMLElement;
+      if (scrollElement) {
+        // Adiciona a opção passive aos eventos de rolagem
+        scrollElement.addEventListener('wheel', (e) => e, { passive: true });
+        scrollElement.addEventListener('touchmove', (e) => e, { passive: true });
+      }
+    }
+  }, []);
 
   return (
     <QuillNoSSRWrapper
@@ -37,12 +49,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, readOn
       value={value}
       onChange={onChange}
       modules={modules}
-      className={`h-[45vh] ${readOnly? 'opacity-50 cursor-not-allowed' : ''}` }
+      className={`h-[45vh] ${readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
       placeholder='Digite o relato da sessão aqui...'
       formats={[
         'header',
         'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
+        'list', // Remova 'bullet' daqui, pois 'list' já cobre ambos os tipos
         'link', 'image'
       ]}
     />
