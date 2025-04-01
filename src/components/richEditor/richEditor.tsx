@@ -1,8 +1,13 @@
+import { passiveSupport } from 'passive-events-support/src/utils'
+
+
 import dynamic from 'next/dynamic';
 import 'quill/dist/quill.bubble.css'; // ou o estilo que você preferir
 import 'quill/dist/quill.snow.css';
 import '@/components/richEditor/quill-custom.css';
 import { useEffect, useMemo } from 'react';
+
+passiveSupport({events:['touchstart', 'touchmove']})
 
 const QuillNoSSRWrapper = dynamic(() => import('react-quill-new'), { 
   ssr: false,
@@ -30,17 +35,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, readOn
     },
   }), []);
 
-  useEffect(() => {
-    const quillContainer = document.querySelector('.ql-editor');
-    if (quillContainer) {
-      const scrollElement = quillContainer.querySelector('.ql-scroll') as HTMLElement;
-      if (scrollElement) {
-        // Adiciona a opção passive aos eventos de rolagem
-        scrollElement.addEventListener('wheel', (e) => e, { passive: true });
-        scrollElement.addEventListener('touchmove', (e) => e, { passive: true });
-      }
-    }
-  }, []);
 
   return (
     <QuillNoSSRWrapper
