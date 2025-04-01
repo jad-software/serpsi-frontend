@@ -34,7 +34,7 @@ export default function SpecificSessions({
 	const [content, setContent] = useState<string>("");
 	const [meetingData, setMeetingData] = useState({} as MeetingData);
 	const [isFileUploading, setIsFileUploading] = useState<boolean>(false);
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [isSalvingReport, setIsSalvingReport] = useState<boolean>(false);
 
 	const turndownService = new TurndownService();
 	useEffect(() => {
@@ -66,6 +66,7 @@ export default function SpecificSessions({
 	}, [params.id])
 
 	const handleSubmit = async () => {
+		setIsSalvingReport(true);
 		const cleanHtml = content
 			.replace(/ class="[^"]*"/g, '')
 			.replace(/ style="[^"]*"/g, '');
@@ -75,9 +76,11 @@ export default function SpecificSessions({
 		toast.promise(handleSessionReportUpload('Relato de sessão', params.id, blob), {
 			loading: 'Salvando relato...',
 			success: (result) => {
+				setIsSalvingReport(false);
 				return 'Relato de sessão salvo com sucesso';
 			},
 			error: () => {
+				setIsSalvingReport(false);
 				return "Erro ao salvar o relato";
 			}
 		});
@@ -283,11 +286,14 @@ export default function SpecificSessions({
 				{/* Relato da sessão */}
 				<Square variant="ThreeRows" className="md:col-span-3">
 					<SquareHeader titulo="Relato da sessão:" />
-					<RichTextEditor value={content} onChange={setContent} />
+					<RichTextEditor value={content} onChange={setContent}
+						readOnly={isSalvingReport || meetingData?._status !== 'CONFIRMADO' ? true : false} />
 					<div className="mt-3 flex justify-end">
 						<Button
 							onClick={handleSubmit}
-							className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70"
+							disabled={meetingData._status === 'CANCELADO'}
+							className={`rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70
+								 ${isSalvingReport || meetingData?._status === 'CANCELADO' ? 'opacity-50 cursor-not-allowed' : ''}`}
 						>
 							Salvar
 						</Button>

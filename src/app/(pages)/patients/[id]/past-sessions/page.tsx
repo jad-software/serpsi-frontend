@@ -21,7 +21,6 @@ export default function PastSessionsPage({
 	useEffect(() => {
 		async function fetchData() {
 			const data = await getSessions(params.id);
-			console.log(data);
 			setData(data);
 		}
 		fetchData();

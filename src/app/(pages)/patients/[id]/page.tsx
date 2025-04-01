@@ -25,7 +25,6 @@ export default function MyPatient({
 		async function dataReceive() {
 			const result = await getData(params.id);
 			setData(result);
-			console.log('result', result)
 			setIsLoading(false);
 		}
 		dataReceive();

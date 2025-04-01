@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
+  readOnly: boolean;
 }
 
 const QuillNoSSRWrapper = dynamic(() => import('react-quill'), { 
@@ -14,7 +15,7 @@ const QuillNoSSRWrapper = dynamic(() => import('react-quill'), {
   loading: () => <p>Carregando editor...</p>
 });
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
+const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, readOnly }) => {
   // Configuração dos módulos do Quill
   const modules = useMemo(() => ({
     toolbar: [
@@ -32,10 +33,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
   return (
     <QuillNoSSRWrapper
       theme="snow"
+      readOnly={readOnly}
       value={value}
       onChange={onChange}
       modules={modules}
-      className='h-[45vh]'
+      className={`h-[45vh] ${readOnly? 'opacity-50 cursor-not-allowed' : ''}` }
       placeholder='Digite o relato da sessão aqui...'
       formats={[
         'header',
