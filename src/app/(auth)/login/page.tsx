@@ -77,7 +77,9 @@ export default function LoginPage() {
 							{...register("password")}
 							error={errors.password}
 						/>
-						<br />
+						<div className="my-2 flex items-center justify-center">
+							<a className="underline cursor-pointer" href="/forgot-password">Esqueceu sua senha?</a>
+						</div>
 						<Button
 							text={loading ? "Carregando..." : "Entrar"}
 							variant="second"
