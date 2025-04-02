@@ -2,6 +2,7 @@
 import { Button } from "@/components/form/button";
 import { InputText } from "@/components/form/input";
 import { login } from "@/services/authService";
+import { forgotPass } from "@/services/passwordService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -24,21 +25,18 @@ export default function ForgotPassword() {
   const { errors } = formState;
 
 
-  const onSubmit: SubmitHandler<ForgotPasswordData> = async (data: any) => {
-    const formData = new FormData();
-    formData.set("email", data.email);
-    formData.set("password", data.password);
+  const onSubmit: SubmitHandler<ForgotPasswordData> = async (data: ForgotPasswordData) => {
     setLoading(true);
-    toast.promise(login(formData), {
+    console.log('data.email', data._email);
+    toast.promise(forgotPass(data._email), {
       loading: "Carregando...",
       success: (result) => {
         setLoading(false);
-        return "Login efetuado com sucesso! 🙂";
+        return "Verifique seu E-mail para continuar com a recuperação";
       },
       error: (result) => {
-        // setErrors(result);
         setLoading(false);
-        return "Erro ao efetuar Login: Email ou senha incorretos.";
+        return "Erro ao enviar o E-mail, verifique se o E-mail está correto";
       }
     });
   };
