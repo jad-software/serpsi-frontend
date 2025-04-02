@@ -27,7 +27,6 @@ export default function ForgotPassword() {
 
   const onSubmit: SubmitHandler<ForgotPasswordData> = async (data: ForgotPasswordData) => {
     setLoading(true);
-    console.log('data.email', data._email);
     toast.promise(forgotPass(data._email), {
       loading: "Carregando...",
       success: (result) => {
