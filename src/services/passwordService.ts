@@ -19,3 +19,24 @@ export async function forgotPass(email: string) {
 
   return redirect("/login");
 }
+
+export async function resetPass(token: string, newPass: string, confirmNewPass: string) {
+
+  const result = await fetch(process.env.BACKEND_URL + '/token/forgotPassword', {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      newPassword: newPass,
+      confirmNewPassword: confirmNewPass,
+      token: token
+    })
+  });
+
+  if (!result.ok) {
+    throw new Error('Erro ao Redefinir a senha');
+  }
+
+  return redirect("/login");
+}
