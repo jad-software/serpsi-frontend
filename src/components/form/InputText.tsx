@@ -64,6 +64,7 @@ export function InputText({
 					placeholder={placeholder}
 					className={inputClassNames}
 					{...(register ? register(name ? name : id) : {})}
+					{...(type === 'uniqueFile' && {multiple: false, type: 'file', accept: 'application/pdf'})}
 					{...(type === "file" && { multiple: true })}
 					{...(type === "file" &&
 						rest.accept && { accept: rest.accept })}

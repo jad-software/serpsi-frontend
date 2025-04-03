@@ -18,7 +18,9 @@ export const createPsychologistFormSchema = z
 			message: "A foto de perfil é obrigatória.",
 			path: ["profilePicture"]
 		}),
-
+		crp: z.object({
+			crp: z.string().min(1, 'CRP é um campo obrigatório')
+		}),
 		user: z.object({
 			email: z.string().min(1, 'E-mail é um campo obrigatório').email('Insira um E-mail válido'),
 			password: z
@@ -81,7 +83,9 @@ export type CreatePsychologistForm = z.infer<typeof createPsychologistFormSchema
 
 export function formatPatientData(formData: CreatePsychologistForm): FormData {
 	type FormattedDataType = {
-
+		crp:{
+			crp: string;
+		},
 		user: {
 			email: string;
 			password: string;
@@ -112,6 +116,9 @@ export function formatPatientData(formData: CreatePsychologistForm): FormData {
 	};
 
 	let formattedData: FormattedDataType = {
+		crp: {
+			crp: formData.crp.crp,
+		},
 		user: {
 			email: formData.user.email,
 			password: formData.user.password,

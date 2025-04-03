@@ -45,8 +45,17 @@ export default function UserInfoSection({
             error={errors.user?.password?.message}
           />
         </div>
-       
-      
+        <div>
+          <InputText
+            id="crp"
+            label="CRP:"
+            placeholder="CRP do Psicólogo"
+            type="text"
+            name="crp.crp"
+            register={register}
+            error={errors.crp?.crp?.message}
+          />
+        </div>
       </>
     </FormSection>
   );

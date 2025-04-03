@@ -44,6 +44,8 @@ export default function RegisterNewPatientPage() {
 		defaultValues: {
 			// ParentsInfoSection
 			user: {
+				email: '',
+				password: '',
 				role: 'PSI'
 			}
 		}
@@ -98,7 +100,7 @@ export default function RegisterNewPatientPage() {
 		var isValid: boolean = true;
 		switch (progress) {
 			case 1:
-				isValid = await methods.trigger(['user'])
+				isValid = await methods.trigger(['user', 'crp'])
 				break;
 			case 2:
 				isValid = await methods.trigger(["person"]);
@@ -106,14 +108,6 @@ export default function RegisterNewPatientPage() {
 			case 3:
 				isValid = await methods.trigger(["address"]);
 				break;
-
-			// case 3:
-			// 	isValid = await methods.trigger(["parents"]);
-			// 	break;
-			// case 4:
-			// 	if (methods.watch("checkSchool"))
-			// 		isValid = await methods.trigger(["school"]);
-			// 	break;
 
 			default:
 				break;
@@ -135,7 +129,7 @@ export default function RegisterNewPatientPage() {
 	return (
 		<main className="mt-3 flex h-full w-full items-center justify-center bg-white px-5 pb-12 md:px-10">
 			<section className="flex w-3/4 flex-col items-center gap-5">
-				<h1>Cadastrar Novo Paciente</h1>
+				<h1>Cadastrar Novo Psicólogo</h1>
 				<FormProvider {...methods}>
 					<form
 						onSubmit={methods.handleSubmit(
