@@ -5,7 +5,7 @@ import { ChevronLeftIcon, DocumentSearchIcon, PencilAltIcon } from "@heroicons/r
 import { ComorbidityTag } from "./comorbidityTag";
 import Link from "next/link";
 import { getData } from "@/services/myPatientService";
-import { Comorbidity, MedicamentInfo, Patient, Person } from "@/models";
+import { Comorbidity, MedicamentInfo, Patient, Person, Phone } from "@/models";
 import { ListComponent } from "./listComponent";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
@@ -13,13 +13,13 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { formatMedicineSchedule } from "@/services/utils/formatMedicine";
 import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import moment from "moment";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadIcon } from "@radix-ui/react-icons";
 import InputMask from "react-input-mask-next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { comorbidityData, MedicineData, ParentData, PatientData, PatientSchema, PersonData } from "./patientSchema";
+import moment from "moment";
 
 export default function MyPatient({
 	params
@@ -31,7 +31,27 @@ export default function MyPatient({
 		mode: "onChange"
 	});
 	const { register, handleSubmit, formState, control, watch } = methods;
+	const { fields, append, remove } = useFieldArray({
+		control,
+		name: "_comorbidities",
+	});
 	const { errors } = formState;
+
+	const formatPhoneObject = (phone: any) => {
+		if (typeof phone === "string") return phone; // Já está formatado
+		if (phone?._ddi && phone?._ddd && phone?._number) {
+			return `(${phone._ddd}) ${phone._number}`;
+		}
+		return "";
+	};
+
+	const parsePhoneString = (phoneString: string) => {
+		const match = phoneString.match(/\((\d{2})\) (\d{5}-\d{4})/);
+		if (match) {
+			return { _ddi: "55", _ddd: match[1], _number: match[2] }; // Assumindo DDI = 55 (Brasil)
+		}
+		return phoneString;
+	};
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -44,13 +64,32 @@ export default function MyPatient({
 
 		async function fetchData(id: string) {
 			const response = await getData(id);
-			setData(response)
-			console.log(response)
+			const formattedData: PatientData = {
+				...response,
+
+				_person: {
+					...response._person,
+					_birthdate:
+											new Date(moment
+												.utc(response._person._birthdate)
+												.format("YYYY-MM-DD") ),
+					_phone: formatPhone(response._person._phone as Phone)
+				},
+		
+				_parents: response._parents.map((parent: ParentData) => ({
+					...parent,
+					_phones: formatPhone(parent._phone as Phone),
+				})),
+			}
+			setData(response);
+			methods.reset(response);
 		}
 		fetchData(params.id);
-	}, [params.id]);
+	}, [params.id, methods]);
 
-	const onSubmit: SubmitHandler<PatientData> = async (data) => { }
+	const onSubmit: SubmitHandler<PatientData> = async (data) => {
+		console.log(data);
+	}
 
 	return (
 		<FormProvider {...methods}>
@@ -97,7 +136,7 @@ export default function MyPatient({
 
 									{/* Card do Perfil */}
 									<Square variant="WithImage">
-										{isEditing ?
+										{isEditing ? (
 											<div className="mb-3 flex w-full flex-col items-center justify-center">
 												<input
 													type="file"
@@ -105,11 +144,18 @@ export default function MyPatient({
 													accept="image/jpeg, image/png"
 													{...methods.register("picture")}
 													className="hidden"
+													onChange={(e) => {
+														const file = e.target.files?.[0];
+														if (file) {
+															const reader = new FileReader();
+															reader.onload = (event) => {
+																setImage(event.target?.result as string); // Atualiza a imagem no estado
+															};
+															reader.readAsDataURL(file);
+														}
+													}}
 												/>
-												<label
-													htmlFor="foto-paciente"
-													className="cursor-pointer"
-												>
+												<label htmlFor="foto-paciente" className="cursor-pointer">
 													{image ? (
 														<Image
 															src={image}
@@ -120,25 +166,20 @@ export default function MyPatient({
 														/>
 													) : (
 														<div className="flex h-36 w-36 items-center justify-center rounded-full bg-gray-300 p-5">
-															<UploadIcon
-																width={75}
-																height={75}
-															/>
+															<UploadIcon width={75} height={75} />
 														</div>
 													)}
 												</label>
 											</div>
-											:
-											(
-												<Image
-													className="mb-4 h-24 w-24 rounded-full"
-													src={data._person._profilePicture ?? ""}
-													width={100}
-													height={100}
-													alt="Foto de perfil do paciente"
-												/>
-											)
-										}
+										) : (
+											<Image
+												className="mb-4 h-24 w-24 rounded-full"
+												src={data._person._profilePicture ?? ""}
+												width={100}
+												height={100}
+												alt="Foto de perfil do paciente"
+											/>
+										)}
 										{isEditing ? (
 											<input
 												type="text"
@@ -148,14 +189,10 @@ export default function MyPatient({
 										) : (
 											<>
 												<h2 className="text-xl text-gray-900">
-													{methods.getValues("_person._name")}
-													{data._person._name}
+													{methods.getValues("_person._name") || data._person._name}
 												</h2>
 												<div className="flex items-center gap-2">
-													<a
-														href="#"
-														className="mt-2 text-sm text-primary-700 no-underline"
-													>
+													<a href="#" className="mt-2 text-sm text-primary-700 no-underline">
 														Visualizar Documentos
 													</a>
 													<DocumentSearchIcon className="mt-2 h-6 w-6 text-sm text-primary-700 underline hover:cursor-pointer" />
@@ -167,106 +204,122 @@ export default function MyPatient({
 									{/* Informações do Paciente */}
 									<Square>
 										<SquareHeader titulo="Informações do paciente" />
-										{isEditing ?
+										{isEditing ? (
 											<>
+												{/* Nascimento */}
 												<div className="mb-2">
-													<label className="block text-gray-700">
-														Nascimento:
-													</label>
+													<label className="block text-gray-700">Nascimento:</label>
 													<input
 														type="date"
-														{...register(
-															"_person._birthdate"
-														)}
+														{...register("_person._birthdate")}
 														defaultValue={formatDateToddmmYYYY(methods.getValues(
 															"_person._birthdate"
-														)) as string}
+														) ) as string}
 														className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 													/>
 													{errors._person?._birthdate && (
 														<p className="text-sm text-red-500">
-															{
-																errors._person._birthdate
-																	.message
-															}
+															{errors._person._birthdate.message}
 														</p>
 													)}
 												</div>
 
+												{/* CPF */}
 												<div className="mb-2">
-													<label className="block text-gray-700">
-														CPF:
-													</label>
+													<label className="block text-gray-700">CPF:</label>
 													<input
 														type="text"
-														disabled={true}
-														{...register("_person._cpf")}
+														disabled
+														{...register("_person._cpf._cpf")}
 														className="w-full rounded-xl border border-primary-500 bg-gray-500 p-2 text-primary-800 focus:outline focus:outline-primary-800"
 													/>
-													{errors._person?._cpf && (
-														<p className="text-sm text-red-500">
-															{errors._person._cpf.message}
-														</p>
+													{errors._person?._cpf?._cpf && (
+														<p className="text-sm text-red-500">{errors._person._cpf.message}</p>
 													)}
-													<label className="block text-gray-700">
-														RG:
-													</label>
+												</div>
+
+												{/* RG */}
+												<div className="mb-2">
+													<label className="block text-gray-700">RG:</label>
 													<input
 														type="text"
-														disabled={true}
+														disabled
 														{...register("_person._rg")}
 														className="w-full rounded-xl border border-primary-500 bg-gray-500 p-2 text-primary-800 focus:outline focus:outline-primary-800"
 													/>
 													{errors._person?._rg && (
-														<p className="text-sm text-red-500">
-															{errors._person._rg.message}
-														</p>)
-													}
-													<label className="block text-gray-700">
-														Tel:
-													</label>
+														<p className="text-sm text-red-500">{errors._person._rg.message}</p>
+													)}
+												</div>
+
+												{/* Telefone */}
+												<div className="mb-2">
+													<label className="block text-gray-700">Tel:</label>
 													<InputMask
-														mask={"(99) 99999-9999"}
+														mask="(99) 99999-9999"
 														type="text"
-														{...register("_person._phone")}
+														{...register("_person._phone", {
+															onChange: (e) => methods.setValue("_person._phone", e.target.value),
+														})}
 														className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+														defaultValue={formatPhone(data?._person?._phone as Phone)}
 													/>
 													{errors._person?._phone && (
-														<p className="text-sm text-red-500">
-															{
-																errors._person._phone
-																	.message
-															}
-														</p>
+														<p className="text-sm text-red-500">{errors._person._phone.message}</p>
 													)}
 												</div>
 											</>
-											:
+										) : (
 											<>
-												<p>
-													Nascimento:{" "}
-													{formatDateToddmmYYYY(data._person._birthdate)}
-												</p>
-												<p>CPF: {data._person._cpf._cpf}</p>
-												<p>RG: {data._person._rg}</p>
-												<p>Tel: {formatPhone(data._person._phone)}</p>
+												<p>Nascimento: {formatDateToddmmYYYY(methods.getValues("_person._birthdate") || data._person._birthdate)}</p>
+												<p>CPF: {methods.getValues("_person._cpf._cpf") || data._person._cpf._cpf}</p>
+												<p>RG: {methods.getValues("_person._rg") || data._person._rg}</p>
+												<p>Tel: {formatPhone(methods.getValues("_person._phone") as Phone || data._person._phone)}</p>
 											</>
-										}
+										)}
 
-										{data._comorbidities.length > 0 && (
+
+										{isEditing ? (
 											<>
 												<p>Comorbidades:</p>
 												<ul className="mt-2 flex flex-col flex-wrap gap-2 md:flex-row">
-													{data._comorbidities.map(
-														(comorbidity: comorbidityData) => (
-															<ComorbidityTag
-																name={comorbidity._name}
-																key={comorbidity._id._id}
+													{fields.map((comorbidity, index) => (
+														<li key={comorbidity.id} className="flex items-center gap-2">
+															<input
+																type="text"
+																{...register(`_comorbidities.${index}._name`)}
+																className="rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800"
 															/>
-														)
-													)}
+															<button
+																type="button"
+																onClick={() => remove(index)}
+																className="text-red-500 hover:text-red-700"
+															>
+																Remover
+															</button>
+														</li>
+													))}
 												</ul>
+
+												<button
+													type="button"
+													onClick={() => append({ _id: { _id: "" }, _name: "" })}
+													className="mt-2 rounded-xl bg-primary-500 px-4 py-2 text-white hover:bg-primary-700"
+												>
+													Adicionar Comorbidade
+												</button>
 											</>
+										) : (
+											data._comorbidities.length > 0 && (
+												<>
+													<p>Comorbidades:</p>
+													<ul className="mt-2 flex flex-col flex-wrap gap-2 md:flex-row">
+														{data._comorbidities.map((comorbidity: comorbidityData) => (
+															<ComorbidityTag name={comorbidity._name} key={comorbidity._id._id} />
+														))}
+													</ul>
+												</>
+											)
 										)}
 									</Square>
 
@@ -276,101 +329,76 @@ export default function MyPatient({
 											{data._parents.map((parent: ParentData, index) => (
 												<Square
 													variant={
-														data._parents.length % 2 > 0 &&
-															index === data._parents.length - 1
+														data._parents.length % 2 > 0 && index === data._parents.length - 1
 															? "DoubleColumn"
 															: "primary"
 													}
 													key={parent._id._id}
 												>
-													<SquareHeader
-														titulo={`Informações de ${parent._name}:`}
-													/>
-													{isEditing ?
+													<SquareHeader titulo={`Informações de ${methods.getValues(`_parents.${index}._name`)}:`} />
+
+													{isEditing ? (
 														<>
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Nascimento:
-																</label>
+																<label className="block text-gray-700">Nascimento:</label>
 																<input
 																	type="date"
-																	{...register(
-																		"_person._birthdate"
-																	)}
-																	defaultValue={formatDateToddmmYYYY(methods.getValues(
-																		"_person._birthdate"
-																	)) as string}
+																	{...register(`_parents.${index}._birthdate`)}
+																	defaultValue={formatDateToddmmYYYY(methods.getValues(`_parents.${index}._birthdate`)) as string}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._birthdate && (
-																	<p className="text-sm text-red-500">
-																		{
-																			errors._person._birthdate
-																				.message
-																		}
-																	</p>
+																{errors._parents?.[index]?._birthdate && (
+																	<p className="text-sm text-red-500">{errors._parents[index]._birthdate.message}</p>
 																)}
 															</div>
 
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	CPF:
-																</label>
+																<label className="block text-gray-700">CPF:</label>
 																<input
 																	type="text"
 																	disabled={true}
-																	{...register("_person._cpf")}
+																	{...register(`_parents.${index}._cpf._cpf`)}
 																	className="w-full rounded-xl border border-primary-500 bg-gray-500 p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._cpf && (
-																	<p className="text-sm text-red-500">
-																		{errors._person._cpf.message}
-																	</p>
+																{errors._parents?.[index]?._cpf?._cpf && (
+																	<p className="text-sm text-red-500">{errors._parents[index]._cpf.message}</p>
 																)}
-																<label className="block text-gray-700">
-																	RG:
-																</label>
+															</div>
+
+															<div className="mb-2">
+																<label className="block text-gray-700">RG:</label>
 																<input
 																	type="text"
 																	disabled={true}
-																	{...register("_person._rg")}
+																	{...register(`_parents.${index}._rg`)}
 																	className="w-full rounded-xl border border-primary-500 bg-gray-500 p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._rg && (
-																	<p className="text-sm text-red-500">
-																		{errors._person._rg.message}
-																	</p>)
-																}
-																<label className="block text-gray-700">
-																	Tel:
-																</label>
+																{errors._parents?.[index]?._rg && (
+																	<p className="text-sm text-red-500">{errors._parents[index]._rg.message}</p>
+																)}
+															</div>
+
+															<div className="mb-2">
+																<label className="block text-gray-700">Tel:</label>
 																<InputMask
 																	mask={"(99) 99999-9999"}
 																	type="text"
-																	{...register("_person._phone")}
+																	{...register(`_parents.${index}._phone`)}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._phone && (
-																	<p className="text-sm text-red-500">
-																		{
-																			errors._person._phone
-																				.message
-																		}
-																	</p>
+																{errors._parents?.[index]?._phone && (
+																	<p className="text-sm text-red-500">{errors._parents[index]._phone.message}</p>
 																)}
 															</div>
 														</>
-														:
+													) : (
 														<>
-															<p>
-																Nascimento:{" "}
-																{formatDateToddmmYYYY(parent._birthdate)}
-															</p>
+															<p>Nascimento: {formatDateToddmmYYYY(parent._birthdate)}</p>
 															<p>CPF: {parent._cpf._cpf}</p>
 															<p>RG: {parent._rg}</p>
-															<p>Tel: {formatPhone(parent._phone)}</p>
+															<p>Tel: {formatPhone(parent._phone as Phone)}</p>
 														</>
-													}
+													)}
 												</Square>
 											))}
 										</>
@@ -382,120 +410,88 @@ export default function MyPatient({
 											<SquareHeader titulo="Escola" />
 											<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 												<div className="flex-col space-y-3">
-													{isEditing ?
+													{isEditing ? (
 														<>
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Nome:
-																</label>
+																<label className="block text-gray-700">Nome:</label>
 																<input
 																	type="text"
-																	{...methods.register("_person._name")}
+																	{...methods.register("_school._name")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Tel:
-																</label>
+																<label className="block text-gray-700">Tel:</label>
 																<InputMask
-																	mask={"(99) 99999-9999"}
+																	mask="(99) 99999-9999"
 																	type="text"
-																	{...register("_person._phone")}
+																	{...register("_school._phone")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._phone && (
-																	<p className="text-sm text-red-500">
-																		{
-																			errors._person._phone
-																				.message
-																		}
-																	</p>
+																{errors._school?._phone && (
+																	<p className="text-sm text-red-500">{errors._school._phone.message}</p>
 																)}
 															</div>
+
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	CNPJ:
-																</label>
+																<label className="block text-gray-700">CNPJ:</label>
 																<InputMask
-																	mask={"99.999.999/9999-99"}
+																	mask="99.999.999/9999-99"
 																	type="text"
-																	{...register("_person._phone")}
+																	{...register("_school._CNPJ._code")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._phone && (
-																	<p className="text-sm text-red-500">
-																		{
-																			errors._person._phone
-																				.message
-																		}
-																	</p>
+																{errors._school?._CNPJ?._code && (
+																	<p className="text-sm text-red-500">{errors._school._CNPJ._code.message}</p>
 																)}
 															</div>
+
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	CEP:
-																</label>
+																<label className="block text-gray-700">CEP:</label>
 																<InputMask
-																	mask={"99999999"}
+																	mask="99999-999"
 																	type="text"
-																	{...register("_person._phone")}
+																	{...register("_school._address._zipCode")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
-																{errors._person?._phone && (
-																	<p className="text-sm text-red-500">
-																		{
-																			errors._person._phone
-																				.message
-																		}
-																	</p>
+																{errors._school?._address?._zipCode && (
+																	<p className="text-sm text-red-500">{errors._school._address._zipCode.message}</p>
 																)}
 															</div>
 														</>
-														:
+													) : (
 														<>
 															<p>Nome: {data._school._name}</p>
-															<p>Tel: {formatPhone(data._school._phone)}</p>
+															<p>Tel: {formatPhone(data._school._phone as Phone)}</p>
 															<p>CNPJ: {data._school._CNPJ._code}</p>
 															<p>CEP: {data._school._address._zipCode}</p>
-														</>}
+														</>
+													)}
 												</div>
+
 												<div className="flex-col space-y-3">
-													{isEditing ?
+													{isEditing ? (
 														<>
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Cidade:
-																</label>
+																<label className="block text-gray-700">Cidade:</label>
 																<input
 																	type="text"
-																	{...methods.register("_person._name")}
+																	{...methods.register("_school._address._city")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
+
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Estado:
-																</label>
+																<label className="block text-gray-700">Estado:</label>
 																<Controller
-																	name="_person.address._state"
+																	name="_school._address._state"
 																	control={control}
 																	render={({ field }) => (
-																		<Select
-																			onValueChange={
-																				field.onChange
-																			}
-																			value={
-																				field.value
-																			}
-																		>
+																		<Select onValueChange={field.onChange} value={field.value}>
 																			<SelectTrigger
 																				className={
-																					errors
-																						._person
-																						?.address
-																						?._state
+																					errors._school?._address?._state
 																						? "w-full border-red-500 focus:ring-red-600"
 																						: "w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																				}
@@ -503,152 +499,74 @@ export default function MyPatient({
 																				<SelectValue placeholder="Selecione o estado" />
 																			</SelectTrigger>
 																			<SelectContent>
-																				<SelectItem value="AC">
-																					Acre
-																				</SelectItem>
-																				<SelectItem value="AL">
-																					Alagoas
-																				</SelectItem>
-																				<SelectItem value="AP">
-																					Amapá
-																				</SelectItem>
-																				<SelectItem value="AM">
-																					Amazonas
-																				</SelectItem>
-																				<SelectItem value="BA">
-																					Bahia
-																				</SelectItem>
-																				<SelectItem value="CE">
-																					Ceará
-																				</SelectItem>
-																				<SelectItem value="DF">
-																					Distrito
-																					Federal
-																				</SelectItem>
-																				<SelectItem value="ES">
-																					Espírito
-																					Santo
-																				</SelectItem>
-																				<SelectItem value="GO">
-																					Goiás
-																				</SelectItem>
-																				<SelectItem value="MA">
-																					Maranhão
-																				</SelectItem>
-																				<SelectItem value="MT">
-																					Mato
-																					Grosso
-																				</SelectItem>
-																				<SelectItem value="MS">
-																					Mato
-																					Grosso
-																					do Sul
-																				</SelectItem>
-																				<SelectItem value="MG">
-																					Minas
-																					Gerais
-																				</SelectItem>
-																				<SelectItem value="PA">
-																					Pará
-																				</SelectItem>
-																				<SelectItem value="PB">
-																					Paraíba
-																				</SelectItem>
-																				<SelectItem value="PR">
-																					Paraná
-																				</SelectItem>
-																				<SelectItem value="PE">
-																					Pernambuco
-																				</SelectItem>
-																				<SelectItem value="PI">
-																					Piauí
-																				</SelectItem>
-																				<SelectItem value="RJ">
-																					Rio de
-																					Janeiro
-																				</SelectItem>
-																				<SelectItem value="RN">
-																					Rio
-																					Grande
-																					do Norte
-																				</SelectItem>
-																				<SelectItem value="RS">
-																					Rio
-																					Grande
-																					do Sul
-																				</SelectItem>
-																				<SelectItem value="RO">
-																					Rondônia
-																				</SelectItem>
-																				<SelectItem value="RR">
-																					Roraima
-																				</SelectItem>
-																				<SelectItem value="SC">
-																					Santa
-																					Catarina
-																				</SelectItem>
-																				<SelectItem value="SP">
-																					São
-																					Paulo
-																				</SelectItem>
-																				<SelectItem value="SE">
-																					Sergipe
-																				</SelectItem>
-																				<SelectItem value="TO">
-																					Tocantins
-																				</SelectItem>
+																				<SelectItem value="AC">Acre</SelectItem>
+																				<SelectItem value="AL">Alagoas</SelectItem>
+																				<SelectItem value="AP">Amapá</SelectItem>
+																				<SelectItem value="AM">Amazonas</SelectItem>
+																				<SelectItem value="BA">Bahia</SelectItem>
+																				<SelectItem value="CE">Ceará</SelectItem>
+																				<SelectItem value="DF">Distrito Federal</SelectItem>
+																				<SelectItem value="ES">Espírito Santo</SelectItem>
+																				<SelectItem value="GO">Goiás</SelectItem>
+																				<SelectItem value="MA">Maranhão</SelectItem>
+																				<SelectItem value="MT">Mato Grosso</SelectItem>
+																				<SelectItem value="MS">Mato Grosso do Sul</SelectItem>
+																				<SelectItem value="MG">Minas Gerais</SelectItem>
+																				<SelectItem value="PA">Pará</SelectItem>
+																				<SelectItem value="PB">Paraíba</SelectItem>
+																				<SelectItem value="PR">Paraná</SelectItem>
+																				<SelectItem value="PE">Pernambuco</SelectItem>
+																				<SelectItem value="PI">Piauí</SelectItem>
+																				<SelectItem value="RJ">Rio de Janeiro</SelectItem>
+																				<SelectItem value="RN">Rio Grande do Norte</SelectItem>
+																				<SelectItem value="RS">Rio Grande do Sul</SelectItem>
+																				<SelectItem value="RO">Rondônia</SelectItem>
+																				<SelectItem value="RR">Roraima</SelectItem>
+																				<SelectItem value="SC">Santa Catarina</SelectItem>
+																				<SelectItem value="SP">São Paulo</SelectItem>
+																				<SelectItem value="SE">Sergipe</SelectItem>
+																				<SelectItem value="TO">Tocantins</SelectItem>
 																			</SelectContent>
 																		</Select>
 																	)}
 																/>
 															</div>
+
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Bairro:
-																</label>
+																<label className="block text-gray-700">Bairro:</label>
 																<input
 																	type="text"
-																	{...methods.register("_person._name")}
+																	{...methods.register("_school._address._district")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
+
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Rua:
-																</label>
+																<label className="block text-gray-700">Rua:</label>
 																<input
 																	type="text"
-																	{...methods.register("_person._name")}
+																	{...methods.register("_school._address._street")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
+
 															<div className="mb-2">
-																<label className="block text-gray-700">
-																	Complemento:
-																</label>
+																<label className="block text-gray-700">Complemento:</label>
 																<input
 																	type="text"
-																	{...methods.register("_person._name")}
+																	{...methods.register("_school._address._complement")}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 														</>
-														:
+													) : (
 														<>
-															<p>
-																Cidade: {data._school._address._city},&nbsp;
-																{data._school._address._state}
-															</p>
+															<p>Cidade: {data._school._address._city}, {data._school._address._state}</p>
 															<p>Bairro: {data._school._address._district}</p>
-															<p>
-																Rua: {data._school._address._street},&nbsp;
-																{data._school._address._homeNumber}
-															</p>
-															<p>
-																Complemento:{" "}
-																{data._school._address._complement}
-															</p>
-														</>}
+															<p>Rua: {data._school._address._street}, {data._school._address._homeNumber}</p>
+															<p>Complemento: {data._school._address._complement}</p>
+														</>
+													)}
 												</div>
 											</div>
 										</Square>
@@ -772,100 +690,33 @@ export default function MyPatient({
 																		<SelectValue placeholder="Selecione o estado" />
 																	</SelectTrigger>
 																	<SelectContent>
-																		<SelectItem value="AC">
-																			Acre
-																		</SelectItem>
-																		<SelectItem value="AL">
-																			Alagoas
-																		</SelectItem>
-																		<SelectItem value="AP">
-																			Amapá
-																		</SelectItem>
-																		<SelectItem value="AM">
-																			Amazonas
-																		</SelectItem>
-																		<SelectItem value="BA">
-																			Bahia
-																		</SelectItem>
-																		<SelectItem value="CE">
-																			Ceará
-																		</SelectItem>
-																		<SelectItem value="DF">
-																			Distrito
-																			Federal
-																		</SelectItem>
-																		<SelectItem value="ES">
-																			Espírito
-																			Santo
-																		</SelectItem>
-																		<SelectItem value="GO">
-																			Goiás
-																		</SelectItem>
-																		<SelectItem value="MA">
-																			Maranhão
-																		</SelectItem>
-																		<SelectItem value="MT">
-																			Mato
-																			Grosso
-																		</SelectItem>
-																		<SelectItem value="MS">
-																			Mato
-																			Grosso
-																			do Sul
-																		</SelectItem>
-																		<SelectItem value="MG">
-																			Minas
-																			Gerais
-																		</SelectItem>
-																		<SelectItem value="PA">
-																			Pará
-																		</SelectItem>
-																		<SelectItem value="PB">
-																			Paraíba
-																		</SelectItem>
-																		<SelectItem value="PR">
-																			Paraná
-																		</SelectItem>
-																		<SelectItem value="PE">
-																			Pernambuco
-																		</SelectItem>
-																		<SelectItem value="PI">
-																			Piauí
-																		</SelectItem>
-																		<SelectItem value="RJ">
-																			Rio de
-																			Janeiro
-																		</SelectItem>
-																		<SelectItem value="RN">
-																			Rio
-																			Grande
-																			do Norte
-																		</SelectItem>
-																		<SelectItem value="RS">
-																			Rio
-																			Grande
-																			do Sul
-																		</SelectItem>
-																		<SelectItem value="RO">
-																			Rondônia
-																		</SelectItem>
-																		<SelectItem value="RR">
-																			Roraima
-																		</SelectItem>
-																		<SelectItem value="SC">
-																			Santa
-																			Catarina
-																		</SelectItem>
-																		<SelectItem value="SP">
-																			São
-																			Paulo
-																		</SelectItem>
-																		<SelectItem value="SE">
-																			Sergipe
-																		</SelectItem>
-																		<SelectItem value="TO">
-																			Tocantins
-																		</SelectItem>
+																		<SelectItem value="AC">Acre</SelectItem>
+																		<SelectItem value="AL">Alagoas</SelectItem>
+																		<SelectItem value="AP">Amapá</SelectItem>
+																		<SelectItem value="AM">Amazonas</SelectItem>
+																		<SelectItem value="BA">Bahia</SelectItem>
+																		<SelectItem value="CE">Ceará</SelectItem>
+																		<SelectItem value="DF">Distrito Federal</SelectItem>
+																		<SelectItem value="ES">Espírito Santo</SelectItem>
+																		<SelectItem value="GO">Goiás</SelectItem>
+																		<SelectItem value="MA">Maranhão</SelectItem>
+																		<SelectItem value="MT">Mato Grosso</SelectItem>
+																		<SelectItem value="MS">Mato Grosso do Sul</SelectItem>
+																		<SelectItem value="MG">Minas Gerais</SelectItem>
+																		<SelectItem value="PA">Pará</SelectItem>
+																		<SelectItem value="PB">Paraíba</SelectItem>
+																		<SelectItem value="PR">Paraná</SelectItem>
+																		<SelectItem value="PE">Pernambuco</SelectItem>
+																		<SelectItem value="PI">Piauí</SelectItem>
+																		<SelectItem value="RJ">Rio de Janeiro</SelectItem>
+																		<SelectItem value="RN">Rio Grande do Norte</SelectItem>
+																		<SelectItem value="RS">Rio Grande do Sul</SelectItem>
+																		<SelectItem value="RO">Rondônia</SelectItem>
+																		<SelectItem value="RR">Roraima</SelectItem>
+																		<SelectItem value="SC">Santa Catarina</SelectItem>
+																		<SelectItem value="SP">São Paulo</SelectItem>
+																		<SelectItem value="SE">Sergipe</SelectItem>
+																		<SelectItem value="TO">Tocantins</SelectItem>
 																	</SelectContent>
 																</Select>
 															)}

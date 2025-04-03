@@ -7,11 +7,17 @@ const fileListType =
 
 const IdSchema = z.object({ _id: z.string().uuid() });
 
-const PhoneSchema = z.object({
-  _ddi: z.string(),
-  _ddd: z.string(),
-  _number: z.string()
-});
+const PhoneSchema = z.union([
+  z.object({
+    _ddi: z.string().min(1, "DDI é obrigatório"),
+    _ddd: z.string().min(1, "DDD é obrigatório"),
+    _number: z.string().min(1, "Número é obrigatório")
+  }),
+  z.string()
+    .min(1, "Telefone é obrigatório")
+    .regex(/^\(\d{2}\) \d{5}-\d{4}$/, "Telefone inválido")
+
+]);
 
 const CpfSchema = z.object({ _cpf: z.string().regex(/\d{3}\.\d{3}\.\d{3}-\d{2}/) });
 
@@ -58,11 +64,11 @@ const MedicineSchema = z.object({
   _dosage: z.number(),
   _dosageUnity: z.string(),
   _frequency: z.number(),
-  _firstTimeOfTheDay: z.string().datetime(),
-  _startDate: z.string().datetime(),
+  _firstTimeOfTheDay: z.coerce.date(),
+  _startDate: z.coerce.date(),
   _observation: z.string(),
   _medicine: z.object({ _name: z.string(), _id: IdSchema }),
-  _schedules: z.array(z.string().datetime())
+  _schedules: z.array(z.coerce.date())
 });
 
 const PreviewFollowUpSchema = z.object({
