@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { number, z } from "zod";
 
 // Validations Regex
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
@@ -76,6 +76,37 @@ export const createPsychologistFormSchema = z
 		}),
 
 		// ExtraInfoSection
+		meetValue: z
+			.string()
+			.min(
+				1,
+				"O valor da sessão é obrigatório"
+			).refine(
+				(value) => {
+					const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100;
+					return numericValue > 0;
+				},
+				{
+					message: "O valor da sessão deve ser maior que R$ 0",
+				}
+			),
+		meetDuration: z
+			.string()
+			.min(
+				1,
+				"O valor da sessão é obrigatório"
+			).refine(
+				(value) => {
+					if (parseFloat(value) > 0) {
+
+						const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100;
+						return numericValue > 0;
+					}
+				},
+				{
+					message: "A duração da sessão deve ser maior que 0",
+				}
+			),
 
 		crpFile: fileListType.refine((val) => val && val.length > 0, {
 			message: "o arquivo do CRP é obrigatório.",
@@ -127,15 +158,19 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 				complement: string;
 			};
 		};
+		meetValue: number;
+		meetDuration: number;
 		// degreeFile: FileList,
 		// idetifyfile: FileList,
 		// crpFile: FileList
 	};
 
 	let formattedData: FormattedDataType = {
+
 		crp: {
 			crp: formData.crp.crp,
 		},
+
 		user: {
 			email: formData.user.email,
 			password: formData.user.password,
@@ -163,6 +198,8 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 				complement: formData.address.complement || ""
 			}
 		},
+		meetDuration: +formData.meetDuration,
+		meetValue: +formData.meetValue,
 		// crpFile: formData.crpFile,
 		// degreeFile: formData.degreeFile,
 		// idetifyfile: formData.identifyfile

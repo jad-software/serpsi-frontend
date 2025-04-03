@@ -19,12 +19,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import UserInfoSection from "./UserInfoSection";
 import { createPsychologist } from "@/services/authService";
+import SessionInfoSection from "./sessionInfoSection";
 
 export default function RegisterNewPatientPage() {
 	const [progress, setProgress] = useState<number>(1);
 	const router = useRouter();
 
-	const maxProgress = 4;
+	const maxProgress = 5;
 
 	// const methods = useForm<CreatePatientForm>({
 	// 	resolver: zodResolver(createPatientFormSchema),
@@ -66,7 +67,7 @@ export default function RegisterNewPatientPage() {
 			const formattedData = formatPsychologistData(data);
 			Array.from(formattedData.entries()).forEach(([key, value]) => {
 				console.log(key, value);
-		});
+			});
 
 			toast.promise(createPsychologist(formattedData), {
 				loading: "Carregando...",
@@ -111,6 +112,9 @@ export default function RegisterNewPatientPage() {
 			case 3:
 				isValid = await methods.trigger(["address"]);
 				break;
+			case 4:
+				isValid = await methods.trigger(["meetValue", 'meetDuration']);
+				break;
 
 			default:
 				break;
@@ -147,9 +151,9 @@ export default function RegisterNewPatientPage() {
 							currentStep={progress}
 							className="my-3 w-full"
 						/>
-						<UserInfoSection 
-						progress={progress}
-						componentIndex={1}
+						<UserInfoSection
+							progress={progress}
+							componentIndex={1}
 						/>
 						<PatientInfoSection
 							progress={progress}
@@ -159,9 +163,13 @@ export default function RegisterNewPatientPage() {
 							progress={progress}
 							componentIndex={3}
 						/>
-						<ExtraInfoSection
+						<SessionInfoSection
 							progress={progress}
 							componentIndex={4}
+						/>
+						<ExtraInfoSection
+							progress={progress}
+							componentIndex={5}
 						/>
 
 						<div className="mt-6 flex w-full flex-col-reverse items-center justify-around px-20 md:flex-row">
