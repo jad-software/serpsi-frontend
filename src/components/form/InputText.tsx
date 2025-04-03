@@ -19,6 +19,7 @@ interface InputTextProps {
 	mask?: string;
 	error?: string;
 	accept?: string;
+	autoComplete?: string;
 }
 
 export function InputText({
@@ -32,6 +33,7 @@ export function InputText({
 	variant = "primary",
 	mask,
 	error,
+	autoComplete,
 	...rest
 }: InputTextProps) {
 	const inputClassNames = classNames("w-full rounded-md  p-2 text-left", {
@@ -66,6 +68,7 @@ export function InputText({
 					type={type}
 					placeholder={placeholder}
 					className={inputClassNames}
+					autoComplete={type === "password" ? "new-password" : "new-email"}
 					{...(register ? register(name ? name : id) : {})}
 					{...(type === 'uniqueFile' && {multiple: false, type: 'file', accept: 'application/pdf'})}
 					{...(type === "file" && { multiple: true })}

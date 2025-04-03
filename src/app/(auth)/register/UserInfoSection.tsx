@@ -41,6 +41,7 @@ export default function UserInfoSection({
             placeholder="Senha do Psicólogo"
             type="password"
             name="user.password"
+            autoComplete="new-email"
             register={register}
             error={errors.user?.password?.message}
           />
@@ -53,6 +54,7 @@ export default function UserInfoSection({
             type="text"
             name="crp.crp"
             mask="99/999999"
+            autoComplete="new-password"
             maskPlaceholder=""
             register={register}
             error={errors.crp?.crp?.message}
