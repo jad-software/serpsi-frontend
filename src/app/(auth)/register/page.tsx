@@ -65,10 +65,6 @@ export default function RegisterNewPatientPage() {
 	const onSubmit = async (data: CreatePsychologistForm) => {
 		try {
 			const formattedData = formatPsychologistData(data);
-			Array.from(formattedData.entries()).forEach(([key, value]) => {
-				console.log(key, value);
-			});
-
 			toast.promise(createPsychologist(formattedData), {
 				loading: "Carregando...",
 				success: () => {

@@ -160,9 +160,6 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 		};
 		meetValue: number;
 		meetDuration: number;
-		// degreeFile: FileList,
-		// idetifyfile: FileList,
-		// crpFile: FileList
 	};
 
 	let formattedData: FormattedDataType = {
@@ -199,10 +196,7 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 			}
 		},
 		meetDuration: +formData.meetDuration,
-		meetValue: +formData.meetValue,
-		// crpFile: formData.crpFile,
-		// degreeFile: formData.degreeFile,
-		// idetifyfile: formData.identifyfile
+		meetValue: +(formData.meetValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.')),
 	};
 
 	const formDataObj = new FormData();
