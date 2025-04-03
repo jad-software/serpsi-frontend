@@ -62,20 +62,21 @@ export default function RegisterNewPatientPage() {
 
 	const onSubmit = async (data: CreatePsychologistForm) => {
 		try {
+			console.log('DATA', data);
 			const formattedData = formatPatientData(data);
-			console.log(formattedData);
+			console.log('formattedData', formattedData);
 
-			toast.promise(createPatient(formattedData), {
-				loading: "Carregando...",
-				success: () => {
-					router.push("/patients");
-					return "Paciente cadastrado com sucesso! 😍";
-				},
-				error: (err) => {
-					console.log(err);
-					return "Houve um erro ao cadastrar o paciente.";
-				}
-			});
+			// toast.promise(createPatient(formattedData), {
+			// 	loading: "Carregando...",
+			// 	success: () => {
+			// 		router.push("/patients");
+			// 		return "Paciente cadastrado com sucesso! 😍";
+			// 	},
+			// 	error: (err) => {
+			// 		console.log(err);
+			// 		return "Houve um erro ao cadastrar o paciente.";
+			// 	}
+			// });
 
 			// console.log("Paciente cadastrado com sucesso:", response);
 			// toast.success("Paciente cadastrado com sucesso!");
@@ -156,15 +157,6 @@ export default function RegisterNewPatientPage() {
 							progress={progress}
 							componentIndex={3}
 						/>
-						{/* <ParentsInfoSection
-							progress={progress}
-							componentIndex={3}
-						/>
-
-						<SchoolInfoSection
-							progress={progress}
-							componentIndex={4}
-						/> */}
 						<ExtraInfoSection
 							progress={progress}
 							componentIndex={4}

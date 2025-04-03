@@ -13,7 +13,6 @@ const fileListType =
 
 export const createPsychologistFormSchema = z
 	.object({
-		// PatientPictureSection
 		profilePicture: fileListType.refine((val) => val && val.length > 0, {
 			message: "A foto de perfil é obrigatória.",
 			path: ["profilePicture"]
@@ -75,7 +74,19 @@ export const createPsychologistFormSchema = z
 
 		// ExtraInfoSection
 
-		previousDocuments: fileListType.optional(),
+		crpFile: fileListType.refine((val) => val && val.length > 0, {
+			message: "o arquivo do CRP é obrigatório.",
+			path: ["crpFile"]
+		}),
+		
+		identifyfile: fileListType.refine((val) => val && val.length > 0, {
+			message: "o arquivo da identidade é obrigatório.",
+			path: ["identifyfile"]
+		}),
+		degreeFile: fileListType.refine((val) => val && val.length > 0, {
+			message: "o arquivo da identidade é obrigatório.",
+			path: ["degreeFile"]
+		}),
 	})
 
 
@@ -113,6 +124,9 @@ export function formatPatientData(formData: CreatePsychologistForm): FormData {
 				complement: string;
 			};
 		};
+		// degreeFile: FileList,
+		// idetifyfile: FileList,
+		// crpFile: FileList
 	};
 
 	let formattedData: FormattedDataType = {
@@ -146,20 +160,25 @@ export function formatPatientData(formData: CreatePsychologistForm): FormData {
 				complement: formData.address.complement || ""
 			}
 		},
-
+		// crpFile: formData.crpFile,
+		// degreeFile: formData.degreeFile,
+		// idetifyfile: formData.identifyfile
 	};
 
 	const formDataObj = new FormData();
 
 	const profPic: FileList = formData.profilePicture;
-	const prevDocs: FileList = formData.previousDocuments;
+	const crpFile: FileList = formData.crpFile;
+	const identifyile: FileList = formData.identifyfile;
+	const degreeFile: FileList = formData.degreeFile;
 
 	formDataObj.append("patientData", JSON.stringify(formattedData));
 	formDataObj.append("profilePicture", profPic[0]);
+	formDataObj.append('crpFile', crpFile[0]);
+	formDataObj.append('identifyfile', identifyile[0]);
+	formDataObj.append('degreeFile', degreeFile[0]);
 
-	Array.from(prevDocs).forEach((file) => {
-		formDataObj.append("documents", file);
-	});
+
 
 	return formDataObj;
 }

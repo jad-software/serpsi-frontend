@@ -18,8 +18,9 @@ interface ExtraInfoProps {
 }
 
 type ExtraInfoForm = {
-	comorbidities?: string | undefined;
-	previousDocuments?: any;
+	degreeFile?: any;
+	identifyfile?: any;
+	crpFile?: any;
 };
 
 export default function ExtraInfoSection({
@@ -34,30 +35,7 @@ export default function ExtraInfoSection({
 		watch,
 		formState: { errors }
 	} = useFormContext<ExtraInfoForm>();
-	const { fields, append, remove } = useFieldArray({
-		control,
-		name: "medicines"
-	});
 
-	const addMedicine = () => {
-		append({
-			name: "",
-			dosage: 0,
-			dosageUnity: "",
-			frequency: 0,
-			firstTimeOfTheDay: "",
-			startDate: undefined,
-			observation: ""
-		});
-	};
-
-	const removeMedicine = () => {
-		remove(fields.length - 1);
-	};
-
-	const removeAllMedicine = () => {
-		remove();
-	};
 
 	return (
 		<FormSection
@@ -72,12 +50,12 @@ export default function ExtraInfoSection({
 						label="Diploma:"
 						placeholder=""
 						type="uniqueFile"
-						name="previousDocuments"
+						name="degreeFile"
 						accept="application/pdf"
 						register={register}
 						error={
-							errors.previousDocuments
-								? errors.previousDocuments.message?.toString()
+							errors.degreeFile
+								? errors.degreeFile.message?.toString()
 								: undefined
 						}
 					/>
@@ -88,12 +66,12 @@ export default function ExtraInfoSection({
 						label="Identidade:"
 						placeholder=""
 						type="uniqueFile"
-						name="previousDocuments"
+						name="identifyfile"
 						accept="application/pdf"
 						register={register}
 						error={
-							errors.previousDocuments
-								? errors.previousDocuments.message?.toString()
+							errors.identifyfile
+								? errors.identifyfile.message?.toString()
 								: undefined
 						}
 					/>
@@ -104,12 +82,12 @@ export default function ExtraInfoSection({
 						label="CRP:"
 						placeholder=""
 						type="uniqueFile"
-						name="previousDocuments"
+						name="crpFile"
 						accept="application/pdf"
 						register={register}
 						error={
-							errors.previousDocuments
-								? errors.previousDocuments.message?.toString()
+							errors.crpFile
+								? errors.crpFile.message?.toString()
 								: undefined
 						}
 					/>
