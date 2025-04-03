@@ -34,3 +34,10 @@
   color: #374151;
   padding: 10px; 
 }
+
+
+.ql-editor img {
+  max-width: 100%; 
+  height: auto;
+}
+

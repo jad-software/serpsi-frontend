@@ -19,7 +19,7 @@ export const columns: ColumnDef<Session>[] = [
 		size: 70,
 		cell: (e) => (
 			<Link
-				href={"/patients/" + e.getValue()}
+				href={"/sessions/" + e.getValue()}
 				className="flex justify-center"
 			>
 				<PencilAltIcon width={24} height={24} />

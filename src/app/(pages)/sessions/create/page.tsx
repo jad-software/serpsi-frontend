@@ -7,33 +7,42 @@ import psiImage from "/public/img/avatar.svg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import InputMask from "react-input-mask-next";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from 'next/navigation'
 import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
-
+import { getData } from "@/services/myPatientService";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef, useState } from "react";
+import { Patient, Phone } from "@/models";
+import { formatDateToddmmYYYY, formatDateToYYYYmmdd } from "@/services/utils/formatDate";
+import { createMeeting, getHourAvailableByDate } from "@/services/meetingsService";
+import { toast } from "sonner";
+import { formatToCurrency } from "@/services/utils/formatCurrency";
+import { formatPhone } from "@/services/utils/formatPhone";
+import { getProfileData } from "@/services/profileService";
 
 const sessionSchema = z.object({
   startDate: z
-  .string()
-  .min(1, "A data da primeira sessão é obrigatória.")
-  .refine(
-    (value) => {
-      const [year, month, day] = value.split("-").map(Number);
-      const inputDate = new Date(year, month - 1, day);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    .string()
+    .min(1, "A data da primeira sessão é obrigatória.")
+    .refine(
+      (value) => {
+        const [year, month, day] = value.split("-").map(Number);
+        const inputDate = new Date(year, month - 1, day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-      return inputDate.getTime() >= today.getTime();
-    },
-    {
-      message: "A data não pode estar no passado.",
-    }
-  ),
+        return inputDate.getTime() >= today.getTime();
+      },
+      {
+        message: "A data não pode estar no passado.",
+      }
+    ),
   frequency: z.string().min(1, "A frequência da Sessão é obrigatória"),
   sessionValue: z
     .string()
-    .regex(
-      /^R\$ (\d{1,3}(\.\d{3})*|\d+),\d{2}$/,
+    .min(
+      1,
       "O valor da sessão é obrigatório"
     ).refine(
       (value) => {
@@ -47,19 +56,26 @@ const sessionSchema = z.object({
   startTime: z.string().min(1, "O horário da sessão é obrigatório."),
   sessionCount: z.number().positive("O número de sessões deve ser maior que zero."),
   paymentMethod: z.string().optional(),
+
 });
 
 type SessionData = z.infer<typeof sessionSchema>;
 
-
 export default function CreateSession() {
+
+  const searchParams = useSearchParams()
+  const [data, setData] = useState({} as Patient);
+  const [aVTime, setAvTime] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  let sessionValue = useRef('R$ 0,00');
+  const id = searchParams.get('id');
 
   const methods = useForm<SessionData>({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
       startDate: "",
       frequency: "",
-      sessionValue: "",
+      sessionValue: sessionValue.current,
       startTime: "",
       sessionCount: 1,
       paymentMethod: "",
@@ -67,16 +83,56 @@ export default function CreateSession() {
     mode: "onChange",
   });
 
-  const { register, handleSubmit, formState, control, setValue } = methods;
+  const { register, handleSubmit, formState, control, setValue, watch } = methods;
   const { errors } = formState;
 
 
-  const formatToCurrency = (value: string) => {
-    if (!value) return "R$ 0,00";
-    const numericValue = value.replace(/[^\d]/g, "");
-    const num = parseFloat(numericValue) / 100;
-    return `R$ ${num.toFixed(2).replace(".", ",")}`;
-  };
+
+  useEffect(() => {
+    async function fetchData() {
+      if (id) {
+        const data = await getData(id);
+        setData(data);
+      }
+    }
+    fetchData();
+
+  }, [id]);
+
+  useEffect(() => {
+    async function getProfile() {
+      const value = await getProfileData();
+      const numericValue = parseFloat(value._meetValue);
+      const formattedValue = numericValue.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      sessionValue.current = formattedValue;
+      setValue("sessionValue", formattedValue, { shouldValidate: true });
+    }
+    getProfile();
+  }, [setValue]);
+
+
+
+  const handleStartDateBlur = async (startDateformated: string) => {
+    if (!errors.startDate) {
+      try {
+        setValue('startTime', '');
+        const data: {
+          day: string;
+          availableTimes: string[]
+        }[] = await getHourAvailableByDate(startDateformated);
+        const allTimes = data.flatMap(item => item.availableTimes);
+        setAvTime(allTimes);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      }
+    }
+  }
+
+  const startDate = watch("startDate");
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value.replace(/[^\d]/g, "");
@@ -84,14 +140,37 @@ export default function CreateSession() {
     setValue("sessionValue", formattedValue, { shouldValidate: true });
   };
 
-  const onSubmit = (data: SessionData) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data: SessionData) => {
+    setLoading(true);
+    const { startDate, startTime, frequency, sessionValue, sessionCount } = data;
+    const schedule = `${startDate}T${startTime}z`;
+    const meetingFrequency = +frequency;
+    const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
+    
+    toast.promise(createMeeting({
+      amount: +amount,
+      frequency: meetingFrequency,
+      patient: id || '',
+      psychologist: "",
+      quantity: sessionCount,
+      schedule: schedule
+    }), {
+      loading: "Carregando...",
+      success: (result) => {
+        setLoading(false);
+        return "Sessão Criada com sucesso!";
+      },
+      error: (result) => {
+        setLoading(false)
+        return "Erro ao criar sessão, certifique se todos os horários estão livres"
+      }
+    })
   };
 
   return (
     <main className="flex flex-col items-center justify-center px-4 py-5 lg:px-10 bg-white">
       <div className="mb-4 w-full">
-        <Link href={"/patients"} className="flex items-center text-gray-500">
+        <Link href={"/sessions/select"} className="flex items-center text-gray-500">
           <ChevronLeftIcon className="w-6 h-6" />
           <span className="ml-2 text-lg ">Agendar Sessões</span>
         </Link>
@@ -105,25 +184,30 @@ export default function CreateSession() {
 
             <div className="flex flex-col md:flex-row items-center md:items-start space-x-4 mb-2 md:mb-0">
               <Image
-                src={psiImage}
+                src={data._person ? data._person._profilePicture : psiImage}
                 alt="Profile"
                 width={100}
                 height={100}
                 className="h-24 w-24 rounded-full object-cover"
               />
-              <div>
-                <p>Nome: Roberto Santos</p>
-                <p>Nascimento: 31/12/2000</p>
-                <p>CPF: 000.000.000-00</p>
-                <p>Tel: (00) 00000-0000</p>
+              <div >
+                <p>Nome: {data._person && data._person._name}</p>
+                <p>Nascimento: {data._person && formatDateToddmmYYYY(data._person._birthdate)}</p>
+                <p>CPF: {data._person && data._person._cpf._cpf}</p>
+                <p>Tel: {data._person && formatPhone(data._person._phone, false)}</p>
               </div>
             </div>
 
-            <div>
-              <p>Responsável: Roberta Mãe</p>
-              <p>Nascimento: 31/12/2000</p>
-              <p>CPF: 000.000.000-00</p>
-              <p>Tel: (00) 00000-0000</p>
+            <div className="px-12 flex flex-col gap-2  md:flex-row max-w-96 overflow-x-auto">
+              {data._parents && data._parents.map((p, index) => (
+                <div key={p._id._id}>
+                  <p>Responsável {index + 1}: {p._name}</p>
+                  <p>Nascimento: {formatDateToddmmYYYY(p._birthdate)}</p>
+                  <p>CPF: {p._cpf._cpf}</p>
+                  <p>Tel: {formatPhone(p._phone, false)}</p>
+                </div>
+              ))}
+
             </div>
           </div>
 
@@ -138,6 +222,7 @@ export default function CreateSession() {
                 <input
                   type="date"
                   {...register("startDate")}
+                  onBlur={() => handleStartDateBlur(formatDateToYYYYmmdd(new Date(startDate)))}
                   className={`w-full h-11 rounded border ${errors.startDate ? 'border-red-500' : 'border-primary-400'} p-2 focus:ring`}
                 />
                 {errors.startDate && <p className="text-sm text-red-500">{errors.startDate.message}</p>}
@@ -169,9 +254,10 @@ export default function CreateSession() {
                         <SelectValue placeholder="Selecione a frequência das sessões..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SEMANAL">Semanal</SelectItem>
-                        <SelectItem value="QUINZENAL">Quinzenal</SelectItem>
-                        <SelectItem value="MENSAL">Mensal</SelectItem>
+                        <SelectItem value="1">Semanal</SelectItem>
+                        <SelectItem value="2">Quinzenal</SelectItem>
+                        <SelectItem value="4">Mensal</SelectItem>
+                        <SelectItem value="0">Avulso</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -223,9 +309,12 @@ export default function CreateSession() {
                         <SelectValue placeholder="Selecione o horário..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="08:00">08:00</SelectItem>
-                        <SelectItem value="09:00">09:00</SelectItem>
-                        <SelectItem value="10:00">10:00</SelectItem>
+                        {aVTime.length > 0 ? aVTime.map((av, index) => {
+                          return (
+                            <SelectItem key={index}
+                              value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
+                          )
+                        }) : <p>Nenhum horário disponível para esse dia</p>}
                       </SelectContent>
                     </Select>
                   )}
@@ -246,20 +335,41 @@ export default function CreateSession() {
                 <label className="block text-gray-700 font-medium mt-4 mb-2">
                   Forma de pagamento:
                 </label>
-                <Select {...register("paymentMethod")} disabled>
-                  <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
-                    <SelectValue placeholder="A Definir" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DINHEIRO">Dinheiro</SelectItem>
-                    <SelectItem value="CARTAO">Cartão</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="paymentMethod"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={
+                        field.onChange
+                      }
+                      value={
+                        field.value
+                      }
+                      disabled
+                    >
+                      <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
+                        <SelectValue placeholder="A Definir" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {aVTime.length > 0 ? aVTime.map((av, index) => {
+                          return (
+                            <SelectItem key={index}
+                              value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
+                          )
+                        }) : <p>Nenhum horário disponível para esse dia</p>}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
 
               <div className="pb-10 w-full md:col-span-2 flex justify-center">
-                <Button type="submit" className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70">
-                  Confirmar
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="rounded bg-primary-600 px-8 py-2 text-white hover:bg-primary-600/70">
+                  {loading ? "Carregando" : "Confirmar"}
                 </Button>
               </div>
             </form>
