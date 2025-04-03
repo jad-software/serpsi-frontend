@@ -29,7 +29,7 @@ export const createPsychologistFormSchema = z
 					message:
 						"A senha deve ter pelo menos 8 caracteres e conter uma letra maiúscula, uma letra minúscula e um número."
 				}),
-				role: z.string().min(1, 'Role é obrigátorio')
+			role: z.string().min(1, 'Role é obrigátorio')
 		}),
 		// PatientInfoSection
 		person: z.object({
@@ -78,7 +78,7 @@ export const createPsychologistFormSchema = z
 			message: "o arquivo do CRP é obrigatório.",
 			path: ["crpFile"]
 		}),
-		
+
 		identifyfile: fileListType.refine((val) => val && val.length > 0, {
 			message: "o arquivo da identidade é obrigatório.",
 			path: ["identifyfile"]
@@ -92,9 +92,9 @@ export const createPsychologistFormSchema = z
 
 export type CreatePsychologistForm = z.infer<typeof createPsychologistFormSchema>;
 
-export function formatPatientData(formData: CreatePsychologistForm): FormData {
+export function formatPsychologistData(formData: CreatePsychologistForm): FormData {
 	type FormattedDataType = {
-		crp:{
+		crp: {
 			crp: string;
 		},
 		user: {
@@ -166,19 +166,16 @@ export function formatPatientData(formData: CreatePsychologistForm): FormData {
 	};
 
 	const formDataObj = new FormData();
-
 	const profPic: FileList = formData.profilePicture;
 	const crpFile: FileList = formData.crpFile;
-	const identifyile: FileList = formData.identifyfile;
+	const identifyfile: FileList = formData.identifyfile;
 	const degreeFile: FileList = formData.degreeFile;
 
-	formDataObj.append("patientData", JSON.stringify(formattedData));
+	formDataObj.append("psychologistData", JSON.stringify(formattedData));
 	formDataObj.append("profilePicture", profPic[0]);
 	formDataObj.append('crpFile', crpFile[0]);
-	formDataObj.append('identifyfile', identifyile[0]);
+	formDataObj.append('identifyfile', identifyfile[0]);
 	formDataObj.append('degreeFile', degreeFile[0]);
-
-
 
 	return formDataObj;
 }

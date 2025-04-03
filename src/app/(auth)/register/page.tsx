@@ -13,11 +13,12 @@ import { createPatient } from "@/services/patientsService";
 import {
 	CreatePsychologistForm,
 	createPsychologistFormSchema,
-	formatPatientData
+	formatPsychologistData
 } from "./schema";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import UserInfoSection from "./UserInfoSection";
+import { createPsychologist } from "@/services/authService";
 
 export default function RegisterNewPatientPage() {
 	const [progress, setProgress] = useState<number>(1);
@@ -62,21 +63,22 @@ export default function RegisterNewPatientPage() {
 
 	const onSubmit = async (data: CreatePsychologistForm) => {
 		try {
-			console.log('DATA', data);
-			const formattedData = formatPatientData(data);
-			console.log('formattedData', formattedData);
+			const formattedData = formatPsychologistData(data);
+			Array.from(formattedData.entries()).forEach(([key, value]) => {
+				console.log(key, value);
+		});
 
-			// toast.promise(createPatient(formattedData), {
-			// 	loading: "Carregando...",
-			// 	success: () => {
-			// 		router.push("/patients");
-			// 		return "Paciente cadastrado com sucesso! 😍";
-			// 	},
-			// 	error: (err) => {
-			// 		console.log(err);
-			// 		return "Houve um erro ao cadastrar o paciente.";
-			// 	}
-			// });
+			toast.promise(createPsychologist(formattedData), {
+				loading: "Carregando...",
+				success: () => {
+					router.push("/login");
+					return "Paciente cadastrado com sucesso! 😍";
+				},
+				error: (err) => {
+					console.log(err);
+					return "Houve um erro ao cadastrar o paciente.";
+				}
+			});
 
 			// console.log("Paciente cadastrado com sucesso:", response);
 			// toast.success("Paciente cadastrado com sucesso!");

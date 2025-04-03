@@ -52,6 +52,7 @@ export default function UserInfoSection({
             placeholder="CRP do Psicólogo"
             type="text"
             name="crp.crp"
+            mask="99/999999"
             register={register}
             error={errors.crp?.crp?.message}
           />
