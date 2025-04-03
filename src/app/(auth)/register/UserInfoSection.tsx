@@ -53,6 +53,7 @@ export default function UserInfoSection({
             type="text"
             name="crp.crp"
             mask="99/999999"
+            maskPlaceholder=""
             register={register}
             error={errors.crp?.crp?.message}
           />

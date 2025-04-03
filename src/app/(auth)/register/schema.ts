@@ -18,7 +18,10 @@ export const createPsychologistFormSchema = z
 			path: ["profilePicture"]
 		}),
 		crp: z.object({
-			crp: z.string().min(1, 'CRP é um campo obrigatório')
+
+			crp: z.string().refine((val) => /^\d{2}\/\d{5,6}$/.test(val.trim()), {
+				message: "CRP inválido. O formato deve ser XX/XXXXX ou XX/XXXXXX.",
+			}),
 		}),
 		user: z.object({
 			email: z.string().min(1, 'E-mail é um campo obrigatório').email('Insira um E-mail válido'),

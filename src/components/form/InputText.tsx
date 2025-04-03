@@ -12,6 +12,7 @@ interface InputTextProps {
 	label: string;
 	placeholder: string;
 	type: string;
+	maskPlaceholder?: string;
 	name?: string;
 	register?: UseFormRegister<any>;
 	variant?: "primary" | "secondary";
@@ -26,6 +27,7 @@ export function InputText({
 	placeholder,
 	type,
 	name,
+	maskPlaceholder,
 	register,
 	variant = "primary",
 	mask,
@@ -54,6 +56,7 @@ export function InputText({
 					type={type}
 					mask={mask}
 					placeholder={placeholder}
+					maskPlaceholder={maskPlaceholder && maskPlaceholder}
 					className={inputClassNames}
 					{...(register ? register(name ? name : id) : {})}
 				/>
