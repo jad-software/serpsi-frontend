@@ -2,6 +2,7 @@ import { InputText } from "@/components/form/InputText";
 import { FormSection } from "./FormSection";
 import { useFormContext } from "react-hook-form";
 import { CreatePsychologistForm } from "./schema";
+import { InputCurrency } from "@/components/form/InputCurrency";
 
 interface PsychologistnfoProps {
   progress: number;
@@ -14,6 +15,7 @@ export default function SessionInfoSection({
 }: PsychologistnfoProps) {
   const {
     register,
+    setValue,
     formState: { errors }
   } = useFormContext<CreatePsychologistForm>();
   return (
@@ -24,13 +26,13 @@ export default function SessionInfoSection({
     >
       <>
         <div>
-          <InputText
+        <InputCurrency
             id="meetValue"
             label="Valor da Sessão em reais:"
-            placeholder="Valor da Sessão"
-            type="text"
+            placeholder="R$ 0,00"
             name="meetValue"
             register={register}
+            setValue={setValue}
             error={errors.meetValue?.message}
           />
         </div>
