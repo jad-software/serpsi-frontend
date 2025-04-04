@@ -164,7 +164,8 @@ export default function SpecificSessions({
 									{meetingData._patient?._person?._name}
 								</span>
 								{meetingData._patient &&
-									<Link href={`/patients/${meetingData._patient._id._id}`}>
+									<Link 
+										href={`/patients/${meetingData._patient._id._id}?name=${meetingData._patient._person._name}`}>
 										<PencilAltIcon
 											width={24}
 											height={24}
