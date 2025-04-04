@@ -68,8 +68,7 @@ export async function updatePatient(formData: FormData, id: string) {
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	// console.dir(formData, { depth: null, colors: true });
-	console.dir(formData, { depth: null, colors: true, customInspect: true });
+
 	const response = await fetch(process.env.BACKEND_URL + "/patients/" + id, {
 		method: "PUT",
 		headers: {

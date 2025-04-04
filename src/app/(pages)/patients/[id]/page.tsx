@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { updatePatient } from "@/services/patientsService";
 import { updateProfilePicture } from "../../profile/uploadImage";
 import { useRouter } from "next/navigation";
+import psiImage from "/public/img/avatar.svg"
 
 export default function MyPatient({
 	params
@@ -148,7 +149,7 @@ export default function MyPatient({
 
 	const onSubmit: SubmitHandler<PatientData> = async (submitData) => {
 		setLoading(true);
-		const { _id, _school, _comorbidities } = submitData;
+		const { _id } = submitData;
 		const formattedData: any = {
 			paymentPlan: submitData._paymentPlan,
 			person: {
@@ -197,37 +198,35 @@ export default function MyPatient({
 				name: comorbidity._name
 			}))
 		};
-		// if (selectedImage && selectedImage.length > 0) {
-		// 	try {
-		// 		const profileUpdateResponse = await updateProfilePicture(
-		// 			_id._id,
-		// 			selectedImage
-		// 		);
-		// 		if (profileUpdateResponse?.newImageUrl) {
-		// 			setImage(profileUpdateResponse.newImageUrl);
-		// 			formattedData.person.profilePicture = profileUpdateResponse.newImageUrl;
-		// 			toast.success("Imagem atualizada com sucesso");
-		// 		}
-		// 	} catch (error) {
-		// 		setLoading(false);
-		// 		toast.error("Erro ao atualizar a imagem.");
-		// 		return;
-		// 	}
-		// }
+		if (selectedImage && selectedImage.length > 0) {
+			try {
+				const profileUpdateResponse = await updateProfilePicture(
+					submitData._person._id._id,
+					selectedImage
+				);
+				if (profileUpdateResponse?.newImageUrl) {
+					setImage(profileUpdateResponse.newImageUrl);
+					formattedData.person._profilePicture = profileUpdateResponse.newImageUrl;
+					console.log("Imagem atualizada com sucesso:", profileUpdateResponse.newImageUrl);
+				}
+			} catch (error) {
+				setLoading(false);
+				console.log(error)
+				toast.error("Erro ao atualizar a imagem.");
+				return;
+			}
+		}
 		toast.promise(updatePatient(formattedData, _id._id), {
 			loading: "Carregando...",
 			success: () => {
-				console.log("toast", submitData);
-				setIsEditing(false);
-				hasRun.current = false;
+				setIsEditing(!isEditing);
 				return "Paciente cadastrado com sucesso! 😍";
 			},
 			error: (err) => {
-				console.log("toast", err);
 				return "Houve um erro ao cadastrar o paciente.";
 			},
 			finally: () => {
-				setLoading(false);
+				setLoading(!isEditing);
 			}
 		});
 
@@ -284,20 +283,13 @@ export default function MyPatient({
 													type="file"
 													id="foto-paciente"
 													accept="image/jpeg, image/png"
-													{...methods.register("picture")}
+													{...register("picture")}
 													className="hidden"
-													onChange={(e) => {
-														const file = e.target.files?.[0];
-														if (file) {
-															const reader = new FileReader();
-															reader.onload = (event) => {
-																setImage(event.target?.result as string);
-															};
-															reader.readAsDataURL(file);
-														}
-													}}
 												/>
-												<label htmlFor="foto-paciente" className="cursor-pointer">
+												<label
+													htmlFor="foto-paciente"
+													className="cursor-pointer"
+												>
 													{image ? (
 														<Image
 															src={image}
