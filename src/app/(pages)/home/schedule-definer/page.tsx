@@ -49,8 +49,8 @@ export default function ScheduleDefinePage() {
 		resolver: zodResolver(scheduleSchema),
 		defaultValues: {
 			psychologistId: "",
-			meetValue: 100.5,
-			meetDuration: 50,
+			meetValue: 0,
+			meetDuration: 0,
 			agendas: [
 				{
 					key: 1,
@@ -196,6 +196,7 @@ export default function ScheduleDefinePage() {
 				methods.reset({ ...data });
 				setCheckboxes(checks);
 			}
+			methods.setValue('meetDuration', data!.meetDuration);
 				setMeetValue(data!.meetValue);
 		}
 		setDefaultAgendas();
