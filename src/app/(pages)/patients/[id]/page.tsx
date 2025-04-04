@@ -70,19 +70,23 @@ export default function MyPatient({
 				_person: {
 					...response._person,
 					_birthdate:
-											new Date(moment
-												.utc(response._person._birthdate)
-												.format("YYYY-MM-DD") ),
-					_phone: formatPhone(response._person._phone as Phone)
+						moment
+							.utc(response._person._birthdate)
+							.format("YYYY-MM-DD"),
+					// _phone: formatPhone(response._person._phone as Phone)
 				},
-		
+
 				_parents: response._parents.map((parent: ParentData) => ({
 					...parent,
-					_phones: formatPhone(parent._phone as Phone),
+					_birthdate: moment
+						.utc(parent._birthdate)
+						.format("YYYY-MM-DD"),
+					// _phones: formatPhone(parent._phone as Phone),
 				})),
 			}
-			setData(response);
-			methods.reset(response);
+			setData(formattedData);
+			methods.reset(formattedData);
+			console.log(formattedData)
 		}
 		fetchData(params.id);
 	}, [params.id, methods]);
@@ -181,11 +185,14 @@ export default function MyPatient({
 											/>
 										)}
 										{isEditing ? (
-											<input
-												type="text"
-												{...methods.register("_person._name")}
-												className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
-											/>
+											<div className="flex flex-col w-full items-start">
+												<label className="block text-gray-700">Nome:</label>
+												<input
+													type="text"
+													{...methods.register("_person._name")}
+													className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+												/>
+											</div>
 										) : (
 											<>
 												<h2 className="text-xl text-gray-900">
@@ -212,9 +219,9 @@ export default function MyPatient({
 													<input
 														type="date"
 														{...register("_person._birthdate")}
-														defaultValue={formatDateToddmmYYYY(methods.getValues(
+														defaultValue={new Date(methods.getValues(
 															"_person._birthdate"
-														) ) as string}
+														)).toISOString().split('T')[0]}
 														className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 													/>
 													{errors._person?._birthdate && (
@@ -256,13 +263,10 @@ export default function MyPatient({
 												<div className="mb-2">
 													<label className="block text-gray-700">Tel:</label>
 													<InputMask
-														mask="(99) 99999-9999"
+														mask={"(99) 99999-9999"}
 														type="text"
-														{...register("_person._phone", {
-															onChange: (e) => methods.setValue("_person._phone", e.target.value),
-														})}
+														{...register("_person._phone")}
 														className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
-														defaultValue={formatPhone(data?._person?._phone as Phone)}
 													/>
 													{errors._person?._phone && (
 														<p className="text-sm text-red-500">{errors._person._phone.message}</p>
@@ -271,7 +275,7 @@ export default function MyPatient({
 											</>
 										) : (
 											<>
-												<p>Nascimento: {formatDateToddmmYYYY(methods.getValues("_person._birthdate") || data._person._birthdate)}</p>
+												<p>Nascimento: {formatDateToddmmYYYY(new Date(methods.getValues("_person._birthdate")) || data._person._birthdate)}</p>
 												<p>CPF: {methods.getValues("_person._cpf._cpf") || data._person._cpf._cpf}</p>
 												<p>RG: {methods.getValues("_person._rg") || data._person._rg}</p>
 												<p>Tel: {formatPhone(methods.getValues("_person._phone") as Phone || data._person._phone)}</p>
@@ -344,7 +348,7 @@ export default function MyPatient({
 																<input
 																	type="date"
 																	{...register(`_parents.${index}._birthdate`)}
-																	defaultValue={formatDateToddmmYYYY(methods.getValues(`_parents.${index}._birthdate`)) as string}
+																	defaultValue={formatDateToddmmYYYY(new Date(methods.getValues(`_parents.${index}._birthdate`))) as string}
 																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 																{errors._parents?.[index]?._birthdate && (
@@ -393,7 +397,7 @@ export default function MyPatient({
 														</>
 													) : (
 														<>
-															<p>Nascimento: {formatDateToddmmYYYY(parent._birthdate)}</p>
+															<p>Nascimento: {formatDateToddmmYYYY(new Date(parent._birthdate))}</p>
 															<p>CPF: {parent._cpf._cpf}</p>
 															<p>RG: {parent._rg}</p>
 															<p>Tel: {formatPhone(parent._phone as Phone)}</p>
