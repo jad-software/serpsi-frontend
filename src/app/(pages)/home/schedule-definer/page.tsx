@@ -176,7 +176,8 @@ export default function ScheduleDefinePage() {
 	};
 
 	const [checkboxes, setCheckboxes] = useState(settingWatchToCheckboxes());
-	const [meetValue, setMeetValue] = useState(Number);
+	const [meetValue, setMeetValue] = useState<number>(0);
+
 	useEffect(() => {
 		async function setDefaultAgendas() {
 			const data = await getAgenda();
@@ -194,8 +195,8 @@ export default function ScheduleDefinePage() {
 				data?.agendas.sort((a, b) => a.key - b.key);
 				methods.reset({ ...data });
 				setCheckboxes(checks);
-				setMeetValue(data!.meetValue);
 			}
+				setMeetValue(data!.meetValue);
 		}
 		setDefaultAgendas();
 	}, [methods]);
