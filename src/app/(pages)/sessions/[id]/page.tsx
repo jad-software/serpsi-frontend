@@ -286,6 +286,11 @@ export default function SpecificSessions({
 				{/* Relato da sessão */}
 				<Square variant="ThreeRows" className="md:col-span-3">
 					<SquareHeader titulo="Relato da sessão:" />
+					{meetingData?._status !== 'CONFIRMADO' &&
+						<p className="text-center mb-2">
+							Sessão deve estar confirmada para o relato poder ser editado.
+						</p>
+					}
 					<RichTextEditor value={content} onChange={setContent}
 						readOnly={isSalvingReport || meetingData?._status !== 'CONFIRMADO' ? true : false} />
 					<div className="mt-3 flex justify-end">
