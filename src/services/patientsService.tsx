@@ -28,12 +28,12 @@ export async function createPatient(formData: FormData) {
 	const id = cookies().get("sub")?.value;
 
 	const patientData = formData.get("patientData");
-	
-		if (!jwt) {
-			throw new Error(
-				"Token de autenticação não encontrado. Por favor, faça login novamente."
-			);
-		}
+
+	if (!jwt) {
+		throw new Error(
+			"Token de autenticação não encontrado. Por favor, faça login novamente."
+		);
+	}
 
 	if (patientData) {
 		const patientDataObj = JSON.parse(patientData.toString());
@@ -58,4 +58,32 @@ export async function createPatient(formData: FormData) {
 	}
 
 	return await response.json();
+}
+
+export async function updatePatient(formData: FormData, id: string) {
+	const jwt = cookies().get("Authorization")?.value;
+
+	if (!jwt) {
+		throw new Error(
+			"Token de autenticação não encontrado. Por favor, faça login novamente."
+		);
+	}
+	// console.dir(formData, { depth: null, colors: true });
+	console.dir(formData, { depth: null, colors: true, customInspect: true });
+	const response = await fetch(process.env.BACKEND_URL + "/patients/" + id, {
+		method: "PUT",
+		headers: {
+			Authorization: jwt,
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(formData)
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json();
+		throw new Error(errorData.message || "Erro ao atualizar o paciente.");
+	}
+
+	return await response.json();
+
 }

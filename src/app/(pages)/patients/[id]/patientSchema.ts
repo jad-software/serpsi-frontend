@@ -53,10 +53,10 @@ const SchoolSchema = z.object({
 
 const ComorbiditySchema = z.object({
   _name: z.string(),
-  _id: IdSchema
+  _id: IdSchema.optional()
 });
 
-const ParentSchema = PersonSchema.omit({ address: true });
+const ParentSchema = PersonSchema.omit({ address: true, _profilePicture: true });
 
 const MedicineSchema = z.object({
   _patient_id: z.string().uuid(),

@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image";
 import { Square, SquareHeader } from "./Square";
-import { ChevronLeftIcon, DocumentSearchIcon, PencilAltIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, DocumentSearchIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
 import { ComorbidityTag } from "./comorbidityTag";
 import Link from "next/link";
 import { getData } from "@/services/myPatientService";
@@ -20,12 +20,17 @@ import InputMask from "react-input-mask-next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { comorbidityData, MedicineData, ParentData, PatientData, PatientSchema, PersonData } from "./patientSchema";
 import moment from "moment";
+import { toast } from "sonner";
+import { updatePatient } from "@/services/patientsService";
+import { updateProfilePicture } from "../../profile/uploadImage";
+import { useRouter } from "next/navigation";
 
 export default function MyPatient({
 	params
 }: {
 	params: { id: string };
 }) {
+	const router = useRouter();
 	const methods = useForm<PatientData>({
 		resolver: zodResolver(PatientSchema),
 		mode: "onChange"
@@ -49,16 +54,31 @@ export default function MyPatient({
 		return { _ddi: "", _ddd: "", _number: "" };
 	};
 
+	const parsePhoneToAPI = (phoneString: string) => {
+		const match = phoneString.match(/\((\d{2})\) (\d{5}-\d{4})/);
+		if (match) {
+			return {
+				ddi: "+55",
+				ddd: match[1],
+				number: match[2].replace("-", ""),
+			};
+		}
+		return { ddi: "", ddd: "", number: "" };
+
+	}
 	const [isEditing, setIsEditing] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState<PatientData>();
 	const [image, setImage] = useState<string | null>(null);
+	const selectedImage = watch("picture");
+
 	const hasRun = useRef(false)
 	useEffect(() => {
 		if (hasRun.current) return
 		hasRun.current = true;
 
 		async function fetchData(id: string) {
+			console.log("fetching data...")
 			const response = await getData(id);
 			const formattedData: PatientData = {
 				...response,
@@ -90,14 +110,127 @@ export default function MyPatient({
 			}
 			setData(formattedData);
 			methods.reset(formattedData);
-			console.log(methods.getValues("_person._phone"))
-
 		}
 		fetchData(params.id);
 	}, [params.id, methods]);
 
-	const onSubmit: SubmitHandler<PatientData> = async (data) => {
-		console.log(data);
+	useEffect(() => {
+		if (selectedImage && selectedImage.length > 0) {
+			const file = selectedImage[0];
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImage(reader.result as string);
+			};
+			reader.readAsDataURL(file);
+		}
+	}, [selectedImage]);
+
+	const compare = (obj1: any, obj2: any): boolean => {
+		if (obj1 === obj2) return true;
+
+		if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
+			return false;
+		}
+
+		if (Array.isArray(obj1) && Array.isArray(obj2)) {
+			if (obj1.length !== obj2.length) return false;
+
+			return obj1.every((item, index) => compare(item, obj2[index]));
+		}
+
+		const keys1 = Object.keys(obj1);
+		const keys2 = Object.keys(obj2);
+
+		if (keys1.length !== keys2.length) return false;
+
+		return keys1.every(key => compare(obj1[key], obj2[key]));
+	};
+
+	const onSubmit: SubmitHandler<PatientData> = async (submitData) => {
+		setLoading(true);
+		const { _id, _school, _comorbidities } = submitData;
+		const formattedData: any = {
+			paymentPlan: submitData._paymentPlan,
+			person: {
+				name: submitData._person._name,
+				rg: submitData._person._rg,
+				profilePicture: submitData._person._profilePicture || "",
+				birthdate: submitData._person._birthdate,
+				cpf: {
+					cpf: submitData._person._cpf._cpf,
+				},
+				phone: parsePhoneToAPI(submitData._person._phone as string),
+				address: {
+					zipCode: submitData._person.address._zipCode,
+					street: submitData._person.address._street,
+					district: submitData._person.address._district,
+					city: submitData._person.address._city,
+					state: submitData._person.address._state,
+					homeNumber: submitData._person.address._homeNumber,
+					complement: submitData._person.address._complement,
+				},
+			},
+			parents: submitData._parents.map((parent) => ({
+				name: parent._name,
+				rg: parent._rg,
+				birthdate: parent._birthdate,
+				phone: parsePhoneToAPI(parent._phone as string),
+				cpf: {
+					cpf: parent._cpf._cpf,
+				}
+			})),
+			school: {
+				name: submitData._school._name,
+				phone: parsePhoneToAPI(submitData._school._phone as string),
+				CNPJ: submitData._school._CNPJ._code,
+				address: {
+					zipCode: submitData._school._address._zipCode,
+					street: submitData._school._address._street,
+					district: submitData._school._address._district,
+					city: submitData._school._address._city,
+					state: submitData._school._address._state,
+					homeNumber: submitData._school._address._homeNumber,
+					complement: submitData._school._address._complement,
+				},
+			},
+			comorbidities: submitData._comorbidities.map((comorbidity) => ({
+				name: comorbidity._name
+			}))
+		};
+		// if (selectedImage && selectedImage.length > 0) {
+		// 	try {
+		// 		const profileUpdateResponse = await updateProfilePicture(
+		// 			_id._id,
+		// 			selectedImage
+		// 		);
+		// 		if (profileUpdateResponse?.newImageUrl) {
+		// 			setImage(profileUpdateResponse.newImageUrl);
+		// 			formattedData.person.profilePicture = profileUpdateResponse.newImageUrl;
+		// 			toast.success("Imagem atualizada com sucesso");
+		// 		}
+		// 	} catch (error) {
+		// 		setLoading(false);
+		// 		toast.error("Erro ao atualizar a imagem.");
+		// 		return;
+		// 	}
+		// }
+		toast.promise(updatePatient(formattedData, _id._id), {
+			loading: "Carregando...",
+			success: () => {
+				console.log("toast", submitData);
+				setIsEditing(false);
+				hasRun.current = false;
+				return "Paciente cadastrado com sucesso! 😍";
+			},
+			error: (err) => {
+				console.log("toast", err);
+				return "Houve um erro ao cadastrar o paciente.";
+			},
+			finally: () => {
+				setLoading(false);
+			}
+		});
+
 	}
 
 	return (
@@ -140,7 +273,7 @@ export default function MyPatient({
 									/>
 								</section>
 							)}
-							<form onSubmit={methods.handleSubmit(onSubmit)}>
+							<form onSubmit={handleSubmit(onSubmit, () => { console.log(methods.formState.errors) })}>
 								<div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
 
 									{/* Card do Perfil */}
@@ -158,7 +291,7 @@ export default function MyPatient({
 														if (file) {
 															const reader = new FileReader();
 															reader.onload = (event) => {
-																setImage(event.target?.result as string); // Atualiza a imagem no estado
+																setImage(event.target?.result as string);
 															};
 															reader.readAsDataURL(file);
 														}
@@ -172,9 +305,10 @@ export default function MyPatient({
 															className="h-36 w-36 rounded-full object-cover"
 															width={140}
 															height={140}
+															unoptimized
 														/>
 													) : (
-														<div className="flex h-36 w-36 items-center justify-center rounded-full bg-gray-300 p-5">
+														<div className="flex h-36 w-36 items-center justify-center rounded-full bg-primary-100 p-5">
 															<UploadIcon width={75} height={75} />
 														</div>
 													)}
@@ -195,7 +329,7 @@ export default function MyPatient({
 												<input
 													type="text"
 													{...methods.register("_person._name")}
-													className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+													className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 												/>
 											</div>
 										) : (
@@ -204,7 +338,7 @@ export default function MyPatient({
 													{methods.getValues("_person._name") || data._person._name}
 												</h2>
 												<div className="flex items-center gap-2">
-													<a href="#" className="mt-2 text-sm text-primary-700 no-underline">
+													<a href={`/documents?name=${data._person._name}`} className="mt-2 text-sm text-primary-700 no-underline">
 														Visualizar Documentos
 													</a>
 													<DocumentSearchIcon className="mt-2 h-6 w-6 text-sm text-primary-700 underline hover:cursor-pointer" />
@@ -227,7 +361,7 @@ export default function MyPatient({
 														defaultValue={new Date(methods.getValues(
 															"_person._birthdate"
 														)).toISOString().split('T')[0]}
-														className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+														className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 													/>
 													{errors._person?._birthdate && (
 														<p className="text-sm text-red-500">
@@ -271,7 +405,7 @@ export default function MyPatient({
 														mask={"(99) 99999-9999"}
 														type="text"
 														{...register("_person._phone")}
-														className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+														className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 													/>
 													{errors._person?._phone && (
 														<p className="text-sm text-red-500">{errors._person._phone.message}</p>
@@ -297,14 +431,14 @@ export default function MyPatient({
 															<input
 																type="text"
 																{...register(`_comorbidities.${index}._name`)}
-																className="rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800"
+																className="rounded-xl border border-primary-500  p-2 text-primary-800"
 															/>
 															<button
 																type="button"
 																onClick={() => remove(index)}
 																className="text-red-500 hover:text-red-700"
 															>
-																Remover
+																<TrashIcon className="w-[24px] h-[24px]" />
 															</button>
 														</li>
 													))}
@@ -312,7 +446,7 @@ export default function MyPatient({
 
 												<button
 													type="button"
-													onClick={() => append({ _id: { _id: "" }, _name: "" })}
+													onClick={() => append({ _name: "" })}
 													className="mt-2 rounded-xl bg-primary-500 px-4 py-2 text-white hover:bg-primary-700"
 												>
 													Adicionar Comorbidade
@@ -323,8 +457,8 @@ export default function MyPatient({
 												<>
 													<p>Comorbidades:</p>
 													<ul className="mt-2 flex flex-col flex-wrap gap-2 md:flex-row">
-														{data._comorbidities.map((comorbidity: comorbidityData) => (
-															<ComorbidityTag name={comorbidity._name} key={comorbidity._id._id} />
+														{data._comorbidities.map((comorbidity: comorbidityData, index) => (
+															<ComorbidityTag name={comorbidity._name} key={comorbidity._id?._id || index} />
 														))}
 													</ul>
 												</>
@@ -354,7 +488,7 @@ export default function MyPatient({
 																	type="date"
 																	{...register(`_parents.${index}._birthdate`)}
 																	defaultValue={formatDateToddmmYYYY(new Date(methods.getValues(`_parents.${index}._birthdate`))) as string}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 																{errors._parents?.[index]?._birthdate && (
 																	<p className="text-sm text-red-500">{errors._parents[index]._birthdate.message}</p>
@@ -393,7 +527,7 @@ export default function MyPatient({
 																	mask={"(99) 99999-9999"}
 																	type="text"
 																	{...register(`_parents.${index}._phone`)}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 																{errors._parents?.[index]?._phone && (
 																	<p className="text-sm text-red-500">{errors._parents[index]._phone.message}</p>
@@ -426,7 +560,7 @@ export default function MyPatient({
 																<input
 																	type="text"
 																	{...methods.register("_school._name")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 
@@ -436,7 +570,7 @@ export default function MyPatient({
 																	mask="(99) 99999-9999"
 																	type="text"
 																	{...register("_school._phone")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 																{errors._school?._phone && (
 																	<p className="text-sm text-red-500">{errors._school._phone.message}</p>
@@ -449,7 +583,7 @@ export default function MyPatient({
 																	mask="99.999.999/9999-99"
 																	type="text"
 																	{...register("_school._CNPJ._code")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 																{errors._school?._CNPJ?._code && (
 																	<p className="text-sm text-red-500">{errors._school._CNPJ._code.message}</p>
@@ -462,7 +596,7 @@ export default function MyPatient({
 																	mask="99999-999"
 																	type="text"
 																	{...register("_school._address._zipCode")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 																{errors._school?._address?._zipCode && (
 																	<p className="text-sm text-red-500">{errors._school._address._zipCode.message}</p>
@@ -487,7 +621,7 @@ export default function MyPatient({
 																<input
 																	type="text"
 																	{...methods.register("_school._address._city")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 
@@ -502,7 +636,7 @@ export default function MyPatient({
 																				className={
 																					errors._school?._address?._state
 																						? "w-full border-red-500 focus:ring-red-600"
-																						: "w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																						: "w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																				}
 																			>
 																				<SelectValue placeholder="Selecione o estado" />
@@ -546,7 +680,7 @@ export default function MyPatient({
 																<input
 																	type="text"
 																	{...methods.register("_school._address._district")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 
@@ -555,7 +689,7 @@ export default function MyPatient({
 																<input
 																	type="text"
 																	{...methods.register("_school._address._street")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 
@@ -564,7 +698,7 @@ export default function MyPatient({
 																<input
 																	type="text"
 																	{...methods.register("_school._address._complement")}
-																	className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
 														</>
@@ -637,7 +771,7 @@ export default function MyPatient({
 															{...register(
 																"_person.address._zipCode"
 															)}
-															className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+															className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 														/>
 														{errors._person?.address
 															?._zipCode && (
@@ -658,7 +792,7 @@ export default function MyPatient({
 															{...register(
 																"_person.address._city"
 															)}
-															className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+															className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 														/>
 														{errors._person?.address
 															?._city && (
@@ -693,7 +827,7 @@ export default function MyPatient({
 																				?.address
 																				?._state
 																				? "w-full border-red-500 focus:ring-red-600"
-																				: "w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																				: "w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																		}
 																	>
 																		<SelectValue placeholder="Selecione o estado" />
@@ -749,7 +883,7 @@ export default function MyPatient({
 															{...register(
 																"_person.address._district"
 															)}
-															className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+															className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 														/>
 														{errors._person?.address
 															?._district && (
@@ -773,7 +907,7 @@ export default function MyPatient({
 															{...register(
 																"_person.address._street"
 															)}
-															className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+															className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 														/>
 														{errors._person?.address
 															?._street && (
@@ -794,7 +928,7 @@ export default function MyPatient({
 															{...register(
 																"_person.address._homeNumber"
 															)}
-															className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+															className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 														/>
 														{errors._person?.address
 															?._homeNumber && (
@@ -815,7 +949,7 @@ export default function MyPatient({
 															{...register(
 																"_person.address._complement"
 															)}
-															className="w-full rounded-xl border border-primary-500 bg-vidro p-2 text-primary-800 focus:outline focus:outline-primary-800"
+															className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 														/>
 														{errors._person?.address
 															?._complement && (
@@ -897,7 +1031,7 @@ export default function MyPatient({
 										<button
 											onClick={() => {
 												setIsEditing(false);
-												//methods.reset(data);
+												methods.reset(data);
 											}}
 											disabled={loading}
 											className="mt-4 rounded bg-red-600 px-4 py-2 text-white"
