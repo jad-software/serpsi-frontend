@@ -37,20 +37,16 @@ export default function MyPatient({
 	});
 	const { errors } = formState;
 
-	const formatPhoneObject = (phone: any) => {
-		if (typeof phone === "string") return phone; // Já está formatado
-		if (phone?._ddi && phone?._ddd && phone?._number) {
-			return `(${phone._ddd}) ${phone._number}`;
-		}
-		return "";
-	};
-
 	const parsePhoneString = (phoneString: string) => {
 		const match = phoneString.match(/\((\d{2})\) (\d{5}-\d{4})/);
 		if (match) {
-			return { _ddi: "55", _ddd: match[1], _number: match[2] }; // Assumindo DDI = 55 (Brasil)
+			return {
+				_ddi: "+55",
+				_ddd: match[1],
+				_number: match[2],
+			};
 		}
-		return phoneString;
+		return { _ddi: "", _ddd: "", _number: "" };
 	};
 
 	const [isEditing, setIsEditing] = useState(false);
@@ -73,7 +69,7 @@ export default function MyPatient({
 						moment
 							.utc(response._person._birthdate)
 							.format("YYYY-MM-DD"),
-					// _phone: formatPhone(response._person._phone as Phone)
+					_phone: formatPhone(response._person._phone as Phone, false),
 				},
 
 				_parents: response._parents.map((parent: ParentData) => ({
@@ -81,12 +77,21 @@ export default function MyPatient({
 					_birthdate: moment
 						.utc(parent._birthdate)
 						.format("YYYY-MM-DD"),
-					// _phones: formatPhone(parent._phone as Phone),
+					_phone: formatPhone(parent._phone as Phone, false)
+				})),
+				_school: {
+					...response._school,
+					_phone: formatPhone(response._school._phone as Phone, false)
+				},
+				_medicines: response._medicines.map((medicine: MedicineData) => ({
+					...medicine,
+					_schedule: formatMedicineSchedule(medicine._schedules),
 				})),
 			}
 			setData(formattedData);
 			methods.reset(formattedData);
-			console.log(formattedData)
+			console.log(methods.getValues("_person._phone"))
+
 		}
 		fetchData(params.id);
 	}, [params.id, methods]);
@@ -278,7 +283,7 @@ export default function MyPatient({
 												<p>Nascimento: {formatDateToddmmYYYY(new Date(methods.getValues("_person._birthdate")) || data._person._birthdate)}</p>
 												<p>CPF: {methods.getValues("_person._cpf._cpf") || data._person._cpf._cpf}</p>
 												<p>RG: {methods.getValues("_person._rg") || data._person._rg}</p>
-												<p>Tel: {formatPhone(methods.getValues("_person._phone") as Phone || data._person._phone)}</p>
+												<p>Tel: {typeof methods.getValues("_person._phone") !== 'string' ? formatPhone(methods.getValues("_person._phone") as Phone) : methods.getValues("_person._phone") as string}</p>
 											</>
 										)}
 
@@ -400,7 +405,7 @@ export default function MyPatient({
 															<p>Nascimento: {formatDateToddmmYYYY(new Date(parent._birthdate))}</p>
 															<p>CPF: {parent._cpf._cpf}</p>
 															<p>RG: {parent._rg}</p>
-															<p>Tel: {formatPhone(parent._phone as Phone)}</p>
+															<p>Tel: {typeof parent._phone !== 'string' ? formatPhone(parent._phone as Phone) : parent._phone as string}</p>
 														</>
 													)}
 												</Square>
@@ -467,7 +472,7 @@ export default function MyPatient({
 													) : (
 														<>
 															<p>Nome: {data._school._name}</p>
-															<p>Tel: {formatPhone(data._school._phone as Phone)}</p>
+															<p>Tel: {typeof data._school._phone !== 'string' ? formatPhone(data._school._phone as Phone) : data._school._phone as string}</p>
 															<p>CNPJ: {data._school._CNPJ._code}</p>
 															<p>CEP: {data._school._address._zipCode}</p>
 														</>

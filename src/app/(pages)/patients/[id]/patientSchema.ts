@@ -36,7 +36,7 @@ const PersonSchema = z.object({
   _name: z.string(),
   _rg: z.string(),
   _profilePicture: z.string().url(),
-  _birthdate: z.coerce.date(),
+  _birthdate: z.string().date(),
   _id: IdSchema,
   _phone: PhoneSchema,
   _cpf: CpfSchema,
