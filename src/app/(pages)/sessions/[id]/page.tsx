@@ -157,6 +157,7 @@ export default function SpecificSessions({
 								alt="Profile"
 								width={100}
 								height={100}
+								unoptimized={true}
 							/>
 							<div className="mb-2 flex flex-row items-center justify-center gap-2">
 								<span className="text-lg text-gray-900">

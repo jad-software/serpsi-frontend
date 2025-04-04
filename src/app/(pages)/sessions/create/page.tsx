@@ -189,6 +189,7 @@ export default function CreateSession() {
                 width={100}
                 height={100}
                 className="h-24 w-24 rounded-full object-cover"
+                unoptimized={true}
               />
               <div >
                 <p>Nome: {data._person && data._person._name}</p>
