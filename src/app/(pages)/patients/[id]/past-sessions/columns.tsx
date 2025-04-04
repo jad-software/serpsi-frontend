@@ -19,7 +19,7 @@ export const columns: ColumnDef<Session>[] = [
 		size: 70,
 		cell: (e) => (
 			<Link
-				href={"/sessions/" + e.getValue()}
+				href={"/sessions/" + e.getValue()+"?name="+formatDateToddmmYYYYHHMM(new Date(e.row.original.meeting_schedule)) as string}
 				className="flex justify-center"
 			>
 				<PencilAltIcon width={24} height={24} />
