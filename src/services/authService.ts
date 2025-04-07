@@ -59,7 +59,7 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		});
 		await setUserCookies();
 
-		return redirect("/patients");
+		return redirect("/home");
 	} else {
 		const errors: Record<string, string> = {};
 		result.error.issues.forEach((error) => {

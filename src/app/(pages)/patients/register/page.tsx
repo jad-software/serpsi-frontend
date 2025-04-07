@@ -74,8 +74,6 @@ export default function RegisterNewPatientPage() {
 	const onSubmit = async (data: CreatePatientForm) => {
 		try {
 			const formattedData = formatPatientData(data);
-			console.log(formattedData);
-
 			toast.promise(createPatient(formattedData), {
 				loading: "Carregando...",
 				success: () => {
@@ -83,13 +81,9 @@ export default function RegisterNewPatientPage() {
 					return "Paciente cadastrado com sucesso! 😍";
 				},
 				error: (err) => {
-					console.log(err);
 					return "Houve um erro ao cadastrar o paciente.";
 				}
 			});
-
-			// console.log("Paciente cadastrado com sucesso:", response);
-			// toast.success("Paciente cadastrado com sucesso!");
 		} catch (error) {
 			toast.error("Houve um erro ao tentar cadastrar paciente.");
 			console.error("Erro ao cadastrar paciente:", error);
@@ -100,11 +94,9 @@ export default function RegisterNewPatientPage() {
 		toast.error(
 			"Cadastro inválido! Por favor, verifique os campos preenchidos e tente novamente."
 		);
-		console.log("Erros de validação:", methods.formState.errors);
 		if (methods.formState.errors.profilePicture) {
 			toast.error("Por favor, adicione a foto do paciente!");
 		}
-		console.log("Estado atual do formulário:", methods.watch());
 	};
 
 	const advanceProgress = async () => {
@@ -129,7 +121,6 @@ export default function RegisterNewPatientPage() {
 		}
 		// Verifica se há erros após a validação
 		if (!isValid) {
-			console.log("Erros de validação:", methods.formState.errors);
 			toast.warning("Preencha os dados obrigatórios corretamente!");
 			return;
 		}
