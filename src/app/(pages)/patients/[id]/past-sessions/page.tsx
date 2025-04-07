@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 export default function PastSessionsPage({
 	params
@@ -42,6 +43,14 @@ export default function PastSessionsPage({
 			<DataTable
 				columns={columns}
 				table={table}
+				linkTop={
+					<Link
+							href={"/sessions?paciente="+data[0]?.person_name }
+							className="text-sm font-medium text-primary-600 underline"
+						>
+							Cadastrar nova sessão
+						</Link>
+				}
 				filteringNode={
 					<div className="border-1 flex max-w-[300px] items-center rounded-lg border px-2">
 						<SearchIcon className="h-6 w-6" />
