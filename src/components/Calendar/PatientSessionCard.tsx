@@ -15,7 +15,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from "../ui/dropdown-menu";
-import { updateSessionStatus } from "@/services/meetingsService";
+import { updateMeetingStatus } from "@/services/meetingsService";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -48,7 +48,7 @@ export default function PatientSessionCard({
 
 	const confirmSession = () => {
 		try {
-			toast.promise(updateSessionStatus(id, "CONFIRMADO"), {
+			toast.promise(updateMeetingStatus(id, "CONFIRMADO"), {
 				loading: "Confirmando sessão...",
 				success: "Sessão confirmada com sucesso!",
 				error: "Houve um erro ao confirmar sessão."
@@ -59,7 +59,7 @@ export default function PatientSessionCard({
 
 	const cancelSession = () => {
 		try {
-			toast.promise(updateSessionStatus(id, "CANCELADO"), {
+			toast.promise(updateMeetingStatus(id, "CANCELADO"), {
 				loading: "Cancelando sessão...",
 				success: "Sessão cancelada com sucesso!",
 				error: "Houve um erro ao cancelar sessão."
