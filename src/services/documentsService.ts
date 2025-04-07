@@ -16,7 +16,7 @@ export async function getData() {
 		process.env.BACKEND_URL + "/documents/psychologist/" + sub,
 		{
 			method: "GET",
-			next: { revalidate: 30 },
+			next: { revalidate: 1 },
 			headers: {
 				Authorization: jwt
 			}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ScheduleDefiner } from "./scheduleDefiner";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { getAgenda, setAgenda } from "@/services/agendaService";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function ScheduleDefinePage() {
 	const horarioRegex =
@@ -49,8 +50,8 @@ export default function ScheduleDefinePage() {
 		resolver: zodResolver(scheduleSchema),
 		defaultValues: {
 			psychologistId: "",
-			meetValue: 100.5,
-			meetDuration: 50,
+			meetValue: 0,
+			meetDuration: 0,
 			agendas: [
 				{
 					key: 1,
@@ -176,9 +177,10 @@ export default function ScheduleDefinePage() {
 	};
 
 	const [checkboxes, setCheckboxes] = useState(settingWatchToCheckboxes());
-	const [meetValue, setMeetValue] = useState(Number);
+	const [meetValue, setMeetValue] = useState<number>(0);
+
 	useEffect(() => {
-		async function setDefaultAgendas() {
+		async function SetDefaultAgendas() {
 			const data = await getAgenda();
 			let checks: boolean[] = Array.from({ length: 7 }, () => false);
 			if (data?.agendas && data.agendas.length > 0) {
@@ -194,11 +196,32 @@ export default function ScheduleDefinePage() {
 				data?.agendas.sort((a, b) => a.key - b.key);
 				methods.reset({ ...data });
 				setCheckboxes(checks);
-				setMeetValue(data!.meetValue);
 			}
+			methods.setValue('meetDuration', data!.meetDuration);
+			setMeetValue(data!.meetValue);
 		}
-		setDefaultAgendas();
+
+		SetDefaultAgendas();
 	}, [methods]);
+
+	const searchParams = useSearchParams()
+
+	const hasShown = useRef(false)
+
+	useEffect(() => {
+		const isFirst = searchParams.get('first');
+
+		if (isFirst && !hasShown.current) {
+			hasShown.current = true
+
+			toast.success('Bem vindo!! Agora selecione os seus horários disponíveis');
+
+			const newParams = new URLSearchParams(searchParams.toString())
+			newParams.delete('first')
+
+			router.replace(`?${newParams.toString()}`, { scroll: false })
+		}
+	}, [searchParams, router])
 
 	const onSubmit = async (data: ScheduleAgendas) => {
 		const validation = validateData(data.agendas);

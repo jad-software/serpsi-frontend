@@ -12,13 +12,14 @@ import {
 } from "@tanstack/react-table";
 import { SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
+import { useSearchParams } from 'next/navigation'
+
 
 export default function PatientsPage() {
 	const [data, setData] = useState({} as Patient[]);
 	useEffect(() => {
 		async function fetchData() {
 			const data = await getPatientsData(true);
-      console.log(data)
 			setData(data);
 		}
 		fetchData();
@@ -35,6 +36,17 @@ export default function PatientsPage() {
 			rowSelection
 		}
 	});
+	const searchParams = useSearchParams();
+	const patientName = searchParams.get('paciente') ?? '';
+
+	const [busca, setBusca] = useState(patientName)
+	useEffect(() => {
+		const coluna = table.getColumn('name')
+		if (coluna && patientName) {
+			coluna.setFilterValue(patientName)
+		}
+	}, [table, patientName])
+
 	return (
 		<main className="flex h-full w-full items-center justify-center bg-white p-4">
 			<DataTable
@@ -58,15 +70,12 @@ export default function PatientsPage() {
 							className="border-0 text-start focus-visible:ring-0"
 							placeholder={`Procurar por nome...`}
 							value={
-								(table
-									.getColumn("name")
-									?.getFilterValue() as string) ?? ""
+								(table.getColumn('name')?.getFilterValue() as string) ?? ''
 							}
-							onChange={(event) =>
-								table
-									.getColumn("name")
-									?.setFilterValue(event.target.value)
-							}
+							onChange={(event) => {
+								setBusca(event.target.value)
+								table.getColumn('name')?.setFilterValue(event.target.value)
+							}}
 						/>
 					</div>
 				}

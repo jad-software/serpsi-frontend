@@ -55,7 +55,7 @@ export default function RegisterNewPatientPage() {
 				loading: "Carregando...",
 				success: () => {
 					router.push("/login");
-					return "Paciente cadastrado com sucesso! 😍";
+					return "Cadastrado realizado com sucesso! 😍";
 				},
 				error: (err) => {
 					console.log(err);

@@ -59,7 +59,13 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		});
 		await setUserCookies();
 
-		return redirect("/home");
+		if ( payload.payload.firstLogin) {
+			return redirect("/home/schedule-definer?first=true")
+		}
+		else {
+			return redirect("/patients");
+		}
+
 	} else {
 		const errors: Record<string, string> = {};
 		result.error.issues.forEach((error) => {

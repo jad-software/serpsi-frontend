@@ -69,7 +69,7 @@ export async function createMeeting(meetingData: Meeting) {
     console.log('ErrorData', errorData);
     throw new Error(errorData.message || "Erro ao criar o paciente.");
   }
-  return redirect("/sessions/select");
+  return redirect("/home");
 
 }
 export async function getMeeting(id: string) {
