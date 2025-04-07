@@ -58,12 +58,14 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 			expires: new Date(jwtDecode(payload.access_token).exp! * 1000)
 		});
 		await setUserCookies();
+
 		if ( payload.payload.firstLogin) {
 			return redirect("/home/schedule-definer?first=true")
 		}
 		else {
 			return redirect("/patients");
 		}
+
 	} else {
 		const errors: Record<string, string> = {};
 		result.error.issues.forEach((error) => {
