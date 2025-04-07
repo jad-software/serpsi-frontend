@@ -101,7 +101,13 @@ export default function DayView({ dateSelected }: DayViewProps) {
 				{loading === false &&
 					meetings.length > 0 &&
 					meetings.map((meeting) => (
-						<PatientSessionCard key={meeting.meeting_id} />
+						<PatientSessionCard
+							key={meeting.meeting_id}
+							id={meeting.meeting_id}
+							name={meeting.person_name}
+							status={meeting.meeting_status}
+							schedule={meeting.meeting_schedule}
+						/>
 					))}
 			</div>
 			<div className="mt-2 flex w-full items-center justify-end">
