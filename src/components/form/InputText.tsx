@@ -18,6 +18,7 @@ interface InputTextProps {
 	mask?: string;
 	error?: string;
 	accept?: string;
+	defaultValue?: any;
 }
 
 export function InputText({
@@ -63,6 +64,7 @@ export function InputText({
 					type={type}
 					placeholder={placeholder}
 					className={inputClassNames}
+					defaultValue={rest.defaultValue}
 					{...(register ? register(name ? name : id) : {})}
 					{...(type === "file" && { multiple: true })}
 					{...(type === "file" &&

@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image";
 import { Square, SquareHeader } from "./Square";
-import { ChevronLeftIcon, DocumentSearchIcon, PencilAltIcon, TrashIcon } from "@heroicons/react/outline";
+import { ChevronLeftIcon, DocumentSearchIcon, PencilAltIcon, PlusCircleIcon, TrashIcon } from "@heroicons/react/outline";
 import { ComorbidityTag } from "./comorbidityTag";
 import Link from "next/link";
 import { getData } from "@/services/myPatientService";
@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { updatePatient } from "@/services/patientsService";
 import { updateProfilePicture } from "../../profile/uploadImage";
 import { useRouter } from "next/navigation";
-import psiImage from "/public/img/avatar.svg"
+import { MedicamentDialog } from "./medicamentDialog";
 
 export default function MyPatient({
 	params
@@ -79,7 +79,6 @@ export default function MyPatient({
 		hasRun.current = true;
 
 		async function fetchData(id: string) {
-			console.log("fetching data...")
 			const response = await getData(id);
 			const formattedData: PatientData = {
 				...response,
@@ -106,13 +105,13 @@ export default function MyPatient({
 				},
 				_medicines: response._medicines.map((medicine: MedicineData) => ({
 					...medicine,
-					_schedule: formatMedicineSchedule(medicine._schedules),
+					_schedule: formatMedicineSchedule(medicine._schedules!),
 				})),
 			}
 			setData(formattedData);
 			methods.reset(formattedData);
 		}
-		fetchData(params.id	);
+		fetchData(params.id);
 	}, [params.id, methods, loading]);
 
 	useEffect(() => {
@@ -215,17 +214,17 @@ export default function MyPatient({
 				return;
 			}
 		}
-		toast.promise(updatePatient(formattedData, _id._id), {
+		toast.promise(updatePatient(formattedData, _id._id).then((response) => setData(response)), {
 			loading: "Carregando...",
 			success: () => {
-				setIsEditing(!isEditing);
-				return "Paciente cadastrado com sucesso! 😍";
+				setIsEditing(false);
+				return "Paciente atualizado com sucesso! 😍";
 			},
 			error: (err) => {
-				return "Houve um erro ao cadastrar o paciente.";
+				return "Houve um erro ao atualizar o paciente.";
 			},
 			finally: () => {
-				setLoading(!isEditing);
+				setLoading(false);
 			}
 		});
 
@@ -271,7 +270,7 @@ export default function MyPatient({
 									/>
 								</section>
 							)}
-							<form onSubmit={handleSubmit(onSubmit, () => { console.log(methods.formState.errors) })}>
+							<form id="editing-paciente" onSubmit={handleSubmit(onSubmit, () => { console.log(methods.formState.errors) })}>
 								<div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
 
 									{/* Card do Perfil */}
@@ -307,7 +306,7 @@ export default function MyPatient({
 											</div>
 										) : (
 											<Image
-												className="mb-4 h-24 w-24 rounded-full"
+												className="mb-4 h-24 w-24 rounded-full object-cover"
 												src={data._person._profilePicture ?? ""}
 												width={100}
 												height={100}
@@ -556,7 +555,6 @@ export default function MyPatient({
 																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
 															</div>
-
 															<div className="mb-2">
 																<label className="block text-gray-700">Tel:</label>
 																<InputMask
@@ -569,7 +567,6 @@ export default function MyPatient({
 																	<p className="text-sm text-red-500">{errors._school._phone.message}</p>
 																)}
 															</div>
-
 															<div className="mb-2">
 																<label className="block text-gray-700">CNPJ:</label>
 																<InputMask
@@ -582,7 +579,6 @@ export default function MyPatient({
 																	<p className="text-sm text-red-500">{errors._school._CNPJ._code.message}</p>
 																)}
 															</div>
-
 															<div className="mb-2">
 																<label className="block text-gray-700">CEP:</label>
 																<InputMask
@@ -593,6 +589,17 @@ export default function MyPatient({
 																/>
 																{errors._school?._address?._zipCode && (
 																	<p className="text-sm text-red-500">{errors._school._address._zipCode.message}</p>
+																)}
+															</div>
+															<div className="mb-2">
+																<label className="block text-gray-700">Cidade:</label>
+																<input
+																	type="text"
+																	{...methods.register("_school._address._city")}
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																/>
+																{errors._school?._address?._city && (
+																	<p className="text-sm text-red-500">{errors._school._address._city.message}</p>
 																)}
 															</div>
 														</>
@@ -609,15 +616,6 @@ export default function MyPatient({
 												<div className="flex-col space-y-3">
 													{isEditing ? (
 														<>
-															<div className="mb-2">
-																<label className="block text-gray-700">Cidade:</label>
-																<input
-																	type="text"
-																	{...methods.register("_school._address._city")}
-																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
-																/>
-															</div>
-
 															<div className="mb-2">
 																<label className="block text-gray-700">Estado:</label>
 																<Controller
@@ -667,7 +665,6 @@ export default function MyPatient({
 																	)}
 																/>
 															</div>
-
 															<div className="mb-2">
 																<label className="block text-gray-700">Bairro:</label>
 																<input
@@ -675,8 +672,10 @@ export default function MyPatient({
 																	{...methods.register("_school._address._district")}
 																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
+																{errors._school?._address?._district && (
+																	<p className="text-sm text-red-500">{errors._school._address._district.message}</p>
+																)}
 															</div>
-
 															<div className="mb-2">
 																<label className="block text-gray-700">Rua:</label>
 																<input
@@ -684,8 +683,23 @@ export default function MyPatient({
 																	{...methods.register("_school._address._street")}
 																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
+																{errors._school?._address?._street && (
+																	<p className="text-sm text-red-500">{errors._school._address._street.message}</p>
+																)}
 															</div>
-
+															<div className="mb-2">
+																<label className="block text-gray-700">Número:</label>
+																<input
+																	type="text"
+																	{...register(
+																		"_school._address._homeNumber"
+																	)}
+																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
+																/>
+																{errors._school?._address?._homeNumber && (
+																	<p className="text-sm text-red-500">{errors._school._address._homeNumber.message}</p>
+																)}
+															</div>
 															<div className="mb-2">
 																<label className="block text-gray-700">Complemento:</label>
 																<input
@@ -693,6 +707,9 @@ export default function MyPatient({
 																	{...methods.register("_school._address._complement")}
 																	className="w-full rounded-xl border border-primary-500  p-2 text-primary-800 focus:outline focus:outline-primary-800"
 																/>
+																{errors._school?._address?._complement && (
+																	<p className="text-sm text-red-500">{errors._school._address._complement.message}</p>
+																)}
 															</div>
 														</>
 													) : (
@@ -720,7 +737,7 @@ export default function MyPatient({
 																? "DoubleColumn"
 																: "primary"
 														}
-														key={medicine._medicine_id}
+														key={medicine._medicine._id?._id}
 													>
 														<SquareHeader
 															titulo={`Informações de ${medicine._medicine._name}:`}
@@ -732,22 +749,50 @@ export default function MyPatient({
 														<p>
 															Horários:&nbsp;
 															{formatMedicineSchedule(
-																medicine._schedules
+																medicine._schedules!
 															)}
 														</p>
 														<p>
 															Data de início:&nbsp;
 															{formatDateToddmmYYYY(
-																medicine._startDate
+																new Date(medicine._startDate)
 															)}
 														</p>
 														<p>Observação: {medicine._observation}</p>
+														<section
+															className="flex cursor-pointer items-center justify-end space-x-3"
+														>
+															<MedicamentDialog
+																triggerButton={
+																	<PencilAltIcon
+																		className="text-primary-600"
+																		width={24}
+																		height={24}
+																	/>}
+																medicament={medicine}
+																patientId={data._id._id}
+																onSuccess={() => window.location.reload()}
+															/>
+														</section>
 													</Square>
 												)
 											)}
 										</>
 									)}
-
+									<MedicamentDialog patientId={data._id._id} triggerButton={
+										<div
+											className="flex w-contain md:col-span-2 cursor-pointer items-center justify-center space-x-3 text-primary-600"
+										>
+											<label className="cursor-pointer">Adicionar medicamentos</label>
+											<PlusCircleIcon
+												className=""
+												width={24}
+												height={24}
+											/>
+										</div>
+									}
+									onSuccess={() => window.location.reload()}
+									/>
 									{/* Endereço */}
 									<Square variant="DoubleColumn">
 										<SquareHeader titulo="Endereço" />
@@ -1034,6 +1079,7 @@ export default function MyPatient({
 										<button
 											type="submit"
 											disabled={loading}
+											form="editing-paciente"
 											className="mt-4 rounded bg-primary-600 px-4 py-2 text-white"
 										>
 											{!loading ? "Salvar" : "Carregando..."}
@@ -1046,6 +1092,6 @@ export default function MyPatient({
 				}
 
 			</main>
-		</FormProvider>
+		</FormProvider >
 	);
 }

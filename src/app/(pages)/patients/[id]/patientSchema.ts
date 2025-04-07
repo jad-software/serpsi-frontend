@@ -59,16 +59,30 @@ const ComorbiditySchema = z.object({
 const ParentSchema = PersonSchema.omit({ address: true, _profilePicture: true });
 
 const MedicineSchema = z.object({
-  _patient_id: z.string().uuid(),
-  _medicine_id: z.string().uuid(),
-  _dosage: z.number(),
-  _dosageUnity: z.string(),
-  _frequency: z.number(),
-  _firstTimeOfTheDay: z.coerce.date(),
-  _startDate: z.coerce.date(),
-  _observation: z.string(),
-  _medicine: z.object({ _name: z.string(), _id: IdSchema }),
-  _schedules: z.array(z.coerce.date())
+  _patient_id: z.string().uuid().optional(),
+  _medicine_id: z.string().uuid().optional(),
+  _medicine: z.object({ _name: z.string().min(1, "Nome é obrigatório"), _id: IdSchema.optional() }),
+  _schedules: z.array(z.coerce.date()).optional(),
+  _dosage: z.coerce
+    .number()
+    .positive("A dosagem deve ser maior que zero"),
+  _dosageUnity: z
+    .string()
+    .min(1, "Unidade de dosagem é obrigatória"),
+  _frequency: z.coerce
+    .number()
+    .positive("A frequência deve ser maior que zero"),
+  _firstTimeOfTheDay: z
+    .string()
+    .min(1, "Horário é obrigatório"),
+  _startDate: z
+    .preprocess((val) => {
+      return val === "" ? undefined : val;
+    }, z.coerce.date())
+    .refine((val) => val !== undefined, {
+      message: "Data é um campo obrigatório."
+    }),
+  _observation: z.string().optional()
 });
 
 const PreviewFollowUpSchema = z.object({
