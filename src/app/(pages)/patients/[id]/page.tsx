@@ -5,7 +5,7 @@ import { ChevronLeftIcon, DocumentSearchIcon, PencilAltIcon, PlusCircleIcon, Tra
 import { ComorbidityTag } from "./comorbidityTag";
 import Link from "next/link";
 import { getData } from "@/services/myPatientService";
-import { Comorbidity, MedicamentInfo, Patient, Person, Phone } from "@/models";
+import { Phone } from "@/models";
 import { ListComponent } from "./listComponent";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
@@ -25,36 +25,28 @@ import { updatePatient } from "@/services/patientsService";
 import { updateProfilePicture } from "../../profile/uploadImage";
 import { useRouter } from "next/navigation";
 import { MedicamentDialog } from "./medicamentDialog";
+import { getCEP } from "@/services/cepService";
+import { getSchool } from "@/services/schoolService";
 
 export default function MyPatient({
 	params
 }: {
 	params: { id: string };
 }) {
+
 	const router = useRouter();
 	const methods = useForm<PatientData>({
 		resolver: zodResolver(PatientSchema),
 		mode: "onChange"
 	});
-	const { register, handleSubmit, formState, control, watch } = methods;
+	const { register, handleSubmit, formState, control, watch, setValue } = methods;
 	const { fields, append, remove } = useFieldArray({
 		control,
 		name: "_comorbidities",
 	});
 	const { errors } = formState;
 
-	const parsePhoneString = (phoneString: string) => {
-		const match = phoneString.match(/\((\d{2})\) (\d{5}-\d{4})/);
-		if (match) {
-			return {
-				_ddi: "+55",
-				_ddd: match[1],
-				_number: match[2],
-			};
-		}
-		return { _ddi: "", _ddd: "", _number: "" };
-	};
-
+	//passa a string para formato Phone
 	const parsePhoneToAPI = (phoneString: string) => {
 		const match = phoneString.match(/\((\d{2})\) (\d{5}-\d{4})/);
 		if (match) {
@@ -74,6 +66,7 @@ export default function MyPatient({
 	const selectedImage = watch("picture");
 
 	const hasRun = useRef(false)
+	//atualiza a página com os dados do paciente
 	useEffect(() => {
 		if (hasRun.current) return
 		hasRun.current = true;
@@ -114,6 +107,7 @@ export default function MyPatient({
 		fetchData(params.id);
 	}, [params.id, methods, loading]);
 
+	//salva a imagem para poder mandar pra nuvem
 	useEffect(() => {
 		if (selectedImage && selectedImage.length > 0) {
 			const file = selectedImage[0];
@@ -125,27 +119,7 @@ export default function MyPatient({
 		}
 	}, [selectedImage]);
 
-	const compare = (obj1: any, obj2: any): boolean => {
-		if (obj1 === obj2) return true;
-
-		if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
-			return false;
-		}
-
-		if (Array.isArray(obj1) && Array.isArray(obj2)) {
-			if (obj1.length !== obj2.length) return false;
-
-			return obj1.every((item, index) => compare(item, obj2[index]));
-		}
-
-		const keys1 = Object.keys(obj1);
-		const keys2 = Object.keys(obj2);
-
-		if (keys1.length !== keys2.length) return false;
-
-		return keys1.every(key => compare(obj1[key], obj2[key]));
-	};
-
+	//on submit
 	const onSubmit: SubmitHandler<PatientData> = async (submitData) => {
 		setLoading(true);
 		const { _id } = submitData;
@@ -229,6 +203,112 @@ export default function MyPatient({
 		});
 
 	}
+
+	const cep = watch("_person.address._zipCode");
+	const schoolCep = watch("_school._address._zipCode");
+	const [zipCodeChanged, setZipCodeChanged] = useState(false);
+
+	//atualiza o endereço do paciente
+	useEffect(() => {
+		const fetchCEP = async (zipCode: string) => {
+			if (!zipCode || zipCode.length !== 9) {
+				return;
+			} else {
+				const response = await getCEP(zipCode);
+				if (response) {
+					setValue("_person.address._city", response.localidade);
+					setValue("_person.address._street", response.logradouro);
+					setValue("_person.address._state", response.uf);
+					setValue("_person.address._district", response.bairro);
+					if (response.complemento) {
+						setValue("_person.address._complement", response.complemento);
+					}
+				}
+			}
+		};
+		fetchCEP(cep);
+	}, [cep, setValue]);
+
+
+	const nome = watch("_school._name");
+	//atualizar a escola com base no nome
+	useEffect(() => {
+		const fetchSchool = async (nome: string) => {
+			if (!nome) {
+				return;
+			}
+
+			try {
+				const response = await getSchool({ nome, cnpj: undefined });
+				if (response) {
+					setValue("_school._name", response._name);
+					setValue("_school._CNPJ._code", response._CNPJ._code);
+					setValue(
+						"_school._address._zipCode",
+						response._address._zipCode.slice(0, 5) +
+						"-" +
+						response._address._zipCode.slice(5)
+					);
+					setZipCodeChanged(true);
+					setValue("_school._address._city", response._address._city);
+					setValue("_school._address._street", response._address._street);
+					setValue("_school._address._state", response._address._state);
+					setValue("_school._address._district", response._address._district);
+					setValue("_school._address._homeNumber", response._address._homeNumber);
+					setValue("_school._phone", formatPhone(response._phone, false), { shouldValidate: false })
+					if (response._address._complement) {
+						setValue(
+							"_school._address._complement",
+							response._address._complement
+						);
+					}
+				}
+			} catch (error) {
+				console.error("Error fetching school:", error);
+			}
+		};
+
+		const debouncedSchoolSearch = setTimeout(() => {
+			if (nome) {
+				fetchSchool(nome);
+			}
+		}, 1500);
+
+		return () => {
+			clearTimeout(debouncedSchoolSearch);
+		};
+	}, [nome, setValue]);
+	//atualiza o endereço da escola caso o cep seja mudado
+	useEffect(() => {
+		const fetchCEP = async (zipCode: string) => {
+			if (!zipCode || zipCode.length !== 9) {
+				return;
+			}
+
+			try {
+				const response = await getCEP(zipCode);
+				console.log(response)
+				if (response) {
+					setValue("_school._address._city", response.localidade);
+					setValue("_school._address._street", response.logradouro);
+					setValue("_school._address._state", response.uf);
+					setValue("_school._address._district", response.bairro);
+					if (response.complemento) {
+						setValue("_school._address._complement", response.complemento);
+					}
+				}
+			} catch (error) {
+				console.error("Error fetching CEP:", error);
+			}
+		};
+		const fetchCEPData = async () => {
+			if (zipCodeChanged && schoolCep) {
+				await fetchCEP(schoolCep);
+			}
+		};
+
+		fetchCEPData();
+	}, [schoolCep, zipCodeChanged, setValue]);
 
 	return (
 		<FormProvider {...methods}>
@@ -791,7 +871,7 @@ export default function MyPatient({
 											/>
 										</div>
 									}
-									onSuccess={() => window.location.reload()}
+										onSuccess={() => window.location.reload()}
 									/>
 									{/* Endereço */}
 									<Square variant="DoubleColumn">
