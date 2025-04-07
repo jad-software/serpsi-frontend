@@ -8,7 +8,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 type ConfirmSessionDialogProps = {
   onConfirm: () => void;
@@ -20,6 +20,7 @@ export function ConfirmSessionDialog({
   triggerButton,
 }: ConfirmSessionDialogProps) {
 
+  const [paymentType, setPaymentType] = useState('DINHEIRO')
   return (
     <Dialog>
       <DialogTrigger asChild>{triggerButton}</DialogTrigger>
@@ -27,26 +28,26 @@ export function ConfirmSessionDialog({
         <DialogHeader>
           <DialogTitle className="font-normal">Confirmar Sessão</DialogTitle>
           <DialogDescription>
-            Informe a forma de pagamento
+            Deseja Confirmar a sessão?
           </DialogDescription>
         </DialogHeader>
         <div className="mt-1 flex justify-end space-x-2">
-          <select className="border rounded p-2 w-full 
-            border-r-8 border-transparent  outline outline-primary-400 ">
-            <option>Dinheiro</option>
-            <option>Cartão</option>
-            <option>PIX</option>
-            <option>Transferência</option>
-            <option>Pendente</option>
-          </select>
-          <DialogClose asChild>
+          
+        <DialogClose asChild>
             <Button
               onClick={() => {
                 onConfirm();
               }}
               className="bg-primary-600 text-white py-2 px-4 rounded hover:bg-primary-600/70"
             >
-              Confirmar
+              Sim
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-600/70"
+            >
+              Não
             </Button>
           </DialogClose>
         </div>

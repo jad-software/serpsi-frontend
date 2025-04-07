@@ -77,15 +77,19 @@ export default function LoginPage() {
 							{...register("password")}
 							error={errors.password}
 						/>
-						<br />
+
 						<Button
 							text={loading ? "Carregando..." : "Entrar"}
 							variant="second"
 							disabled={loading}
-							className="pb-1 pt-1 text-xl"
+							className="pb-1 pt-1 text-xl mt-5"
 							type="submit"
 						/>
 					</form>
+					<div className="my-2 flex flex-col items-center justify-center">
+						<a className="underline cursor-pointer" href="/forgot-password">Esqueceu sua senha?</a>
+						<p>Não tem Cadastro? <a className="underline cursor-pointer" href="/register">Cadastre-se</a></p>
+					</div>
 				</section>
 			</section>
 		</main>

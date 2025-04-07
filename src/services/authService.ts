@@ -76,3 +76,22 @@ export async function logout() {
 	cookies().delete("name");
 	cookies().delete("profilePic");
 }
+
+export async function createPsychologist(formData: FormData) {
+
+
+	const response = await fetch(process.env.BACKEND_URL + "/auth/register/psychologist", {
+		method: "POST",
+		headers: {
+		},
+		body: formData
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json();
+		console.log(errorData);
+		throw new Error(errorData.message || "Erro ao criar o psicólogo.");
+	}
+
+	return await response.json();
+}
