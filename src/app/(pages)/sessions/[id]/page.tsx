@@ -164,7 +164,7 @@ export default function SpecificSessions({
 									{meetingData._patient?._person?._name}
 								</span>
 								{meetingData._patient &&
-									<Link 
+									<Link
 										href={`/patients/${meetingData._patient._id._id}?name=${meetingData._patient._person._name}`}>
 										<PencilAltIcon
 											width={24}
@@ -339,7 +339,8 @@ export default function SpecificSessions({
 								htmlFor="arquivos"
 								className={`cursor-pointer rounded-md border border-primary-600 bg-transparent p-2 
                 text-primary-600 hover:bg-primary-100/70 hover:text-primary-600
-                ${isFileUploading || meetingData._status === 'CANCELADO' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ${isFileUploading || meetingData._status !== 'CONFIRMADO' ? 
+									'cursor-not-allowed opacity-50 ' : ''}`}
 							>
 								Adicionar Arquivos
 							</label>
@@ -349,7 +350,7 @@ export default function SpecificSessions({
 								accept="application/pdf"
 								className="hidden"
 								multiple={true}
-								disabled={isFileUploading || meetingData._status === 'CANCELADO'}
+								disabled={isFileUploading || meetingData._status !== 'CONFIRMADO'}
 								onChange={handleFileUpload}
 							/>
 						</div>
