@@ -112,8 +112,8 @@ export default function MyPatient({
 			setData(formattedData);
 			methods.reset(formattedData);
 		}
-		fetchData(params.id);
-	}, [params.id, methods]);
+		fetchData(params.id	);
+	}, [params.id, methods, loading]);
 
 	useEffect(() => {
 		if (selectedImage && selectedImage.length > 0) {
@@ -204,10 +204,9 @@ export default function MyPatient({
 					submitData._person._id._id,
 					selectedImage
 				);
-				if (profileUpdateResponse?.newImageUrl) {
-					setImage(profileUpdateResponse.newImageUrl);
-					formattedData.person._profilePicture = profileUpdateResponse.newImageUrl;
-					console.log("Imagem atualizada com sucesso:", profileUpdateResponse.newImageUrl);
+				if (profileUpdateResponse?._profilePicture) {
+					setImage(profileUpdateResponse._profilePicture);
+					formattedData.person._profilePicture = profileUpdateResponse._profilePicture;
 				}
 			} catch (error) {
 				setLoading(false);
@@ -313,6 +312,8 @@ export default function MyPatient({
 												width={100}
 												height={100}
 												alt="Foto de perfil do paciente"
+												priority
+												unoptimized
 											/>
 										)}
 										{isEditing ? (

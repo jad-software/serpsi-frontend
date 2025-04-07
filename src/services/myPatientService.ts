@@ -8,7 +8,7 @@ export async function getData(id: string): Promise<PatientData> {
 		headers: {
 			Authorization: cookies().get("Authorization")?.value!,
 		},
-		next: { revalidate: 30 }
+		next: { revalidate: 0 }
 	});
 	return response.json();
 }
