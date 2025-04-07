@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useSearchParams } from 'next/navigation'
 
 export default function PastSessionsPage({
 	params
@@ -38,6 +39,8 @@ export default function PastSessionsPage({
 			rowSelection
 		}
 	});
+	const searchParams = useSearchParams();
+	const patientName = searchParams.get('name') ?? '';
 	return (
 		<main className="flex h-full w-full items-center justify-center bg-white p-4">
 			<DataTable
@@ -45,7 +48,7 @@ export default function PastSessionsPage({
 				table={table}
 				linkTop={
 					<Link
-							href={"/sessions?paciente="+data[0]?.person_name }
+							href={"/sessions?paciente="+patientName }
 							className="text-sm font-medium text-primary-600 underline"
 						>
 							Cadastrar nova sessão
