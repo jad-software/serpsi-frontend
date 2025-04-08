@@ -3,22 +3,23 @@ import { ProgressBar } from "@/components/progressBar/progress-bar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import PatientInfoSection from "./PatientInfoSection";
+import PatientInfoSection from "./PsychologyInfoSection";
 import AddressInfoSection from "./AddressInfoSection";
-import ParentsInfoSection from "./ParentsInfoSection";
-import SchoolInfoSection from "./SchoolInfoSection";
 import ExtraInfoSection from "./ExtraInfoSection";
-import PatientPictureSection from "./PatientPictureSection";
+import PatientPictureSection from "./PsychologyPictureSection";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createPatient } from "@/services/patientsService";
 import {
-	CreatePatientForm,
-	createPatientFormSchema,
-	formatPatientData
+	CreatePsychologistForm,
+	createPsychologistFormSchema,
+	formatPsychologistData
 } from "./schema";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import UserInfoSection from "./UserInfoSection";
+import { createPsychologist } from "@/services/authService";
+import SessionInfoSection from "./sessionInfoSection";
 
 export default function RegisterNewPatientPage() {
 	const [progress, setProgress] = useState<number>(1);
@@ -26,38 +27,14 @@ export default function RegisterNewPatientPage() {
 
 	const maxProgress = 5;
 
-	// const methods = useForm<CreatePatientForm>({
-	// 	resolver: zodResolver(createPatientFormSchema),
-	// 	defaultValues: {
-	// 		parents: [
-	// 			{
-	// 				name: "",
-	// 				rg: "",
-	// 				phone: "",
-	// 				cpf: ""
-	// 			}
-	// 		]
-	// 	}
-	// });
 
-	const methods = useForm<CreatePatientForm>({
-		resolver: zodResolver(createPatientFormSchema),
+	const methods = useForm<CreatePsychologistForm>({
+		resolver: zodResolver(createPsychologistFormSchema),
 		defaultValues: {
-			// ParentsInfoSection
-			parents: [
-				{
-					name: "",
-					rg: "", // RG genérico
-					// birthdate: new Date(),
-					phone: "", // Telefone genérico
-					cpf: "" // CPF genérico
-				}
-			],
-
-			checkSchool: true,
-			school: {
-				zipCode: "",
-				phone: ""
+			user: {
+				email: '',
+				password: '',
+				role: 'PSI'
 			}
 		}
 	});
@@ -71,19 +48,23 @@ export default function RegisterNewPatientPage() {
 		}
 	});
 
-	const onSubmit = async (data: CreatePatientForm) => {
+	const onSubmit = async (data: CreatePsychologistForm) => {
 		try {
-			const formattedData = formatPatientData(data);
-			toast.promise(createPatient(formattedData), {
+			const formattedData = formatPsychologistData(data);
+			toast.promise(createPsychologist(formattedData), {
 				loading: "Carregando...",
 				success: () => {
-					router.push("/patients");
-					return "Paciente cadastrado com sucesso! 😍";
+					router.push("/login");
+					return "Cadastrado realizado com sucesso! 😍";
 				},
 				error: (err) => {
+					console.log(err);
 					return "Houve um erro ao cadastrar o paciente.";
 				}
 			});
+
+			// console.log("Paciente cadastrado com sucesso:", response);
+			// toast.success("Paciente cadastrado com sucesso!");
 		} catch (error) {
 			toast.error("Houve um erro ao tentar cadastrar paciente.");
 			console.error("Erro ao cadastrar paciente:", error);
@@ -94,26 +75,27 @@ export default function RegisterNewPatientPage() {
 		toast.error(
 			"Cadastro inválido! Por favor, verifique os campos preenchidos e tente novamente."
 		);
+		console.log("Erros de validação:", methods.formState.errors);
 		if (methods.formState.errors.profilePicture) {
 			toast.error("Por favor, adicione a foto do paciente!");
 		}
+		console.log("Estado atual do formulário:", methods.watch());
 	};
 
 	const advanceProgress = async () => {
 		var isValid: boolean = true;
 		switch (progress) {
 			case 1:
-				isValid = await methods.trigger(["person"]);
+				isValid = await methods.trigger(['user', 'crp'])
 				break;
 			case 2:
-				isValid = await methods.trigger(["address"]);
+				isValid = await methods.trigger(["person"]);
 				break;
 			case 3:
-				isValid = await methods.trigger(["parents"]);
+				isValid = await methods.trigger(["address"]);
 				break;
 			case 4:
-				if (methods.watch("checkSchool"))
-					isValid = await methods.trigger(["school"]);
+				isValid = await methods.trigger(["meetValue", 'meetDuration']);
 				break;
 
 			default:
@@ -121,6 +103,7 @@ export default function RegisterNewPatientPage() {
 		}
 		// Verifica se há erros após a validação
 		if (!isValid) {
+			console.log("Erros de validação:", methods.formState.errors);
 			toast.warning("Preencha os dados obrigatórios corretamente!");
 			return;
 		}
@@ -135,7 +118,7 @@ export default function RegisterNewPatientPage() {
 	return (
 		<main className="mt-3 flex h-full w-full items-center justify-center bg-white px-5 pb-12 md:px-10">
 			<section className="flex w-3/4 flex-col items-center gap-5">
-				<h1>Cadastrar Novo Paciente</h1>
+				<h1>Cadastrar Novo Psicólogo</h1>
 				<FormProvider {...methods}>
 					<form
 						onSubmit={methods.handleSubmit(
@@ -150,20 +133,19 @@ export default function RegisterNewPatientPage() {
 							currentStep={progress}
 							className="my-3 w-full"
 						/>
-						<PatientInfoSection
+						<UserInfoSection
 							progress={progress}
 							componentIndex={1}
 						/>
-						<AddressInfoSection
+						<PatientInfoSection
 							progress={progress}
 							componentIndex={2}
 						/>
-						<ParentsInfoSection
+						<AddressInfoSection
 							progress={progress}
 							componentIndex={3}
 						/>
-
-						<SchoolInfoSection
+						<SessionInfoSection
 							progress={progress}
 							componentIndex={4}
 						/>
@@ -187,7 +169,7 @@ export default function RegisterNewPatientPage() {
 									type="submit"
 									className="rounded-lg bg-primary-600 text-white hover:bg-primary-400"
 								>
-									Cadastrar Paciente
+									Cadastrar Psicólogo
 								</Button>
 							)}
 

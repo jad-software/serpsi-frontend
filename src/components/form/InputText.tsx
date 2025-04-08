@@ -12,6 +12,7 @@ interface InputTextProps {
 	label: string;
 	placeholder: string;
 	type: string;
+	maskPlaceholder?: string;
 	name?: string;
 	register?: UseFormRegister<any>;
 	variant?: "primary" | "secondary";
@@ -19,6 +20,7 @@ interface InputTextProps {
 	error?: string;
 	accept?: string;
 	defaultValue?: any;
+	autoComplete?: string;
 }
 
 export function InputText({
@@ -27,10 +29,12 @@ export function InputText({
 	placeholder,
 	type,
 	name,
+	maskPlaceholder,
 	register,
 	variant = "primary",
 	mask,
 	error,
+	autoComplete,
 	...rest
 }: InputTextProps) {
 	const inputClassNames = classNames("w-full rounded-md  p-2 text-left", {
@@ -55,6 +59,7 @@ export function InputText({
 					type={type}
 					mask={mask}
 					placeholder={placeholder}
+					maskPlaceholder={maskPlaceholder && maskPlaceholder}
 					className={inputClassNames}
 					{...(register ? register(name ? name : id) : {})}
 				/>
@@ -65,7 +70,9 @@ export function InputText({
 					placeholder={placeholder}
 					className={inputClassNames}
 					defaultValue={rest.defaultValue}
+					autoComplete={type === "password" ? "new-password" : "new-email"}
 					{...(register ? register(name ? name : id) : {})}
+					{...(type === 'uniqueFile' && {multiple: false, type: 'file', accept: 'application/pdf'})}
 					{...(type === "file" && { multiple: true })}
 					{...(type === "file" &&
 						rest.accept && { accept: rest.accept })}

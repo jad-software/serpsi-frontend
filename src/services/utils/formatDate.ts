@@ -5,5 +5,13 @@ export function formatDateToddmmYYYY(date: Date) {
 }
 
 export function formatDateToddmmYYYYHHMM(date: Date) {
-	return moment(date).format("DD/MM/YYYY HH:mm");
+	return moment.utc(date).format("DD/MM/YYYY HH:mm");
+}
+
+export function formatDateToYYYYmmdd(date: Date) {
+	return moment.utc(date).format("YYYY-MM-DDT00:00:00.000z").replace(/\s*(GMT|UTC)$/, "z")
+}
+
+export function formatHour(date: string) {
+	return moment.utc(date).format("HH:mm");
 }

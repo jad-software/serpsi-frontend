@@ -59,7 +59,13 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		});
 		await setUserCookies();
 
-		return redirect("/patients");
+		if ( payload.payload.firstLogin) {
+			return redirect("/home/schedule-definer?first=true")
+		}
+		else {
+			return redirect("/patients");
+		}
+
 	} else {
 		const errors: Record<string, string> = {};
 		result.error.issues.forEach((error) => {
@@ -75,4 +81,23 @@ export async function logout() {
 	cookies().delete("role");
 	cookies().delete("name");
 	cookies().delete("profilePic");
+}
+
+export async function createPsychologist(formData: FormData) {
+
+
+	const response = await fetch(process.env.BACKEND_URL + "/auth/register/psychologist", {
+		method: "POST",
+		headers: {
+		},
+		body: formData
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json();
+		console.log(errorData);
+		throw new Error(errorData.message || "Erro ao criar o psicólogo.");
+	}
+
+	return await response.json();
 }

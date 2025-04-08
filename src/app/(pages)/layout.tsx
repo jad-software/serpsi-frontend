@@ -82,7 +82,9 @@ export default function RootLayout({
 					/>
 				</Navigation.SideBar>
 
-				<div className={collapsedLink ? "sm:ml-[4.5rem]" : "sm:ml-48"}>
+				<div
+					className={`min-h-[calc(100vh-3.5rem)] ${collapsedLink ? "sm:ml-[4.5rem]" : "sm:ml-48"}`}
+				>
 					{children}
 				</div>
 			</Navigation.Root>
