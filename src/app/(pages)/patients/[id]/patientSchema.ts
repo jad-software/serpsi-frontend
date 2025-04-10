@@ -49,7 +49,7 @@ const SchoolSchema = z.object({
   _CNPJ: z.object({ _code: z.string() }),
   _phone: PhoneSchema,
   _address: AddressSchema
-});
+}).optional();
 
 const ComorbiditySchema = z.object({
   _name: z.string(),

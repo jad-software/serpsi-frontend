@@ -93,10 +93,12 @@ export default function MyPatient({
 						.format("YYYY-MM-DD"),
 					_phone: formatPhone(parent._phone as Phone, false)
 				})),
-				_school: {
-					...response._school,
-					_phone: formatPhone(response._school._phone as Phone, false)
-				},
+				_school: response._school
+					? {
+						...response._school,
+						_phone: formatPhone(response._school._phone as Phone, false),
+					}
+					: undefined,
 				_medicines: response._medicines.map((medicine: MedicineData) => ({
 					...medicine,
 					_schedule: formatMedicineSchedule(medicine._schedules!),
@@ -154,7 +156,13 @@ export default function MyPatient({
 					cpf: parent._cpf._cpf,
 				}
 			})),
-			school: {
+			comorbidities: submitData._comorbidities.map((comorbidity) => ({
+				name: comorbidity._name
+			}))
+		};
+		
+		if (submitData._school) {
+			formattedData.school = {
 				name: submitData._school._name,
 				phone: parsePhoneToAPI(submitData._school._phone as string),
 				CNPJ: submitData._school._CNPJ._code,
@@ -167,11 +175,8 @@ export default function MyPatient({
 					homeNumber: submitData._school._address._homeNumber,
 					complement: submitData._school._address._complement,
 				},
-			},
-			comorbidities: submitData._comorbidities.map((comorbidity) => ({
-				name: comorbidity._name
-			}))
-		};
+			};
+		}
 		if (selectedImage && selectedImage.length > 0) {
 			try {
 				const profileUpdateResponse = await updateProfilePicture(
