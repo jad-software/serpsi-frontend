@@ -64,13 +64,12 @@ export default function Documents() {
 				}
 				selectedAction={
 					<div className="flex flex-grow items-end justify-end gap-4 text-center text-primary-600">
-						<Link
-							href=""
+						<button
 							className="inline-flex items-center justify-center whitespace-nowrap w-fit text-sm font-medium text-primary-600 underline gap-1"
 						>
 							Baixar arquivos selecionados{" "}
 							<DownloadIcon className="h-4 w-4" />
-						</Link>
+						</button>
 					</div>
 				}
 			/>
