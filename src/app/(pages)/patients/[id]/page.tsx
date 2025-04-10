@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { MedicamentDialog } from "./medicamentDialog";
 import { getCEP } from "@/services/cepService";
 import { getSchool } from "@/services/schoolService";
+import Loading from "@/components/loading/Loading";
 
 export default function MyPatient({
 	params
@@ -188,7 +189,7 @@ export default function MyPatient({
 				return;
 			}
 		}
-		toast.promise(updatePatient(formattedData, _id._id).then((response) => setData(response)), {
+		toast.promise(updatePatient(formattedData, _id._id).then((response: PatientData) => setData(response)), {
 			loading: "Carregando...",
 			success: () => {
 				setIsEditing(false);
@@ -314,9 +315,7 @@ export default function MyPatient({
 		<FormProvider {...methods}>
 			<main className="flex flex-col items-center justify-center bg-cover px-10 py-5">
 				{!data ? (
-					<section className="fixed inset-0 z-50 flex items-center justify-center">
-						<div className="h-5 w-5 animate-spin rounded-full border-t-4 border-primary-600"></div>
-					</section>
+					<Loading />
 				)
 					:
 					<>
