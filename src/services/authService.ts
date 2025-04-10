@@ -63,7 +63,7 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 			return redirect("/home/schedule-definer?first=true")
 		}
 		else {
-			return redirect("/patients");
+			return redirect("/home");
 		}
 
 	} else {
