@@ -19,6 +19,7 @@ interface InputTextProps {
 	mask?: string;
 	error?: string;
 	accept?: string;
+	defaultValue?: any;
 	autoComplete?: string;
 }
 
@@ -68,6 +69,7 @@ export function InputText({
 					type={type}
 					placeholder={placeholder}
 					className={inputClassNames}
+					defaultValue={rest.defaultValue}
 					autoComplete={type === "password" ? "new-password" : "new-email"}
 					{...(register ? register(name ? name : id) : {})}
 					{...(type === 'uniqueFile' && {multiple: false, type: 'file', accept: 'application/pdf'})}
