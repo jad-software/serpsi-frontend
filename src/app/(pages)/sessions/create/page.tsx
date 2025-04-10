@@ -149,7 +149,6 @@ export default function CreateSession() {
     let timeOffset = new Date().getTimezoneOffset() / 60;
     let offset = (Math.abs(timeOffset) < 10 ? "0" + timeOffset : timeOffset.toString()) + ":00";
     offset = timeOffset < 0 ? "+" + offset : "-" + offset;
-    console.log(offset)
     const { startDate, startTime, frequency, sessionValue, sessionCount } = data;
     const schedule = `${startDate}T${startTime}${offset}`;
     const meetingFrequency = +frequency;

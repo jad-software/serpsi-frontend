@@ -1,6 +1,5 @@
 "use server";
 import { PatientData } from "@/app/(pages)/patients/[id]/patientSchema";
-import { Patient } from "@/models";
 import { cookies } from "next/headers";
 
 export async function getData(id: string): Promise<PatientData> {
