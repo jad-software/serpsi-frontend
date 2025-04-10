@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { getMeetingsInDateRange } from "@/services/calendarService";
 import { MeetingType } from "@/services/calendarService";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface DayViewProps {
 	dateSelected: Date;
@@ -49,6 +50,8 @@ export default function DayView({ dateSelected }: DayViewProps) {
 	const daySelected = getDayString(dateSelected);
 	const [meetings, setMeetings] = useState<MeetingType[]>([]);
 	const [loading, setLoading] = useState(true);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		const fetchMeetingsForDate = async () => {
@@ -114,6 +117,7 @@ export default function DayView({ dateSelected }: DayViewProps) {
 				<Button
 					variant={"outline"}
 					className="h-12 w-12 rounded-full border-primary-600 bg-white hover:bg-primary-50"
+					onClick={() => router.push('/sessions')}
 				>
 					<PlusIcon />
 				</Button>
