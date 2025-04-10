@@ -126,20 +126,13 @@ export default function BillsPage() {
 							refreshData();
 						}}
 						triggerButton={
-							<Button
-								variant="link"
-								className="gap-2 text-center text-primary-600"
-								onClick={() =>
-									console.log(
-										table
-											.getFilteredSelectedRowModel()
-											.rows.map((row) => row.original)
-									)
-								}
+							<Link
+								href=""
+								className="inline-flex items-center justify-center whitespace-nowrap w-fit text-sm font-medium text-primary-600 underline gap-1"
 							>
-								Adicionar pagamento para as contas selecionadas
+								Adicionar pagamentos
 								<CurrencyDollarIcon className="h-4 w-4" />
-							</Button>
+							</Link>
 						}
 						bills={table.getFilteredSelectedRowModel().rows}
 					/>
