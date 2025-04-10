@@ -95,7 +95,7 @@ export default function CreateSession() {
     async function fetchData() {
       if (id) {
         const data = await getData(id);
-        setData(data);
+        setData(data as unknown as Patient);
         setIsDataLoading(false);
       }
     }
@@ -146,8 +146,11 @@ export default function CreateSession() {
 
   const onSubmit = async (data: SessionData) => {
     setLoading(true);
+    let timeOffset = new Date().getTimezoneOffset() / 60;
+    let offset = (Math.abs(timeOffset) < 10 ? "0" + timeOffset : timeOffset.toString()) + ":00";
+    offset = timeOffset < 0 ? "+" + offset : "-" + offset;
     const { startDate, startTime, frequency, sessionValue, sessionCount } = data;
-    const schedule = `${startDate}T${startTime}z`;
+    const schedule = `${startDate}T${startTime}${offset}`;
     const meetingFrequency = +frequency;
     const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
 
