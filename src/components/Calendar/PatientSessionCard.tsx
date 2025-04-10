@@ -1,4 +1,4 @@
-import { formatHour } from "@/services/utils/formatDate";
+import { formatDateToddmmYYYYHHMM, formatHour } from "@/services/utils/formatDate";
 import {
 	CheckCircleIcon,
 	CheckIcon,
@@ -75,7 +75,7 @@ export default function PatientSessionCard({
 		<div
 			className="mb-2 flex h-16 w-full justify-between rounded-xl border border-primary-600 bg-white px-8 
 					hover:bg-primary-50 cursor-pointer"
-			onClick={() => router.push(`/sessions/${id}`)}
+			onClick={() => router.push(`/home/sessions/${id}?name=${formatDateToddmmYYYYHHMM(new Date(schedule))}`)}
 		>
 			<div className="flex">
 				<UserIcon width={28} />

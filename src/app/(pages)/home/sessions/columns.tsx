@@ -49,7 +49,7 @@ export const columns: ColumnDef<Patient>[] = [
 		),
 		size: 70,
 		cell: (e) => (
-			<Link href={"/sessions/create/" + "?id=" + e.row.original.id} className="flex justify-center">
+			<Link href={"/home/sessions/create/" + "?id=" + e.row.original.id} className="flex justify-center">
 				<PlusCircleIcon width={24} height={24}  color="#303F9F"/>
 			</Link>
 		)

@@ -48,7 +48,7 @@ export default function PastSessionsPage({
 				table={table}
 				linkTop={
 					<Link
-							href={"/sessions?paciente="+patientName }
+							href={"/home/sessions?paciente="+patientName }
 							className="text-sm font-medium text-primary-600 underline"
 						>
 							Cadastrar nova sessão

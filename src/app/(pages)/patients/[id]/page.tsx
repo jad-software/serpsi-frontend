@@ -1142,7 +1142,7 @@ export default function MyPatient({
 											<Square variant="WithButton">
 												<SquareHeader titulo="Histórico de Sessões" />
 												<Button className="bg-primary-600 hover:bg-primary-700">
-													<Link href={"/patients/" + params.id + "/past_sessions?name=" + data._person._name}>Ver Histórico de Sessões</Link>
+													<Link href={"/patients/" + params.id + "/past-sessions?name=" + data._person._name}>Ver Histórico de Sessões</Link>
 												</Button>
 											</Square>
 										</>

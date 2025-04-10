@@ -118,7 +118,7 @@ export default function DayView({ dateSelected }: DayViewProps) {
 					asChild
 					className="h-12 w-12 rounded-full border-primary-600 bg-white hover:bg-primary-50"
 				>
-					<Link href='/sessions'> 
+					<Link href='/home/sessions'> 
 					<PlusIcon />
 					</Link>
 				</Button>

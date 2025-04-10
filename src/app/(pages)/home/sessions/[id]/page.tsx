@@ -1,10 +1,10 @@
 "use client";
-import { Square, SquareHeader } from "../../patients/[id]/Square";
+import { Square, SquareHeader } from "../../../patients/[id]/Square";
 import Link from "next/link";
 import psiImage from "/public/img/avatar.svg";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { ListComponent } from "../../patients/[id]/listComponent";
+import { ListComponent } from "../../../patients/[id]/listComponent";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { useEffect, useState } from "react";
 import RichTextEditor from "@/components/richEditor/richEditor";

@@ -181,7 +181,7 @@ export default function CreateSession() {
         :
         <>
           <div className="mb-4 w-full">
-            <Link href={"/sessions"} className="flex items-center text-gray-500">
+            <Link href={"/home/sessions"} className="flex items-center text-gray-500">
               <ChevronLeftIcon className="w-6 h-6" />
               <span className="ml-2 text-lg ">Agendar Sessões</span>
             </Link>
