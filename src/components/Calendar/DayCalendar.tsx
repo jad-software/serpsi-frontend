@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { getMeetingsInDateRange } from "@/services/calendarService";
 import { MeetingType } from "@/services/calendarService";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface DayViewProps {
 	dateSelected: Date;
@@ -49,6 +50,7 @@ export default function DayView({ dateSelected }: DayViewProps) {
 	const daySelected = getDayString(dateSelected);
 	const [meetings, setMeetings] = useState<MeetingType[]>([]);
 	const [loading, setLoading] = useState(true);
+
 
 	useEffect(() => {
 		const fetchMeetingsForDate = async () => {
@@ -113,9 +115,12 @@ export default function DayView({ dateSelected }: DayViewProps) {
 			<div className="mt-2 flex w-full items-center justify-end">
 				<Button
 					variant={"outline"}
+					asChild
 					className="h-12 w-12 rounded-full border-primary-600 bg-white hover:bg-primary-50"
 				>
+					<Link href='/sessions'> 
 					<PlusIcon />
+					</Link>
 				</Button>
 			</div>
 		</section>

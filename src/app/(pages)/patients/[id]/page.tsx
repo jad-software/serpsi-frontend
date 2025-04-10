@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { MedicamentDialog } from "./medicamentDialog";
 import { getCEP } from "@/services/cepService";
 import { getSchool } from "@/services/schoolService";
+import Loading from "@/components/loading/Loading";
 
 export default function MyPatient({
 	params
@@ -92,10 +93,12 @@ export default function MyPatient({
 						.format("YYYY-MM-DD"),
 					_phone: formatPhone(parent._phone as Phone, false)
 				})),
-				_school: {
-					...response._school,
-					_phone: formatPhone(response._school._phone as Phone, false)
-				},
+				_school: response._school
+					? {
+						...response._school,
+						_phone: formatPhone(response._school._phone as Phone, false),
+					}
+					: undefined,
 				_medicines: response._medicines.map((medicine: MedicineData) => ({
 					...medicine,
 					_schedule: formatMedicineSchedule(medicine._schedules!),
@@ -153,7 +156,13 @@ export default function MyPatient({
 					cpf: parent._cpf._cpf,
 				}
 			})),
-			school: {
+			comorbidities: submitData._comorbidities.map((comorbidity) => ({
+				name: comorbidity._name
+			}))
+		};
+		
+		if (submitData._school) {
+			formattedData.school = {
 				name: submitData._school._name,
 				phone: parsePhoneToAPI(submitData._school._phone as string),
 				CNPJ: submitData._school._CNPJ._code,
@@ -166,11 +175,8 @@ export default function MyPatient({
 					homeNumber: submitData._school._address._homeNumber,
 					complement: submitData._school._address._complement,
 				},
-			},
-			comorbidities: submitData._comorbidities.map((comorbidity) => ({
-				name: comorbidity._name
-			}))
-		};
+			};
+		}
 		if (selectedImage && selectedImage.length > 0) {
 			try {
 				const profileUpdateResponse = await updateProfilePicture(
@@ -188,7 +194,7 @@ export default function MyPatient({
 				return;
 			}
 		}
-		toast.promise(updatePatient(formattedData, _id._id).then((response) => setData(response)), {
+		toast.promise(updatePatient(formattedData, _id._id).then((response: PatientData) => setData(response)), {
 			loading: "Carregando...",
 			success: () => {
 				setIsEditing(false);
@@ -314,9 +320,7 @@ export default function MyPatient({
 		<FormProvider {...methods}>
 			<main className="flex flex-col items-center justify-center bg-cover px-10 py-5">
 				{!data ? (
-					<section className="fixed inset-0 z-50 flex items-center justify-center">
-						<div className="h-5 w-5 animate-spin rounded-full border-t-4 border-primary-600"></div>
-					</section>
+					<Loading />
 				)
 					:
 					<>

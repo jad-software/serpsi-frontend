@@ -14,6 +14,7 @@ import { DownloadIcon, SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DownloadFile } from "@/services/utils/downloadFile";
+import Link from "next/link";
 
 export default function Documents() {
 	const [data, setData] = useState({} as DocumentColumns[]);
@@ -62,20 +63,13 @@ export default function Documents() {
 					</div>
 				}
 				selectedAction={
-					<div className="flex flex-grow items-end justify-end gap-2 text-center text-primary-600">
-						<Button
-							variant="link"
-							className="gap-2 text-center text-primary-600"
-							onClick={() =>
-								downloadMultiFiles(
-									table.getFilteredSelectedRowModel()
-										.rows as Row<DocumentColumns>[]
-								)
-							}
+					<div className="flex flex-grow items-end justify-end gap-4 text-center text-primary-600">
+						<button
+							className="inline-flex items-center justify-center whitespace-nowrap w-fit text-sm font-medium text-primary-600 underline gap-1"
 						>
 							Baixar arquivos selecionados{" "}
 							<DownloadIcon className="h-4 w-4" />
-						</Button>
+						</button>
 					</div>
 				}
 			/>

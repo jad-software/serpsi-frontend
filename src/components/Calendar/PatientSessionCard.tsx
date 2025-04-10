@@ -18,6 +18,7 @@ import {
 import { updateMeetingStatus } from "@/services/meetingsService";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface PatientSessionCardProps {
 	id: string;
@@ -54,7 +55,7 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao confirmar sessão."
 			});
 			setSessionStatus("CONFIRMADO");
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	const cancelSession = () => {
@@ -65,11 +66,17 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao cancelar sessão."
 			});
 			setSessionStatus("CANCELADO");
-		} catch (error) {}
+		} catch (error) { }
 	};
 
+	const router = useRouter();
+
 	return (
-		<div className="mb-2 flex h-16 w-full justify-between rounded-xl border border-primary-600 bg-white px-8">
+		<div
+			className="mb-2 flex h-16 w-full justify-between rounded-xl border border-primary-600 bg-white px-8 
+					hover:bg-primary-50 cursor-pointer"
+			onClick={() => router.push(`/sessions/${id}`)}
+		>
 			<div className="flex">
 				<UserIcon width={28} />
 				<div className="ml-2 flex flex-col items-start justify-center">
