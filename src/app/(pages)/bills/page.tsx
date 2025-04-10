@@ -126,13 +126,12 @@ export default function BillsPage() {
 							refreshData();
 						}}
 						triggerButton={
-							<Link
-								href=""
+							<button
 								className="inline-flex items-center justify-center whitespace-nowrap w-fit text-sm font-medium text-primary-600 underline gap-1"
 							>
 								Adicionar pagamentos
 								<CurrencyDollarIcon className="h-4 w-4" />
-							</Link>
+							</button>
 						}
 						bills={table.getFilteredSelectedRowModel().rows}
 					/>
