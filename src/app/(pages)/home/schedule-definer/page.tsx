@@ -24,7 +24,7 @@ export default function ScheduleDefinePage() {
 		/^(([0-1][0-9]|2[0-3]):[0-5][0-9])|([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
 	const scheduleSchema = z.object({
 		psychologistId: z.string(),
-		meetValue: z.number().positive("O valor deve ser maior que 0"),
+		meetValue: z.coerce.number().positive("O valor deve ser maior que 0"),
 		meetDuration: z.number().positive("a duração deve ser maior que 0"),
 		agendas: z.array(
 			z.object({
@@ -197,7 +197,9 @@ export default function ScheduleDefinePage() {
 				methods.reset({ ...data });
 				setCheckboxes(checks);
 			}
+
 			methods.setValue('meetDuration', data!.meetDuration);
+			methods.setValue('meetValue', data!.meetValue);
 			setMeetValue(data!.meetValue);
 		}
 
