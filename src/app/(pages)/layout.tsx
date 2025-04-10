@@ -48,6 +48,7 @@ export default function RootLayout({
 							height={33}
 							className="mr-3 w-auto rounded-full"
 							loading="eager"
+							priority
 						/>
 						<Navigation.Breadcrumb />
 					</div>
