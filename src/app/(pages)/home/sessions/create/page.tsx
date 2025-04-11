@@ -128,9 +128,9 @@ export default function CreateSession() {
         setValue('startTime', '');
         const data: {
           day: string;
-          availableTimes: string[]
-        }[] = await getHourAvailableByDate(startDateformated);
-        const allTimes = data.flatMap(item => item.availableTimes);
+          avaliableTimes: string[]
+        } = await getHourAvailableByDate(startDateformated);
+        const allTimes = data.avaliableTimes;
         setAvTime(allTimes);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
