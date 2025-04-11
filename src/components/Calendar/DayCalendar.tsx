@@ -1,18 +1,19 @@
-import { PlusIcon } from "@heroicons/react/outline";
+import { PencilIcon, PlusIcon } from "@heroicons/react/outline";
 import PatientSessionCard from "./PatientSessionCard";
 import NoData from "./no_data.svg";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getMeetingsInDateRange } from "@/services/calendarService";
 import { MeetingType } from "@/services/calendarService";
 import { toast } from "sonner";
 import Link from "next/link";
 interface DayViewProps {
 	dateSelected: Date;
+	onDateSelect: (date: Date) => void;
 }
 
-export default function DayView({ dateSelected }: DayViewProps) {
+export default function DayView({ dateSelected, onDateSelect }: DayViewProps) {
 	const getDayString = (date: Date) => {
 		const weekDays = [
 			"Domingo",
@@ -49,6 +50,30 @@ export default function DayView({ dateSelected }: DayViewProps) {
 	const daySelected = getDayString(dateSelected);
 	const [meetings, setMeetings] = useState<MeetingType[]>([]);
 	const [loading, setLoading] = useState(true);
+	const datePickerRef = useRef<HTMLInputElement | null>(null);
+	const handleDateInput = () => {
+		datePickerRef.current?.showPicker();
+	};
+
+	const formatDateValue = () => {
+		const date = dateSelected && !isNaN(dateSelected.getTime()) ? dateSelected : new Date();
+
+		const localDate = new Date(
+			date.getFullYear(),
+			date.getMonth(),
+			date.getDate()
+		);
+		return localDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+	};
+
+	const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const inputValue = e.target.value;
+		if (!inputValue) return;
+		
+		const [year, month, day] = inputValue.split("-").map(Number);
+		const selectedDate = new Date(year, month - 1, day);
+		onDateSelect(selectedDate);
+	};
 
 	useEffect(() => {
 		const fetchMeetingsForDate = async () => {
@@ -68,11 +93,27 @@ export default function DayView({ dateSelected }: DayViewProps) {
 		fetchMeetingsForDate();
 	}, [dateSelected, daySelected]);
 	return (
-		<section className="flex h-[30rem] w-full flex-col lg:w-2/5">
-			<h1 className="mb-2 text-center text-2xl md:text-left md:text-4xl">
-				{daySelected}
-			</h1>
-			<div className="h-3/4 overflow-y-auto pr-4">
+		<section className="flex h-[30rem] w-full flex-col lg:w-2/5 gap-2">
+			<div className="flex flex-row text-center justify-center">
+				<h1 className="mb-2 text-center text-3xl md:text-left md:text-4xl">
+					{daySelected}
+				</h1>
+				<span
+					onClick={handleDateInput}
+					className="ml-1 cursor-pointer p-2 hover:rounded-full lg:hidden"
+				>
+					<PencilIcon width={22} className="" />
+				</span>
+				<input
+					ref={datePickerRef}
+					id="date-picker"
+					type="date"
+					className="absolute opacity-0 pointer-events-none"
+					value={formatDateValue()}
+					onChange={handleDateInputChange}
+				/>
+			</div>
+			<div className="h-3/4 overflow-y-auto px-2 md:pr-4">
 				{loading && (
 					<div className="flex h-full flex-grow animate-loadingPulse items-center justify-center text-center">
 						<p>Carregando...</p>
@@ -110,7 +151,7 @@ export default function DayView({ dateSelected }: DayViewProps) {
 						/>
 					))}
 			</div>
-			<div className="mt-2 flex w-full items-center justify-end">
+			<div className="mt-2 flex w-full items-center justify-end pr-2">
 				<Button
 					variant={"outline"}
 					asChild
