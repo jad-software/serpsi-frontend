@@ -69,9 +69,10 @@ export async function createMeeting(meetingData: Meeting) {
     console.log('ErrorData', errorData);
     throw new Error(errorData.message || "Erro ao criar o paciente.");
   }
-  return redirect("/home");
-
+  const responseJson = await response.json();
+  return responseJson;
 }
+
 export async function getMeeting(id: string) {
   const jwt = cookies().get("Authorization")?.value!;
   if (jwt) {
@@ -118,7 +119,7 @@ export async function updateMeetingPaymentMethod(billId: string, paymentMethod: 
   if (jwt) {
     const billIds: string[] = [];
     billIds.push(billId);
-    
+
     const sendData = {
       billIds,
       paymentMethod
