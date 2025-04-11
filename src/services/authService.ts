@@ -59,6 +59,11 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		});
 		await setUserCookies();
 
+		cookies().set({
+			name: 'firstLogin',
+			value: payload.payload.firstLogin
+		});
+		
 		if ( payload.payload.firstLogin) {
 			return redirect("/home/schedule-definer?first=true")
 		}

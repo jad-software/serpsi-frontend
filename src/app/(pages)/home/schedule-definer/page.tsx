@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { getAgenda, setAgenda } from "@/services/agendaService";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Cookies from 'js-cookie'
+
 
 export default function ScheduleDefinePage() {
 	const horarioRegex =
@@ -178,10 +180,17 @@ export default function ScheduleDefinePage() {
 
 	const [checkboxes, setCheckboxes] = useState(settingWatchToCheckboxes());
 	const [meetValue, setMeetValue] = useState<number>(0);
+	const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
+
 
 	useEffect(() => {
 		async function SetDefaultAgendas() {
 			const data = await getAgenda();
+	
+
+			const firstLogin = Cookies.get('firstLogin') === 'true' ? true : false;
+			setIsFirstLogin(firstLogin);
+
 			let checks: boolean[] = Array.from({ length: 7 }, () => false);
 			if (data?.agendas && data.agendas.length > 0) {
 				data?.agendas.map((value) => {
@@ -236,6 +245,8 @@ export default function ScheduleDefinePage() {
 			toast.error("Algo de errado aconteceu.");
 		} else {
 			toast.success("Lista de horários atualizados com sucesso.");
+			setIsFirstLogin(false);
+			Cookies.set('firstLogin', 'false')
 			router.push("/patients");
 		}
 	};
@@ -263,6 +274,7 @@ export default function ScheduleDefinePage() {
 							<Button
 								type="reset"
 								variant="ghost"
+								disabled={isFirstLogin as boolean}
 								className="text-primary-600 hover:bg-primary-100/70 hover:text-primary-600"
 							>
 								Descartar
