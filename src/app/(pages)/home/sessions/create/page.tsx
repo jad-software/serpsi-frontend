@@ -333,7 +333,7 @@ export default function CreateSession() {
                             <SelectValue placeholder="Selecione o horário..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {aVTime.length > 0 ? aVTime.map((av, index) => {
+                            {aVTime?.length > 0 ? aVTime.map((av, index) => {
                               return (
                                 <SelectItem key={index}
                                   value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
@@ -375,14 +375,6 @@ export default function CreateSession() {
                           <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
                             <SelectValue placeholder="A Definir" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {aVTime.length > 0 ? aVTime.map((av, index) => {
-                              return (
-                                <SelectItem key={index}
-                                  value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
-                              )
-                            }) : <p>Nenhum horário disponível para esse dia</p>}
-                          </SelectContent>
                         </Select>
                       )}
                     />
