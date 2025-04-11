@@ -4,6 +4,7 @@ import {
 	CheckIcon,
 	ClockIcon,
 	DotsVerticalIcon,
+	ExclamationCircleIcon,
 	PencilAltIcon,
 	UserIcon,
 	XCircleIcon,
@@ -80,7 +81,7 @@ interface PatientSessionCardProps {
 	id: string;
 	name: string;
 	// paymentPlan: string;
-	status: "CANCELADO" | "CONFIRMADO" | string;
+	status: "CANCELADO" | "CONFIRMADO" | "CREDITO" | string;
 	schedule: string;
 }
 
@@ -98,6 +99,8 @@ export default function PatientSessionCard({
 			return <CheckCircleIcon width={24} color="#2E7D32" />;
 		} else if (sessionStatus === "CANCELADO") {
 			return <XCircleIcon width={24} color="#E64A19" />;
+		} else if (sessionStatus === "CREDITO") {
+			return <ExclamationCircleIcon width={24} color="#FFC107" />;
 		}
 
 		return <ClockIcon width={24} />;
@@ -111,7 +114,7 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao confirmar sessão."
 			});
 			setSessionStatus("CONFIRMADO");
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	const cancelSession = () => {
@@ -122,7 +125,7 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao cancelar sessão."
 			});
 			setSessionStatus("CANCELADO");
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	const router = useRouter();
@@ -153,17 +156,17 @@ export default function PatientSessionCard({
 
 	return (
 		<div
-			className="mb-2 flex h-16 w-full cursor-pointer justify-between rounded-xl border border-primary-600 bg-white px-8 hover:bg-primary-50"
-			// onClick={() => router.push(`/sessions/${id}`)}
+			className="mb-2 flex h-16 w-full cursor-pointer justify-between rounded-xl border border-primary-600 bg-white px-4 md:px-8 hover:bg-primary-50"
+		// onClick={() => router.push(`/sessions/${id}`)}
 		>
-			<div className="flex">
+			<div className="flex w-full">
 				<UserIcon width={28} />
 				<div className="ml-2 flex flex-col items-start justify-center">
 					<h2 className="sm:text-xl">{name}</h2>
 					{/* <span className="text-xs">Pag: {}</span> */}
 				</div>
 			</div>
-			<div className="flex items-center justify-center">
+			<div className="flex items-center justify-center md:pr-8 ">
 				{getStatusIcon()}
 				<span className="ml-1 text-lg">{formatHour(schedule)}</span>
 			</div>
@@ -227,11 +230,12 @@ export default function PatientSessionCard({
 									<input
 										type="date"
 										{...register("startDate")}
-										className={`h-11 w-full rounded border ${
-											errors.startDate
+										className={`h-11 w-full rounded border ${errors.startDate
 												? "border-red-500"
 												: "border-primary-400"
-										} p-2`}
+											} 
+											p-2`
+										}
 									/>
 									{errors.startDate && (
 										<p className="text-sm text-red-500">
