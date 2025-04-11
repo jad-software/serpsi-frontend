@@ -9,6 +9,7 @@ export type Patient = {
 	name: string;
 	// payment_plan: "Mensal" | "Bimestral" | "Trimestral" | "Avulso";
   count_meetings: string;
+	count_credits: string;
 	documento: string;
 };
 
@@ -32,10 +33,11 @@ export const columns: ColumnDef<Patient>[] = [
 
     cell: ({ row }) => {
       const value: string = row.getValue("count_meetings");
-
+			const creditsValues: string = row.original.count_credits;
         return (
           <div className="text-center">
-            {value}
+             { value } {<br/>} {+creditsValues > 0 && 
+						 `( ${creditsValues} ${+creditsValues > 1 ? 'creditos' : 'credito' })`}
           </div>
         );
       
