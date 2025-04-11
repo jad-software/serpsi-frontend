@@ -80,16 +80,14 @@ export default function MyPatient({
 				_person: {
 					...response._person,
 					_birthdate:
-						moment
-							.utc(response._person._birthdate)
+						moment(response._person._birthdate)
 							.format("YYYY-MM-DD"),
 					_phone: formatPhone(response._person._phone as Phone, false),
 				},
 
 				_parents: response._parents.map((parent: ParentData) => ({
 					...parent,
-					_birthdate: moment
-						.utc(parent._birthdate)
+					_birthdate: moment(parent._birthdate)
 						.format("YYYY-MM-DD"),
 					_phone: formatPhone(parent._phone as Phone, false)
 				})),

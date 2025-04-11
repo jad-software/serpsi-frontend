@@ -124,7 +124,7 @@ export function UpdateManyBillDialog({
 										<p>
 											Venc.:{" "}
 											{formatDateToddmmYYYY(
-												new Date(bill.original._dueDate)
+												bill.original._dueDate
 											)}
 										</p>
 									</div>
