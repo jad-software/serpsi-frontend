@@ -226,28 +226,44 @@ export default function PatientSessionCard({
 	};
 
 	return (
-		<div
-			className="mb-2 flex h-16 w-full cursor-pointer justify-between rounded-xl border border-primary-600 bg-white px-4 hover:bg-primary-50 md:px-8"
-			// onClick={() => router.push(`/sessions/${id}`)}
-		>
-			<div className="flex w-full">
-				<UserIcon width={28} />
-				<div className="ml-2 flex flex-col items-start justify-center">
-					<h2 className="sm:text-xl">{name}</h2>
-					{/* <span className="text-xs">Pag: {}</span> */}
+		<div className="mb-2 flex h-16 w-full cursor-pointer justify-between rounded-xl border border-primary-600 bg-white px-4 hover:bg-primary-50 md:px-8">
+			<div
+				className="flex w-full items-center justify-between"
+				onClick={(e) => {
+					if (isOpen) return;
+
+					const target = e.target as HTMLElement;
+					const isThreeDots = target.closest(
+						"[data-dropdown-trigger]"
+					);
+
+					if (!isThreeDots) {
+						router.push(`/sessions/${id}`);
+					}
+				}}
+			>
+				<div className="flex w-full">
+					<UserIcon width={28} />
+					<div className="ml-2 flex flex-col items-start justify-center">
+						<h2 className="sm:text-xl">{name}</h2>
+						{/* <span className="text-xs">Pag: {}</span> */}
+					</div>
 				</div>
-			</div>
-			<div className="flex items-center justify-center md:pr-8">
-				{getStatusIcon()}
-				<span className="ml-1 text-lg">{formatHour(schedule)}</span>
+				<div className="flex items-center justify-center md:pr-8">
+					{getStatusIcon()}
+					<span className="ml-1 text-lg">{formatHour(schedule)}</span>
+				</div>
 			</div>
 
 			<Dialog open={isOpen} onOpenChange={setIsOpen}>
 				<DropdownMenu modal={false}>
-					<DropdownMenuTrigger className="rounded-full px-2">
+					<DropdownMenuTrigger
+						className="rounded-full px-2"
+						data-dropdown-trigger
+					>
 						<DotsVerticalIcon width={20} />
 					</DropdownMenuTrigger>
-					<DropdownMenuContent>
+					<DropdownMenuContent data-dropdown-trigger>
 						<DialogTrigger asChild>
 							<DropdownMenuItem
 								className="cursor-pointer"
