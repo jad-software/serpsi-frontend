@@ -8,7 +8,7 @@ type DaySession = {
 
 type Meeting = {
 	meeting_schedule: string;
-	meeting_status: string;
+	meeting_status: "CONFIRMADO" | "CANCELADO" | "ABERTO" | "CREDITO";
 	meeting_id: string;
 	patient_id: string;
 	person_name: string;

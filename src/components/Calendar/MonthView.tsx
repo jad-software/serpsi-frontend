@@ -4,7 +4,7 @@ import {
 	PencilIcon
 } from "@heroicons/react/outline";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { MonthSessions } from "@/services/calendarService";
 import DayCard from "./DayCard";
@@ -126,31 +126,32 @@ export default function MonthView({
 		onDateSelect(newDate);
 	};
 
+	const datePickerRef = useRef<HTMLInputElement | null>(null);
 	const handleDateInput = () => {
-		const dateInput = document.getElementById(
-			"date-picker"
-		) as HTMLInputElement;
-		if (dateInput) {
-			dateInput.showPicker();
-		}
+		datePickerRef.current?.showPicker();
 	};
 
 	const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const selectedDate = new Date(e.target.value);
-		const actualDate = new Date(selectedDate);
-		actualDate.setDate(selectedDate.getDate() + 1);
-		onDateSelect(actualDate);
+		const inputValue = e.target.value;
+		if (!inputValue) return;
+
+		const [year, month, day] = inputValue.split("-").map(Number);
+		const selectedDate = new Date(year, month - 1, day);
+		onDateSelect(selectedDate);
 	};
 
 	const mes = getMonthString(selectedDate.getMonth());
 	const ano = selectedDate.getFullYear();
 
 	const formatDateValue = () => {
-		try {
-			return selectedDate.toISOString().split("T")[0];
-		} catch (error) {
-			return new Date().toISOString().split("T")[0];
-		}
+		const date = selectedDate && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+
+		const localDate = new Date(
+			date.getFullYear(),
+			date.getMonth(),
+			date.getDate()
+		);
+		return localDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
 	};
 
 	// Add this useEffect to handle invalid dates
@@ -181,6 +182,7 @@ export default function MonthView({
 						<PencilIcon width={20} className="" />
 					</span>
 					<input
+						ref={datePickerRef}
 						id="date-picker"
 						type="date"
 						className="invisible absolute"

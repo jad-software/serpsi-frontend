@@ -59,7 +59,7 @@ export default function Home() {
 	};
 
 	return (
-		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-12">
+		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-2 md:px-12">
 			<div className="mb-2 mt-1 flex w-full flex-col items-center justify-between md:flex-row">
 				<div className="mb-2 flex w-full flex-col items-center justify-center md:mb-0 md:flex-row lg:w-1/4">
 					{/* <Select>
@@ -84,14 +84,14 @@ export default function Home() {
 					setViewMode={setViewMode}
 				/> */}
 			</div>
-			<div className="flex h-full w-full flex-grow items-center justify-around rounded-xl border border-primary-600 bg-primary-100 p-8 lg:p-0">
+			<div className="flex h-full w-full flex-grow items-center justify-around rounded-xl border border-primary-600 bg-primary-100 md:p-8 lg:p-0">
 				<MonthView
 					selectedDate={dateSelected}
 					onDateSelect={handleDateSelect}
 					busyDays={busyDays}
 					isFetching={isFetching}
 				/>
-				<DayView dateSelected={dateSelected} />
+				<DayView dateSelected={dateSelected} onDateSelect={handleDateSelect}/>
 			</div>
 		</main>
 	);
