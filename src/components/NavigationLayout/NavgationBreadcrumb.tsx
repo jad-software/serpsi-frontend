@@ -27,6 +27,7 @@ const routeTitles: { [key: string]: string } = {
 	"past-sessions": "Histórico de sessões",
 	"select-patient": "Selecionar paciente",
 	profile: "Meus dados",
+	sessions: "Sessões"
 };
 
 const BreadcrumbContent = () => {

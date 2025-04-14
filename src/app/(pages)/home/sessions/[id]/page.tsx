@@ -151,7 +151,7 @@ export default function SpecificSessions({
 					<Square variant="WithImage" className="md:col-span-1">
 						<div className="flex w-3/4 flex-col items-center">
 							<Image
-								className="mb-4 h-24 w-24 rounded-full"
+								className="mb-4 h-24 w-24 rounded-full object-cover"
 								src={
 									meetingData._patient?._person?._profilePicture
 										? meetingData._patient._person._profilePicture
