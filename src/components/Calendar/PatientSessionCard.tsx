@@ -1,4 +1,4 @@
-import { formatDateToYYYYmmdd, formatHour } from "@/services/utils/formatDate";
+import { formatDateToddmmYYYYHHMM, formatDateToYYYYmmdd, formatHour } from "@/services/utils/formatDate";
 import {
 	CheckCircleIcon,
 	CheckIcon,
@@ -238,7 +238,7 @@ export default function PatientSessionCard({
 					);
 
 					if (!isThreeDots) {
-						router.push(`/sessions/${id}`);
+						router.push(`/home/sessions/${id}?name=${formatDateToddmmYYYYHHMM(new Date(schedule))}`);
 					}
 				}}
 			>
@@ -302,7 +302,7 @@ export default function PatientSessionCard({
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-				<DialogContent className="w-full max-w-[50vw]">
+				<DialogContent className="w-full max-w-[80dvw] md:max-w-[50vw]">
 					<FormProvider {...methods}>
 						<form onSubmit={handleSubmit(onSubmit)}>
 							<DialogHeader>

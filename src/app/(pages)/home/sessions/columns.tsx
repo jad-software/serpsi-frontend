@@ -9,6 +9,7 @@ export type Patient = {
 	name: string;
 	// payment_plan: "Mensal" | "Bimestral" | "Trimestral" | "Avulso";
   count_meetings: string;
+	count_credits: string;
 	documento: string;
 };
 
@@ -32,10 +33,11 @@ export const columns: ColumnDef<Patient>[] = [
 
     cell: ({ row }) => {
       const value: string = row.getValue("count_meetings");
-
+			const creditsValues: string = row.original.count_credits;
         return (
           <div className="text-center">
-            {value}
+             { value } {<br/>} {+creditsValues > 0 && 
+						 `( ${creditsValues} ${+creditsValues > 1 ? 'creditos' : 'credito' })`}
           </div>
         );
       
@@ -49,7 +51,7 @@ export const columns: ColumnDef<Patient>[] = [
 		),
 		size: 70,
 		cell: (e) => (
-			<Link href={"/sessions/create/" + "?id=" + e.row.original.id} className="flex justify-center">
+			<Link href={"/home/sessions/create/" + "?id=" + e.row.original.id} className="flex justify-center">
 				<PlusCircleIcon width={24} height={24}  color="#303F9F"/>
 			</Link>
 		)

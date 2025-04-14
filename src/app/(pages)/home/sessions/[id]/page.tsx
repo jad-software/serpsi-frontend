@@ -1,10 +1,10 @@
 "use client";
-import { Square, SquareHeader } from "../../patients/[id]/Square";
+import { Square, SquareHeader } from "../../../patients/[id]/Square";
 import Link from "next/link";
 import psiImage from "/public/img/avatar.svg";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { ListComponent } from "../../patients/[id]/listComponent";
+import { ListComponent } from "../../../patients/[id]/listComponent";
 import { PencilAltIcon } from "@heroicons/react/outline";
 import { useEffect, useState } from "react";
 import RichTextEditor from "@/components/richEditor/richEditor";
@@ -43,6 +43,7 @@ export default function SpecificSessions({
 		async function getMeetingData() {
 			const response = await getMeeting(params.id);
 			setMeetingData(response);
+
 			setIsLoading(false);
 			const documents = response._documents as FileData[];
 			const filteredDocuments = documents.filter(res => res._title !== 'Relato de sessão');
@@ -141,6 +142,7 @@ export default function SpecificSessions({
 
 	};
 
+
 	return (
 		<div className="container mx-auto p-4">
 			{isLoading ? <Loading></Loading> :
@@ -149,7 +151,7 @@ export default function SpecificSessions({
 					<Square variant="WithImage" className="md:col-span-1">
 						<div className="flex w-3/4 flex-col items-center">
 							<Image
-								className="mb-4 h-24 w-24 rounded-full"
+								className="mb-4 h-24 w-24 rounded-full object-cover"
 								src={
 									meetingData._patient?._person?._profilePicture
 										? meetingData._patient._person._profilePicture
@@ -175,6 +177,7 @@ export default function SpecificSessions({
 
 
 							</div>
+							{meetingData?._status === 'CREDITO' && <p>Essa sessão é um crédito</p>}
 							{(meetingData?._status === 'CONFIRMADO' || meetingData?._status === 'CANCELADO') &&
 								<>
 									<p className={`${meetingData?._status === 'CONFIRMADO' ? 'text-cyan-600' : 'text-red-600'}`}>
@@ -198,7 +201,8 @@ export default function SpecificSessions({
 								/>
 							}
 							{
-								(meetingData?._status === 'ABERTO' || meetingData?._status !== 'CANCELADO') &&
+								(meetingData?._status === 'ABERTO' ||
+									 meetingData?._status !== 'CANCELADO' && meetingData?._status !== 'CREDITO') &&
 								<CancelSessionDialog
 									onCancel={handleCancelSession}
 									triggerButton={
@@ -339,8 +343,8 @@ export default function SpecificSessions({
 								htmlFor="arquivos"
 								className={`cursor-pointer rounded-md border border-primary-600 bg-transparent p-2 
                 text-primary-600 hover:bg-primary-100/70 hover:text-primary-600
-                ${isFileUploading || meetingData._status !== 'CONFIRMADO' ? 
-									'cursor-not-allowed opacity-50 ' : ''}`}
+                ${isFileUploading || meetingData._status !== 'CONFIRMADO' ?
+										'cursor-not-allowed opacity-50 ' : ''}`}
 							>
 								Adicionar Arquivos
 							</label>

@@ -21,6 +21,8 @@ import { formatToCurrency } from "@/services/utils/formatCurrency";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { getProfileData } from "@/services/profileService";
 import Loading from "@/components/loading/Loading";
+import { useRouter } from "next/navigation";
+
 
 const sessionSchema = z.object({
   startDate: z
@@ -69,7 +71,7 @@ export default function CreateSession() {
   const [aVTime, setAvTime] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
-
+  const router = useRouter()
   let sessionValue = useRef('R$ 0,00');
   const id = searchParams.get('id');
 
@@ -126,9 +128,9 @@ export default function CreateSession() {
         setValue('startTime', '');
         const data: {
           day: string;
-          availableTimes: string[]
-        }[] = await getHourAvailableByDate(startDateformated);
-        const allTimes = data.flatMap(item => item.availableTimes);
+          avaliableTimes: string[]
+        } = await getHourAvailableByDate(startDateformated);
+        const allTimes = data.avaliableTimes;
         setAvTime(allTimes);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -146,6 +148,7 @@ export default function CreateSession() {
 
   const onSubmit = async (data: SessionData) => {
     setLoading(true);
+    const toastId = toast.loading("Carregando...");
     let timeOffset = new Date().getTimezoneOffset() / 60;
     let offset = (Math.abs(timeOffset) < 10 ? "0" + timeOffset : timeOffset.toString()) + ":00";
     offset = timeOffset < 0 ? "+" + offset : "-" + offset;
@@ -153,25 +156,34 @@ export default function CreateSession() {
     const schedule = `${startDate}T${startTime}${offset}`;
     const meetingFrequency = +frequency;
     const amount = sessionValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.');
+    try {
+      const result = await createMeeting({
+        amount: +amount,
+        frequency: meetingFrequency,
+        patient: id || '',
+        psychologist: "",
+        quantity: sessionCount,
+        schedule: schedule
+      });
+      setLoading(false);
+      toast.dismiss(toastId);
 
-    toast.promise(createMeeting({
-      amount: +amount,
-      frequency: meetingFrequency,
-      patient: id || '',
-      psychologist: "",
-      quantity: sessionCount,
-      schedule: schedule
-    }), {
-      loading: "Carregando...",
-      success: (result) => {
-        setLoading(false);
-        return "Sessão Criada com sucesso!";
-      },
-      error: (result) => {
-        setLoading(false)
-        return "Erro ao criar sessão, certifique se todos os horários estão livres"
+      if (result.conflicts && result.conflicts.length > 0) {
+        toast.warning('Sessões criadas com conflitos', {
+          description: 'verifique no calendário'
+        });
       }
-    })
+      else {
+        toast.success('Sessões criadas com sucesso');
+      }
+
+      router.push('/home');
+    }
+    catch (error) {
+      toast.dismiss(toastId);
+      setLoading(false);
+      toast.error("Erro ao criar sessão, certifique se todos os horários estão livres");
+    }
   };
 
   return (
@@ -181,7 +193,7 @@ export default function CreateSession() {
         :
         <>
           <div className="mb-4 w-full">
-            <Link href={"/sessions"} className="flex items-center text-gray-500">
+            <Link href={"/home/sessions"} className="flex items-center text-gray-500">
               <ChevronLeftIcon className="w-6 h-6" />
               <span className="ml-2 text-lg ">Agendar Sessões</span>
             </Link>
@@ -321,7 +333,7 @@ export default function CreateSession() {
                             <SelectValue placeholder="Selecione o horário..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {aVTime.length > 0 ? aVTime.map((av, index) => {
+                            {aVTime?.length > 0 ? aVTime.map((av, index) => {
                               return (
                                 <SelectItem key={index}
                                   value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
@@ -363,14 +375,6 @@ export default function CreateSession() {
                           <SelectTrigger className="w-full h-11 focus:ring bg-gray-100">
                             <SelectValue placeholder="A Definir" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {aVTime.length > 0 ? aVTime.map((av, index) => {
-                              return (
-                                <SelectItem key={index}
-                                  value={av}>{`${av.split(":")[0]}:${av.split(":")[1]}`}</SelectItem>
-                              )
-                            }) : <p>Nenhum horário disponível para esse dia</p>}
-                          </SelectContent>
                         </Select>
                       )}
                     />

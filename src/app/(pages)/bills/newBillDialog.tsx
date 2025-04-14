@@ -88,7 +88,7 @@ export function NewBillDialog({ triggerButton, onSuccess }: newBillDialogProps) 
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<div className="flex w-full gap-6">
+						<div className="flex flex-col md:flex-row w-full gap-6">
 							<div className="flex w-full flex-col gap-4">
 								<div>
 									<label

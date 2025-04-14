@@ -48,7 +48,6 @@ export async function createMeeting(meetingData: Meeting) {
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-
 	meetingData.psychologist = id;
 	const response = await fetch(process.env.BACKEND_URL + "/meetings", {
 		method: "POST",
@@ -73,6 +72,7 @@ export async function createMeeting(meetingData: Meeting) {
 	}
 	return redirect("/home");
 }
+
 export async function getMeeting(id: string) {
 	const jwt = cookies().get("Authorization")?.value!;
 	if (jwt) {

@@ -115,7 +115,7 @@ export function UpdateOneBillDialog({
 		<>
 			<Dialog open={isOpened} onOpenChange={setOpens}>
 				<DialogTrigger asChild>{triggerButton}</DialogTrigger>
-				<DialogContent className="lg:w-[40vw]">
+				<DialogContent className="lg:w-[40dvw]">
 					<DialogHeader>
 						<DialogTitle className="flex font-normal text-primary-600 items-center gap-3">
 							Conta{" "}
@@ -158,7 +158,7 @@ export function UpdateOneBillDialog({
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<div className="flex w-full gap-6">
+						<div className="flex flex-col md:flex-row w-full gap-6">
 							<div className="flex w-full flex-col gap-4">
 								<div>
 									<label

@@ -107,13 +107,13 @@ export function UpdateManyBillDialog({
 						</DialogDescription>
 					</DialogHeader>
 					<form
-						className="mt-1 flex flex-col justify-end gap-6"
+						className="flex flex-col justify-end gap-6 max-w-[100%]"
 						onSubmit={methods.handleSubmit(onSubmit, (data) => {
 							console.log(data);
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<section className="flex w-full gap-6">
+						<section className="flex flex-col md:flex-row gap-6 ">
 							<div className="flex max-h-[200px] w-full flex-col overflow-auto">
 								{bills.map((bill) => (
 									<div
@@ -124,11 +124,11 @@ export function UpdateManyBillDialog({
 										<p>
 											Venc.:{" "}
 											{formatDateToddmmYYYY(
-												new Date(bill.original._dueDate)
+												bill.original._dueDate
 											)}
 										</p>
 									</div>
-								))}{" "}
+								))}
 							</div>
 							<section className="flex w-full flex-col gap-4">
 								<div>
@@ -158,7 +158,7 @@ export function UpdateManyBillDialog({
 											>
 												<SelectTrigger
 													className={
-														"w-full border-primary-600 focus:ring-primary-500"
+														"border-primary-600 focus:ring-primary-500"
 													}
 												>
 													<SelectValue placeholder="Selecione a forma de pagamento  " />
