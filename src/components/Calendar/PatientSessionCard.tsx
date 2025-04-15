@@ -123,7 +123,7 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao confirmar sessão."
 			});
 			setSessionStatus("CONFIRMADO");
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	const cancelSession = () => {
@@ -134,15 +134,18 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao cancelar sessão."
 			});
 			setSessionStatus("CANCELADO");
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	const router = useRouter();
+	const date = new Date(schedule);
+	const [year, month, day] = [date.getFullYear(), date.getMonth(), date.getDate()];
+	const scheduleDate = new Date(year, month, day);
 
 	const methods = useForm<SessionData>({
 		resolver: zodResolver(sessionSchema),
 		defaultValues: {
-			startDate: schedule.split("T")[0],
+			startDate: scheduleDate.toISOString().split("T")[0],
 			startTime: schedule.split("T")[1],
 			sessionValue: "R$ 0,00"
 		}
@@ -222,7 +225,7 @@ export default function PatientSessionCard({
 					return "Houve um erro ao atualizar sessão.";
 				}
 			});
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	return (
@@ -322,11 +325,10 @@ export default function PatientSessionCard({
 									<input
 										type="date"
 										{...register("startDate")}
-										className={`h-11 w-full rounded border ${
-											errors.startDate
+										className={`h-11 w-full rounded border ${errors.startDate
 												? "border-red-500"
 												: "border-primary-400"
-										} p-2`}
+											} p-2`}
 										onBlur={() =>
 											handleStartDateBlur(
 												formatDateToYYYYmmdd(
@@ -408,11 +410,10 @@ export default function PatientSessionCard({
 										{...register("sessionValue")}
 										onChange={handleCurrencyChange}
 										placeholder="R$ 0,00"
-										className={`h-11 w-full rounded border ${
-											errors.sessionValue
+										className={`h-11 w-full rounded border ${errors.sessionValue
 												? "border-red-500"
 												: "border-primary-400"
-										} p-2 focus:ring`}
+											} p-2 focus:ring`}
 									/>
 									{errors.sessionValue && (
 										<p className="text-sm text-red-500">
