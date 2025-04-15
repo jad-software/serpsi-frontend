@@ -1,8 +1,20 @@
 "use client";
 import DayView from "@/components/Calendar/DayCalendar";
 import MonthView from "@/components/Calendar/MonthView";
+import {
+	UnusualDaysDialog,
+	UnusualSchema
+} from "@/components/Calendar/UnusualDaysDialog";
 import ViewModeSelector from "@/components/Calendar/ViewModeSelector";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger
+} from "@/components/ui/dialog";
 import {
 	Select,
 	SelectContent,
@@ -11,7 +23,9 @@ import {
 	SelectValue
 } from "@/components/ui/select";
 import { getBusyDays, MonthSessions } from "@/services/calendarService";
+import { setUnusual } from "@/services/unusualService";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
 	const [viewMode, setViewMode] = useState<"day" | "week">("day");
@@ -58,6 +72,19 @@ export default function Home() {
 		}
 	};
 
+	const submitUnusualDay = async (data: UnusualSchema) => {
+		try {
+			toast.promise(setUnusual(data), {
+				loading: "Carregando...",
+				success: () => {
+					location.reload();
+					return "Horáros indisponíveis criados com sucesso.";
+				},
+				error: "Erro ao criar horários indisponíveis."
+			});
+		} catch (error) {}
+	};
+
 	return (
 		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-2 md:px-12">
 			<div className="mb-2 mt-1 flex w-full flex-col items-center justify-between md:flex-row">
@@ -72,12 +99,18 @@ export default function Home() {
 							<SelectItem value="system">System</SelectItem>
 						</SelectContent>
 					</Select> */}
-					<Button
-						variant={"outline"}
-						className="w-full min-w-36 rounded-sm border-primary-400 font-normal text-primary-600 outline-primary-400 hover:bg-primary-50 hover:text-primary-400"
-					>
-						Definir Horários Indisponíveis
-					</Button>
+
+					<UnusualDaysDialog
+						triggerButton={
+							<Button
+								variant={"outline"}
+								className="w-full min-w-36 rounded-sm border-primary-400 font-normal text-primary-600 outline-primary-400 hover:bg-primary-50 hover:text-primary-400"
+							>
+								Definir Horários Indisponíveis
+							</Button>
+						}
+						onSubmit={submitUnusualDay}
+					/>
 				</div>
 				{/* <ViewModeSelector
 					viewMode={viewMode}
@@ -91,7 +124,10 @@ export default function Home() {
 					busyDays={busyDays}
 					isFetching={isFetching}
 				/>
-				<DayView dateSelected={dateSelected} onDateSelect={handleDateSelect}/>
+				<DayView
+					dateSelected={dateSelected}
+					onDateSelect={handleDateSelect}
+				/>
 			</div>
 		</main>
 	);
