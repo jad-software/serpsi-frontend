@@ -1,5 +1,5 @@
 "use server";
-import { Meeting } from "@/models/Entities/ Meeting";
+import { Meeting } from "@/models/Entities/Meeting";
 import { PaymentMethod } from "@/models/Entities/PaymentMethod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -40,7 +40,7 @@ export async function getHourAvailableByDate(startDate: string) {
 	}
 }
 
-export async function createMeeting(meetingData: Meeting) {
+export async function createMeeting(meetingData: Meeting): Promise<any> {
 	const jwt = cookies().get("Authorization")?.value;
 	const id = cookies().get("sub")?.value;
 	if (!jwt || !id) {
