@@ -13,7 +13,7 @@ import { ConfirmSessionDialog } from "./confirmSessionDialog";
 import { CancelSessionDialog } from "./cancelSessionDialog";
 import { toast } from "sonner";
 import { getMeeting, updateMeetingPaymentMethod, updateMeetingStatus } from "@/services/meetingsService";
-import { MeetingData } from "@/models/Entities/ Meeting";
+import { MeetingData } from "@/models/Entities/Meeting";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { PaymentMethod, PaymentPossibilities } from "@/models/Entities/PaymentMethod"
