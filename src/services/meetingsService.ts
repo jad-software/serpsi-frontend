@@ -2,7 +2,6 @@
 import { Meeting } from "@/models/Entities/Meeting";
 import { PaymentMethod } from "@/models/Entities/PaymentMethod";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export async function getSessions(id: string) {
 	const jwt = cookies().get("Authorization")?.value!;
@@ -70,7 +69,8 @@ export async function createMeeting(meetingData: Meeting): Promise<any> {
 		console.log("ErrorData", errorData);
 		throw new Error(errorData.message || "Erro ao criar o paciente.");
 	}
-	return redirect("/home");
+  const result = await response.json();
+  return result;
 }
 
 export async function getMeeting(id: string) {
