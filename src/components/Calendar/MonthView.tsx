@@ -56,7 +56,11 @@ export default function MonthView({
 		setNextMonthDays(nextDays);
 	}, [selectedDate]);
 
-	const handleDateClick = (
+	const handleDateClick: (
+		day: number,
+		isPrevMonth: boolean,
+		isNextMonth: boolean
+	) => void = (
 		day: number,
 		isPrevMonth: boolean = false,
 		isNextMonth: boolean = false
@@ -144,14 +148,17 @@ export default function MonthView({
 	const ano = selectedDate.getFullYear();
 
 	const formatDateValue = () => {
-		const date = selectedDate && !isNaN(selectedDate.getTime()) ? selectedDate : new Date();
+		const date =
+			selectedDate && !isNaN(selectedDate.getTime())
+				? selectedDate
+				: new Date();
 
 		const localDate = new Date(
 			date.getFullYear(),
 			date.getMonth(),
 			date.getDate()
 		);
-		return localDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+		return localDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
 	};
 
 	// Add this useEffect to handle invalid dates
@@ -220,6 +227,18 @@ export default function MonthView({
 							key={`prev-${day}`}
 							day={day}
 							disabled
+							isPastDay={
+								new Date(
+									ano,
+									selectedDate.getMonth() - 1,
+									day
+								) <
+								new Date(
+									new Date().getFullYear(),
+									new Date().getMonth(),
+									new Date().getDate()
+								)
+							}
 							onClick={() => handleDateClick(day, true, false)}
 						/>
 					))}
@@ -229,6 +248,19 @@ export default function MonthView({
 						<DayCard
 							key={`current-${day}`}
 							day={day}
+							isToday={
+								day === new Date().getDate() &&
+								mes === getMonthString(new Date().getMonth()) &&
+								ano === new Date().getFullYear()
+							}
+							isPastDay={
+								new Date(ano, selectedDate.getMonth(), day) <
+								new Date(
+									new Date().getFullYear(),
+									new Date().getMonth(),
+									new Date().getDate()
+								)
+							}
 							selected={day === selectedDate.getDate()}
 							onClick={() => handleDateClick(day, false, false)}
 							hasMeeting={
@@ -244,6 +276,18 @@ export default function MonthView({
 						<DayCard
 							key={`next-${day}`}
 							day={day}
+							isPastDay={
+								new Date(
+									ano,
+									selectedDate.getMonth() + 1,
+									day
+								) <
+								new Date(
+									new Date().getFullYear(),
+									new Date().getMonth(),
+									new Date().getDate()
+								)
+							}
 							disabled
 							onClick={() => handleDateClick(day, false, true)}
 						/>
