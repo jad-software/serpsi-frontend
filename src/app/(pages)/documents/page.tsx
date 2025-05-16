@@ -81,12 +81,11 @@ export default function Documents() {
 }
 
 async function downloadMultiFiles(rows: Row<DocumentColumns>[]) {
-	await Promise.all(
-		rows.map((value) => {
-			DownloadFile(
-				value.original.docLink,
-				value.original.name + " - " + value.original.title
-			);
-		})
-	);
+	for (const value of rows) {
+    await DownloadFile(
+      value.original.docLink,
+      `${value.original.name} - ${value.original.title}`
+    );
+    await new Promise((resolve) => setTimeout(resolve, 300)); // pequeno delay
+  }
 }
