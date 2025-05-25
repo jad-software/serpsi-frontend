@@ -68,6 +68,9 @@ export function UpdateManyBillDialog({
 			_paymentDate: z.preprocess((val) => {
 				return val === "" ? undefined : val;
 			}, z.coerce.date().optional())
+				.refine((val) => val !== undefined && val <= new Date(), {
+					message: "A data não pode estar no futuro."
+				})
 		})
 	});
 
@@ -139,6 +142,7 @@ export function UpdateManyBillDialog({
 										type="date"
 										name="_paymentMethod._paymentDate"
 										register={methods.register}
+										error={methods.formState.errors._paymentMethod?._paymentDate?.message}
 									/>
 								</div>
 								<div>

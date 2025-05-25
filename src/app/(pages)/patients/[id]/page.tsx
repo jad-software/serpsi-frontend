@@ -498,7 +498,7 @@ export default function MyPatient({
 
 										{isEditing ? (
 											<>
-												<p>Comorbidades:</p>
+												<p>Diagnóstico e/ou comorbidades:</p>
 												<ul className="mt-2 flex flex-col flex-wrap gap-2 md:flex-row">
 													{fields.map((comorbidity, index) => (
 														<li key={comorbidity.id} className="flex items-center gap-2">
@@ -529,7 +529,7 @@ export default function MyPatient({
 										) : (
 											data._comorbidities.length > 0 && (
 												<>
-													<p>Comorbidades:</p>
+													<p>Diagnóstico e/ou comorbidades:</p>
 													<ul className="mt-2 flex flex-col flex-wrap gap-2 md:flex-row">
 														{data._comorbidities.map((comorbidity: comorbidityData, index) => (
 															<ComorbidityTag name={comorbidity._name} key={comorbidity._id?._id || index} />
