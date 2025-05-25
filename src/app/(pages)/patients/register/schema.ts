@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+	validateCPF,
+	verifyIfCPFAlreadyExists
+} from "@/services/utils/verifyCPF";
 
 // Validations Regex
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
@@ -38,7 +42,13 @@ export const createPatientFormSchema = z
 				),
 			cpf: z
 				.string()
-				.regex(cpfRegex, "O CPF deve seguir o padrão 000.000.000-00.")
+				.min(1, "CPF é um campo obrigatório.")
+				.refine(validateCPF, {
+					message: "CPF inválido."
+				})
+				.refine(async (cpf) => !(await verifyIfCPFAlreadyExists(cpf)), {
+					message: "CPF já cadastrado."
+				})
 		}),
 
 		// AddressInfoSection

@@ -1,3 +1,4 @@
+import { validateCPF } from "@/services/utils/verifyCPF";
 import { number, z } from "zod";
 
 // Validations Regex
@@ -11,131 +12,135 @@ const fileListType =
 		? z.instanceof(FileList)
 		: z.any();
 
-export const createPsychologistFormSchema = z
-	.object({
-		profilePicture: fileListType.refine((val) => val && val.length > 0, {
-			message: "A foto de perfil é obrigatória.",
-			path: ["profilePicture"]
-		}),
-		crp: z.object({
-
-			crp: z.string().refine((val) => /^\d{2}\/\d{5,6}$/.test(val.trim()), {
-				message: "CRP inválido. O formato deve ser XX/XXXXX ou XX/XXXXXX.",
+export const createPsychologistFormSchema = z.object({
+	profilePicture: fileListType.refine((val) => val && val.length > 0, {
+		message: "A foto de perfil é obrigatória.",
+		path: ["profilePicture"]
+	}),
+	crp: z.object({
+		crp: z.string().refine((val) => /^\d{2}\/\d{5,6}$/.test(val.trim()), {
+			message: "CRP inválido. O formato deve ser XX/XXXXX ou XX/XXXXXX."
+		})
+	}),
+	user: z.object({
+		email: z
+			.string()
+			.min(1, "E-mail é um campo obrigatório")
+			.email("Insira um E-mail válido"),
+		password: z
+			.string()
+			.min(8, "A nova senha tem que ter pelo menos 8 caracteres.")
+			.regex(new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$"), {
+				message:
+					"A senha deve ter pelo menos 8 caracteres e conter uma letra maiúscula, uma letra minúscula e um número."
 			}),
-		}),
-		user: z.object({
-			email: z.string().min(1, 'E-mail é um campo obrigatório').email('Insira um E-mail válido'),
-			password: z
-				.string()
-				.min(8, "A nova senha tem que ter pelo menos 8 caracteres.")
-				.regex(new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$"), {
-					message:
-						"A senha deve ter pelo menos 8 caracteres e conter uma letra maiúscula, uma letra minúscula e um número."
-				}),
-			role: z.string().min(1, 'Role é obrigátorio')
-		}),
-		// PatientInfoSection
-		person: z.object({
-			name: z.string().min(1, "Nome é um campo obrigatório."),
-			rg: z.string().min(1, "RG é um campo obrigatório."),
-			birthdate: z
-				.preprocess((val) => {
-					return val === "" ? undefined : val;
-				}, z.coerce.date().optional())
-				.refine((val) => val !== undefined, {
-					message: "Data de nascimento é obrigatória."
-				}),
-			phone: z
-				.string()
-				.regex(
-					phoneRegex,
-					"O telefone deve seguir o padrão (00) 00000-0000."
-				),
-			cpf: z
-				.string()
-				.regex(cpfRegex, "O CPF deve seguir o padrão 000.000.000-00.")
-		}),
-
-		// AddressInfoSection
-		address: z.object({
-			state: z
-				.string()
-				.min(2, "Estado é um campo obrigatório.")
-				.max(2, "Estado deve ter exatamente 2 caracteres.")
-				.transform((val) => val.toUpperCase()),
-			zipCode: z
-				.string()
-				.regex(cepRegex, "O CEP deve seguir o padrão 00000-000."),
-			street: z.string().min(1, "Rua é um campo obrigatório."),
-			district: z.string().min(1, "Bairro é um campo obrigatório."),
-			city: z.string().min(1, "Cidade é um campo obrigatório."),
-			homeNumber: z
-				.string()
-				.min(1, "Número residencial é um campo obrigatório."),
-			complement: z.string().optional()
-		}),
-
-		// ExtraInfoSection
-		meetValue: z
+		role: z.string().min(1, "Role é obrigátorio")
+	}),
+	// PatientInfoSection
+	person: z.object({
+		name: z.string().min(1, "Nome é um campo obrigatório."),
+		rg: z.string().min(1, "RG é um campo obrigatório."),
+		birthdate: z
+			.preprocess((val) => {
+				return val === "" ? undefined : val;
+			}, z.coerce.date().optional())
+			.refine((val) => val !== undefined, {
+				message: "Data de nascimento é obrigatória."
+			}),
+		phone: z
 			.string()
-			.min(
-				1,
-				"O valor da sessão é obrigatório"
-			).refine(
-				(value) => {
-					const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100;
+			.regex(
+				phoneRegex,
+				"O telefone deve seguir o padrão (00) 00000-0000."
+			),
+		cpf: z
+			.string()
+			.min(1, "CPF é um campo obrigatório.")
+			.refine(validateCPF, {
+				message: "CPF inválido."
+			})
+	}),
+
+	// AddressInfoSection
+	address: z.object({
+		state: z
+			.string()
+			.min(2, "Estado é um campo obrigatório.")
+			.max(2, "Estado deve ter exatamente 2 caracteres.")
+			.transform((val) => val.toUpperCase()),
+		zipCode: z
+			.string()
+			.regex(cepRegex, "O CEP deve seguir o padrão 00000-000."),
+		street: z.string().min(1, "Rua é um campo obrigatório."),
+		district: z.string().min(1, "Bairro é um campo obrigatório."),
+		city: z.string().min(1, "Cidade é um campo obrigatório."),
+		homeNumber: z
+			.string()
+			.min(1, "Número residencial é um campo obrigatório."),
+		complement: z.string().optional()
+	}),
+
+	// ExtraInfoSection
+	meetValue: z
+		.string()
+		.min(1, "O valor da sessão é obrigatório")
+		.refine(
+			(value) => {
+				const numericValue =
+					parseFloat(value.replace(/[^\d]/g, "")) / 100;
+				return numericValue > 0;
+			},
+			{
+				message: "O valor da sessão deve ser maior que R$ 0"
+			}
+		),
+	meetDuration: z
+		.string()
+		.min(1, "O valor da sessão é obrigatório")
+		.refine(
+			(value) => {
+				if (parseFloat(value) > 0) {
+					const numericValue =
+						parseFloat(value.replace(/[^\d]/g, "")) / 100;
 					return numericValue > 0;
-				},
-				{
-					message: "O valor da sessão deve ser maior que R$ 0",
 				}
-			),
-		meetDuration: z
-			.string()
-			.min(
-				1,
-				"O valor da sessão é obrigatório"
-			).refine(
-				(value) => {
-					if (parseFloat(value) > 0) {
+			},
+			{
+				message: "A duração da sessão deve ser maior que 0"
+			}
+		),
 
-						const numericValue = parseFloat(value.replace(/[^\d]/g, "")) / 100;
-						return numericValue > 0;
-					}
-				},
-				{
-					message: "A duração da sessão deve ser maior que 0",
-				}
-			),
+	crpFile: fileListType.refine((val) => val && val.length > 0, {
+		message: "o arquivo do CRP é obrigatório.",
+		path: ["crpFile"]
+	}),
 
-		crpFile: fileListType.refine((val) => val && val.length > 0, {
-			message: "o arquivo do CRP é obrigatório.",
-			path: ["crpFile"]
-		}),
-
-		identifyfile: fileListType.refine((val) => val && val.length > 0, {
-			message: "o arquivo da identidade é obrigatório.",
-			path: ["identifyfile"]
-		}),
-		degreeFile: fileListType.refine((val) => val && val.length > 0, {
-			message: "o arquivo da identidade é obrigatório.",
-			path: ["degreeFile"]
-		}),
+	identifyfile: fileListType.refine((val) => val && val.length > 0, {
+		message: "o arquivo da identidade é obrigatório.",
+		path: ["identifyfile"]
+	}),
+	degreeFile: fileListType.refine((val) => val && val.length > 0, {
+		message: "o arquivo da identidade é obrigatório.",
+		path: ["degreeFile"]
 	})
+});
 
+export type CreatePsychologistForm = z.infer<
+	typeof createPsychologistFormSchema
+>;
 
-export type CreatePsychologistForm = z.infer<typeof createPsychologistFormSchema>;
-
-export function formatPsychologistData(formData: CreatePsychologistForm): FormData {
+export function formatPsychologistData(
+	formData: CreatePsychologistForm
+): FormData {
 	type FormattedDataType = {
 		crp: {
 			crp: string;
-		},
+		};
 		user: {
 			email: string;
 			password: string;
 			role: string;
-		},
+		};
 		person: {
 			name: string;
 			rg: string;
@@ -163,9 +168,8 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 	};
 
 	let formattedData: FormattedDataType = {
-
 		crp: {
-			crp: formData.crp.crp,
+			crp: formData.crp.crp
 		},
 
 		user: {
@@ -196,7 +200,10 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 			}
 		},
 		meetDuration: +formData.meetDuration,
-		meetValue: +(formData.meetValue.replace(/R\$\s?/, '').replace('.', '').replace(',', '.')),
+		meetValue: +formData.meetValue
+			.replace(/R\$\s?/, "")
+			.replace(".", "")
+			.replace(",", ".")
 	};
 
 	const formDataObj = new FormData();
@@ -207,9 +214,9 @@ export function formatPsychologistData(formData: CreatePsychologistForm): FormDa
 
 	formDataObj.append("psychologistData", JSON.stringify(formattedData));
 	formDataObj.append("profilePicture", profPic[0]);
-	formDataObj.append('crpFile', crpFile[0]);
-	formDataObj.append('identifyfile', identifyfile[0]);
-	formDataObj.append('degreeFile', degreeFile[0]);
+	formDataObj.append("crpFile", crpFile[0]);
+	formDataObj.append("identifyfile", identifyfile[0]);
+	formDataObj.append("degreeFile", degreeFile[0]);
 
 	return formDataObj;
 }
