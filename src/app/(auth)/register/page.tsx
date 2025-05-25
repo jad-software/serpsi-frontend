@@ -27,14 +27,13 @@ export default function RegisterNewPatientPage() {
 
 	const maxProgress = 5;
 
-
 	const methods = useForm<CreatePsychologistForm>({
 		resolver: zodResolver(createPsychologistFormSchema),
 		defaultValues: {
 			user: {
-				email: '',
-				password: '',
-				role: 'PSI'
+				email: "",
+				password: "",
+				role: "PSI"
 			}
 		}
 	});
@@ -58,8 +57,39 @@ export default function RegisterNewPatientPage() {
 					return "Cadastrado realizado com sucesso! 😍";
 				},
 				error: (err) => {
-					console.log(err);
-					return "Houve um erro ao cadastrar o paciente.";
+					if (err.message.includes("isStrongPassword")) {
+						return "Senha muito fraca. Por favor, escolha uma senha mais forte.";
+					}
+
+					if (err.message.includes("duplicate key")) {
+						if (
+							err.message.includes(
+								"UQ_502a8c2603ea409c5cff16695d6"
+							)
+						) {
+							return "CRP informado já existe no sistema. Por favor, entre em contato com o Suporte.";
+						} else if (
+							err.message.includes(
+								"UQ_e12875dfb3b1d92d7d7c5377e22"
+							)
+						) {
+							return "E-mail informado já existe no sistema. Por favor, utilize outro e-mail ou entre em contato com o Suporte.";
+						} else if (
+							err.message.includes(
+								"UQ_264b7cad2330569e0ef5b4c39c4"
+							)
+						) {
+							return "CPF informado já existe no sistema. Por favor, entre em contato com o Suporte.";
+						} else if (
+							err.message.includes(
+								"UQ_690554d08986f72266f0f0ff79d"
+							)
+						) {
+							return "RG informado já existe no sistema. Por favor, entre em contato com o Suporte.";
+						}
+						return "Algum dos dados informados já existem no sistema. Por favor, entre em contato com o Suporte.";
+					}
+					return "Houve um erro ao realizar o cadastro. Por favor entre em contato com o Suporte.";
 				}
 			});
 
@@ -77,7 +107,7 @@ export default function RegisterNewPatientPage() {
 		);
 		console.log("Erros de validação:", methods.formState.errors);
 		if (methods.formState.errors.profilePicture) {
-			toast.error("Por favor, adicione a foto do paciente!");
+			toast.error("Por favor, adicione sua foto de perfil!");
 		}
 		console.log("Estado atual do formulário:", methods.watch());
 	};
@@ -86,7 +116,7 @@ export default function RegisterNewPatientPage() {
 		var isValid: boolean = true;
 		switch (progress) {
 			case 1:
-				isValid = await methods.trigger(['user', 'crp'])
+				isValid = await methods.trigger(["user", "crp"]);
 				break;
 			case 2:
 				isValid = await methods.trigger(["person"]);
@@ -95,7 +125,7 @@ export default function RegisterNewPatientPage() {
 				isValid = await methods.trigger(["address"]);
 				break;
 			case 4:
-				isValid = await methods.trigger(["meetValue", 'meetDuration']);
+				isValid = await methods.trigger(["meetValue", "meetDuration"]);
 				break;
 
 			default:
