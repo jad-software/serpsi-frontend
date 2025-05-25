@@ -26,20 +26,6 @@ export default function RegisterNewPatientPage() {
 
 	const maxProgress = 5;
 
-	// const methods = useForm<CreatePatientForm>({
-	// 	resolver: zodResolver(createPatientFormSchema),
-	// 	defaultValues: {
-	// 		parents: [
-	// 			{
-	// 				name: "",
-	// 				rg: "",
-	// 				phone: "",
-	// 				cpf: ""
-	// 			}
-	// 		]
-	// 	}
-	// });
-
 	const methods = useForm<CreatePatientForm>({
 		resolver: zodResolver(createPatientFormSchema),
 		defaultValues: {
