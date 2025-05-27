@@ -333,7 +333,7 @@ export default function SpecificSessions({
 								))
 							) : (
 								<p className="text-center">
-									Nenhum Acompanhamento anterior
+									Nenhum arquivo da sessão.
 								</p>
 							)}
 						</ul>

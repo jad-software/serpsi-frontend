@@ -53,7 +53,8 @@ export default function NavigationHeaderUser({
 					<Link href="/profile/">
 						<DropdownMenuItem className="cursor-pointer">
 							<UserCircleIcon width={16} height={16} />
-							&nbsp; Conta
+							&nbsp;
+							<span>Meu perfil</span>
 						</DropdownMenuItem>
 					</Link>
 					<Link href="/home/schedule-definer">
