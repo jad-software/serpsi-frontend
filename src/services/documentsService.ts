@@ -5,8 +5,8 @@ import { DocumentColumns } from "@/app/(pages)/documents/columns";
 import { formatDateToddmmYYYY } from "./utils/formatDate";
 
 export async function getData() {
-	const jwt = cookies().get("Authorization")?.value!;
-	const sub = cookies().get("sub")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
+	const sub = (await cookies()).get("sub")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."

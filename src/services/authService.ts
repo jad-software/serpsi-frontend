@@ -36,21 +36,21 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		if (!response.ok) {
 			throw new Error("e-mail ou senha incorretos");
 		}
-		cookies().set({
+		(await cookies()).set({
 			name: "Authorization",
 			value: "Bearer " + payload.access_token,
 			secure: true,
 			httpOnly: true,
 			expires: new Date(jwtDecode(payload.access_token).exp! * 1000)
 		});
-		cookies().set({
+		(await cookies()).set({
 			name: "sub",
 			value: payload.payload.sub,
 			secure: true,
 			httpOnly: true,
 			expires: new Date(jwtDecode(payload.access_token).exp! * 1000)
 		});
-		cookies().set({
+		(await cookies()).set({
 			name: "role",
 			value: payload.payload.role,
 			secure: true,
@@ -59,7 +59,7 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		});
 		await setUserCookies();
 
-		cookies().set({
+		(await cookies()).set({
 			name: 'firstLogin',
 			value: payload.payload.firstLogin
 		});
@@ -81,11 +81,11 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 }
 
 export async function logout() {
-	cookies().delete("Authorization");
-	cookies().delete("sub");
-	cookies().delete("role");
-	cookies().delete("name");
-	cookies().delete("profilePic");
+	(await cookies()).delete("Authorization");
+	(await cookies()).delete("sub");
+	(await cookies()).delete("role");
+	(await cookies()).delete("name");
+	(await cookies()).delete("profilePic");
 }
 
 export async function createPsychologist(formData: FormData) {
