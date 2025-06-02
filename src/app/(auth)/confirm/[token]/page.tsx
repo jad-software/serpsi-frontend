@@ -2,14 +2,21 @@
 import Image from "next/image";
 import confirmImage from "../confirm_email.svg";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { confirmEmail } from "@/services/confirmEmailService";
 import { toast } from "sonner";
 
-export default function ConfirmPage({ params }: { params: { token: string } }) {
+export default function ConfirmPage({
+	params
+}: {
+	params: Promise<{ token: string }>;
+}) {
 	const [isConfirmed, setIsConfirmed] = useState<boolean | null>(null);
 	const router = useRouter();
-	const token = params.token;
+
+	const getToken = async () => {};
+	const slug: { token: string } = React.use(params);
+	const token = slug.token;
 	const hasRun = useRef(false);
 	useEffect(() => {
 		if (hasRun.current) return;

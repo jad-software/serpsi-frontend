@@ -100,7 +100,7 @@ const BreadcrumbContent = () => {
 // Main component with Suspense wrapper
 export default function NavigationBreadcrumb() {
 	return (
-		<Suspense fallback={<div>Loading...</div>}>
+		<Suspense fallback={<div>Carregando...</div>}>
 			<BreadcrumbContent />
 		</Suspense>
 	);

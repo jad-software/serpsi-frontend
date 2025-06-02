@@ -8,7 +8,7 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -17,16 +17,17 @@ import { useSearchParams } from "next/navigation";
 export default function PastSessionsPage({
 	params
 }: {
-	params: { id: string };
+	params: Promise<{ id: string }>;
 }) {
 	const [data, setData] = useState({} as Session[]);
+	const slug: { id: string } = React.use(params);
 	useEffect(() => {
 		async function fetchData() {
-			const data = await getSessions(params.id);
+			const data = await getSessions(slug.id);
 			setData(data);
 		}
 		fetchData();
-	}, [params.id]);
+	}, [slug.id]);
 	const [rowSelection, setRowSelection] = useState({});
 	let table = useReactTable({
 		data,
