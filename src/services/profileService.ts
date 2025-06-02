@@ -21,6 +21,7 @@ export async function getProfileData() {
 		}
 	);
 	return await response.json();
+
 }
 
 export async function setProfile(data: any): Promise<any> {

@@ -5,7 +5,7 @@ interface ListComponentProps {
 	content: string;
 	id: string;
 	variant?: "IsFirst" | "NotFirst";
-	link: string;
+	link: string,
 }
 
 const ListComponent = ({ content, id, variant, link }: ListComponentProps) => {
@@ -15,12 +15,7 @@ const ListComponent = ({ content, id, variant, link }: ListComponentProps) => {
 	});
 	return (
 		<li className={listComponentClass}>
-			<a
-				href={link}
-				target="_blank"
-				rel="noopener noreferrer"
-				className="flex justify-between text-gray-900"
-			>
+			<a href={link} target="_blank" rel="noopener noreferrer" className="flex justify-between text-gray-900">
 				{content}
 				<DownloadIcon className="h-6 min-w-6" />
 			</a>

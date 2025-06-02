@@ -61,12 +61,17 @@ export function UpdateOneBillDialog({
 
 	const onSubmit = async (data: BillsColumns) => {
 		try {
-			const response = await updateOneBill({ ...bill, ...data });
+			
+			const response = await updateOneBill({...bill, ...data});
 			toast.success("Conta atualizada com sucesso.");
+			console.log(response);
 			setOpen(false);
+			console.log('chamando onSuccess')
 			onSuccess?.();
-		} catch (error) {
+		}
+		catch (error) {
 			toast.error("Erro ao atualizar conta.");
+			console.log(error);
 		}
 	};
 	const onDelete = async (data: BillsColumns) => {
@@ -75,8 +80,10 @@ export function UpdateOneBillDialog({
 			toast.success("Conta deletada com sucesso.");
 			onSuccess?.();
 			setOpen(false);
-		} catch (error) {
+		}
+		catch (error) {
 			toast.error("Erro ao deletar conta.");
+			console.log(error);
 		}
 	};
 
@@ -110,20 +117,19 @@ export function UpdateOneBillDialog({
 				<DialogTrigger asChild>{triggerButton}</DialogTrigger>
 				<DialogContent className="lg:w-[40dvw]">
 					<DialogHeader>
-						<DialogTitle className="flex items-center gap-3 font-normal text-primary-600">
+						<DialogTitle className="flex font-normal text-primary-600 items-center gap-3">
 							Conta{" "}
 							{!isUpdating ? (
-								<>
-									<Button
-										variant={"link"}
-										onClick={() => setUpdating(!isUpdating)}
-									>
-										<PencilAltIcon
-											width={24}
-											height={24}
-											className="text-primary-600"
-										/>
-									</Button>
+								<><Button
+									variant={"link"}
+									onClick={() => setUpdating(!isUpdating)}
+								>
+									<PencilAltIcon
+										width={24}
+										height={24}
+										className="text-primary-600"
+									/>
+								</Button>
 									<Button
 										variant={"link"}
 										onClick={async () => {
@@ -148,10 +154,11 @@ export function UpdateOneBillDialog({
 					<form
 						className="mt-1 flex flex-col justify-end gap-6"
 						onSubmit={methods.handleSubmit(onSubmit, (data) => {
+							console.log(data);
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<div className="flex w-full flex-col gap-6 md:flex-row">
+						<div className="flex flex-col md:flex-row w-full gap-6">
 							<div className="flex w-full flex-col gap-4">
 								<div>
 									<label
@@ -189,8 +196,8 @@ export function UpdateOneBillDialog({
 											className="border-primary-600 outline-primary-600 focus-visible:ring-primary-600"
 											type="date"
 											error={
-												methods.formState.errors
-													._dueDate?.message
+												methods.formState.errors._dueDate
+													?.message
 											}
 											value={
 												new Date(dueDate)
@@ -222,13 +229,14 @@ export function UpdateOneBillDialog({
 										Data de Pagamento:{" "}
 									</label>
 									{isUpdating ? (
-										<></>
+										<>
+										</>
 									) : (
 										<p className="mb-1 w-full text-sm font-normal text-primary-950">
 											{hasPaymentDate
 												? formatDateToddmmYYYY(
-														paymentDate as Date
-													)
+													paymentDate as Date
+												)
 												: "-"}
 										</p>
 									)}
@@ -352,13 +360,13 @@ export function UpdateOneBillDialog({
 											/>
 											{methods.formState.errors
 												._billType && (
-												<p className="text-sm text-red-400">
-													{
-														methods.formState.errors
-															._billType?.message
-													}
-												</p>
-											)}
+													<p className="text-sm text-red-400">
+														{
+															methods.formState.errors
+																._billType?.message
+														}
+													</p>
+												)}
 										</>
 									) : (
 										<p className="mb-1 w-full text-sm font-normal text-primary-950">
@@ -379,8 +387,8 @@ export function UpdateOneBillDialog({
 										<p className="mb-1 w-full text-sm font-normal text-primary-950">
 											{hasPaymentDate
 												? methods.getValues(
-														"_paymentMethod._paymentType"
-													)
+													"_paymentMethod._paymentType"
+												)
 												: "-"}
 										</p>
 									)}
@@ -407,8 +415,8 @@ export function UpdateOneBillDialog({
 							) : null}
 						</div>
 					</form>
-				</DialogContent>
-			</Dialog>
+				</DialogContent >
+			</Dialog >
 		</>
 	);
 }

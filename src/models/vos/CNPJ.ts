@@ -1,3 +1,3 @@
 export interface CNPJ {
-	_code: string;
+  _code: string;
 }

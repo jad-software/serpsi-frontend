@@ -28,10 +28,7 @@ type newBillDialogProps = {
 	onSuccess?: () => void;
 };
 
-export function NewBillDialog({
-	triggerButton,
-	onSuccess
-}: newBillDialogProps) {
+export function NewBillDialog({ triggerButton, onSuccess }: newBillDialogProps) {
 	const [value, setValue] = useState(0);
 	const [isOpened, setOpen] = useState(false);
 	const billsSchema = z.object({
@@ -54,6 +51,7 @@ export function NewBillDialog({
 		const response = await setBills(data);
 		try {
 			toast.success("Conta criada com sucesso.");
+			console.log(response);
 			setOpen(false);
 			onSuccess?.();
 		} catch (error) {
@@ -86,10 +84,11 @@ export function NewBillDialog({
 					<form
 						className="mt-1 flex flex-col justify-end gap-6"
 						onSubmit={methods.handleSubmit(onSubmit, (data) => {
+							console.log(data);
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<div className="flex w-full flex-col gap-6 md:flex-row">
+						<div className="flex flex-col md:flex-row w-full gap-6">
 							<div className="flex w-full flex-col gap-4">
 								<div>
 									<label

@@ -12,7 +12,6 @@ import DayCard from "./DayCard";
 interface MonthViewProps {
 	selectedDate: Date;
 	onDateSelect: (date: Date) => void;
-	onMonthChange: (date: Date) => void;
 	busyDays: MonthSessions;
 	isFetching: boolean;
 }
@@ -20,7 +19,6 @@ interface MonthViewProps {
 export default function MonthView({
 	selectedDate,
 	onDateSelect,
-	onMonthChange,
 	busyDays,
 	isFetching
 }: MonthViewProps) {
@@ -28,11 +26,10 @@ export default function MonthView({
 	const [firstDayOffset, setFirstDayOffset] = useState(0);
 	const [previousMonthDays, setPreviousMonthDays] = useState<number[]>([]);
 	const [nextMonthDays, setNextMonthDays] = useState<number[]>([]);
-	const [tempDate, setTempDate] = useState<Date>(selectedDate);
 
 	useEffect(() => {
-		const year = tempDate.getFullYear();
-		const month = tempDate.getMonth();
+		const year = selectedDate.getFullYear();
+		const month = selectedDate.getMonth();
 
 		// Get number of days in current month
 		const lastDay = new Date(year, month + 1, 0).getDate();
@@ -57,7 +54,7 @@ export default function MonthView({
 		setFirstDayOffset(firstDay);
 		setPreviousMonthDays(prevDays);
 		setNextMonthDays(nextDays);
-	}, [tempDate]);
+	}, [selectedDate]);
 
 	const handleDateClick: (
 		day: number,
@@ -68,8 +65,8 @@ export default function MonthView({
 		isPrevMonth: boolean = false,
 		isNextMonth: boolean = false
 	) => {
-		const year = tempDate.getFullYear();
-		const month = tempDate.getMonth();
+		const year = selectedDate.getFullYear();
+		const month = selectedDate.getMonth();
 
 		let targetMonth = month;
 		let targetYear = year;
@@ -90,7 +87,6 @@ export default function MonthView({
 
 		const newDate = new Date(targetYear, targetMonth, day);
 		onDateSelect(newDate);
-		setTempDate(newDate);
 	};
 
 	const getMonthString = (month: number) => {
@@ -123,17 +119,15 @@ export default function MonthView({
 	};
 
 	const handlePreviousMonth = () => {
-		const newDate = new Date(tempDate);
-		newDate.setMonth(tempDate.getMonth() - 1);
-		setTempDate(newDate);
-		onMonthChange(newDate);
+		const newDate = new Date(selectedDate);
+		newDate.setMonth(selectedDate.getMonth() - 1);
+		onDateSelect(newDate);
 	};
 
 	const handleNextMonth = () => {
-		const newDate = new Date(tempDate);
-		newDate.setMonth(tempDate.getMonth() + 1);
-		setTempDate(newDate);
-		onMonthChange(newDate);
+		const newDate = new Date(selectedDate);
+		newDate.setMonth(selectedDate.getMonth() + 1);
+		onDateSelect(newDate);
 	};
 
 	const datePickerRef = useRef<HTMLInputElement | null>(null);
@@ -148,15 +142,16 @@ export default function MonthView({
 		const [year, month, day] = inputValue.split("-").map(Number);
 		const selectedDate = new Date(year, month - 1, day);
 		onDateSelect(selectedDate);
-		setTempDate(selectedDate);
 	};
 
-	const mes = getMonthString(tempDate.getMonth());
-	const ano = tempDate.getFullYear();
+	const mes = getMonthString(selectedDate.getMonth());
+	const ano = selectedDate.getFullYear();
 
 	const formatDateValue = () => {
 		const date =
-			tempDate && !isNaN(tempDate.getTime()) ? tempDate : new Date();
+			selectedDate && !isNaN(selectedDate.getTime())
+				? selectedDate
+				: new Date();
 
 		const localDate = new Date(
 			date.getFullYear(),
@@ -166,6 +161,7 @@ export default function MonthView({
 		return localDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
 	};
 
+	// Add this useEffect to handle invalid dates
 	useEffect(() => {
 		if (!selectedDate || isNaN(selectedDate.getTime())) {
 			onDateSelect(new Date());
@@ -232,7 +228,11 @@ export default function MonthView({
 							day={day}
 							disabled
 							isPastDay={
-								new Date(ano, tempDate.getMonth() - 1, day) <
+								new Date(
+									ano,
+									selectedDate.getMonth() - 1,
+									day
+								) <
 								new Date(
 									new Date().getFullYear(),
 									new Date().getMonth(),
@@ -254,19 +254,14 @@ export default function MonthView({
 								ano === new Date().getFullYear()
 							}
 							isPastDay={
-								new Date(ano, tempDate.getMonth(), day) <
+								new Date(ano, selectedDate.getMonth(), day) <
 								new Date(
 									new Date().getFullYear(),
 									new Date().getMonth(),
 									new Date().getDate()
 								)
 							}
-							selected={
-								day === selectedDate.getDate() &&
-								mes ===
-									getMonthString(selectedDate.getMonth()) &&
-								ano === selectedDate.getFullYear()
-							}
+							selected={day === selectedDate.getDate()}
 							onClick={() => handleDateClick(day, false, false)}
 							hasMeeting={
 								busyDays[index] !== undefined
@@ -282,7 +277,11 @@ export default function MonthView({
 							key={`next-${day}`}
 							day={day}
 							isPastDay={
-								new Date(ano, tempDate.getMonth() + 1, day) <
+								new Date(
+									ano,
+									selectedDate.getMonth() + 1,
+									day
+								) <
 								new Date(
 									new Date().getFullYear(),
 									new Date().getMonth(),

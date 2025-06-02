@@ -12,9 +12,8 @@ export type BillsColumns = {
 	_amount: number;
 	_dueDate: Date;
 	_paymentMethod?: {
-		_paymentType: string;
-		_paymentDate: Date;
-	};
+		_paymentType: string, _paymentDate: Date
+	}
 };
 
 export const columns = (refreshData: () => void): ColumnDef<BillsColumns>[] => [
@@ -76,20 +75,18 @@ export const columns = (refreshData: () => void): ColumnDef<BillsColumns>[] => [
 			let value = e.getValue() as string;
 			if (e.row.original._paymentMethod?._paymentDate) {
 				if (value.toUpperCase() == "A PAGAR") {
-					value = "PAGO";
-				} else if (value.toUpperCase() == "A RECEBER") {
-					value = "RECEBIDO";
+					value = "PAGO"
+				}
+				else if (value.toUpperCase() == "A RECEBER") {
+					value = "RECEBIDO"
 				}
 			}
 			let className =
-				value.toUpperCase() == "A PAGAR" ||
-				value.toUpperCase() == "A RECEBER"
+				value.toUpperCase() == "A PAGAR" || value.toUpperCase() == "A RECEBER"
 					? "text-orange-600"
 					: "text-green-600";
 			return (value as string) ? (
-				<p className={className}>
-					{value.at(0)?.toUpperCase() + value.slice(1).toLowerCase()}
-				</p>
+				<p className={className}>{value.at(0)?.toUpperCase() + value.slice(1).toLowerCase()}</p>
 			) : (
 				<p>-</p>
 			);

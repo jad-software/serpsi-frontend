@@ -33,7 +33,7 @@ function validateCPF(cpf: string): boolean {
 }
 
 async function verifyIfCPFAlreadyExists(cpf: string): Promise<boolean> {
-	const jwt = (await cookies()).get("Authorization")?.value!;
+	const jwt = cookies().get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."

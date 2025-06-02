@@ -12,6 +12,7 @@ import { ClipboardListIcon } from "@heroicons/react/solid";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+
 export default function RootLayout({
 	children
 }: Readonly<{
@@ -56,10 +57,7 @@ export default function RootLayout({
 					<Navigation.User name={user?.name} img={user?.profilePic} />
 				</Navigation.Header>
 
-				<Navigation.SideBar
-					isHidden={collapsedLink}
-					setIsHidden={setCollapsedLink}
-				>
+				<Navigation.SideBar isHidden={collapsedLink} setIsHidden={setCollapsedLink}>
 					<Navigation.Link
 						link="/home"
 						title="Minhas Consultas"

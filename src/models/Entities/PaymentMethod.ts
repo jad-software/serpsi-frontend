@@ -1,11 +1,11 @@
-export enum PaymentPossibilities {
-	DINHEIRO = "DINHEIRO",
-	CARTAO = "CARTAO",
-	TRANSFERENCIA = "TRANSFERENCIA",
-	PIX = "PIX"
+export enum PaymentPossibilities{
+  DINHEIRO = 'DINHEIRO',
+  CARTAO = 'CARTAO',
+  TRANSFERENCIA = 'TRANSFERENCIA', 
+  PIX = 'PIX'
 }
 
-export interface PaymentMethod {
-	paymentDate: string;
-	paymentType: PaymentPossibilities;
+export interface PaymentMethod{
+  paymentDate: string;
+  paymentType: PaymentPossibilities;
 }

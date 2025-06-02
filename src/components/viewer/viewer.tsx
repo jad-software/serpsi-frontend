@@ -53,7 +53,7 @@ export default function Viewer({
 						/>
 					) : url.includes(".md") ? (
 						<Suspense fallback={<>Carregando...</>}>
-							<Markdown url={url} className="flex-col" />
+							<Markdown url={url} className="flex-col "/>
 						</Suspense>
 					) : (
 						<DocumentViewer

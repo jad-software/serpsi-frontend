@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import DOMPurify from "dompurify";
+import DOMPurify from 'dompurify';
 
 function Markdown({ url, className }: { url: string; className: string }) {
 	const [markdownContent, setMarkdownContent] = useState("");
@@ -20,19 +20,14 @@ function Markdown({ url, className }: { url: string; className: string }) {
 			.fill(0)
 			.map((_, i) => byteCharacters.charCodeAt(i));
 		const byteArray = new Uint8Array(byteNumbers);
-		const blob = new Blob([byteArray], {
-			type: base64.match(/data:(.*);base64/)?.[1]
-		});
+		const blob = new Blob([byteArray], { type: base64.match(/data:(.*);base64/)?.[1] });
 		return URL.createObjectURL(blob);
 	}
 
 	return (
 		<article className="flex h-full w-full overflow-auto">
 			<div
-				className={
-					cn(className) +
-					"prose md:prose-base prose-headings:font-bold prose-a:text-blue-600 prose-a:underline prose-ol:list-decimal prose-ul:list-disc"
-				}
+				className={cn(className) + "prose md:prose-base prose-a:text-blue-600 prose-a:underline prose-headings:font-bold prose-ul:list-disc prose-ol:list-decimal"}
 				dangerouslySetInnerHTML={{ __html: markdownContent }}
 			/>
 		</article>
