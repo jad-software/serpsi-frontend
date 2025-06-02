@@ -52,7 +52,6 @@ export default function Home() {
 					selectedDate.getMonth() + 1,
 					selectedDate.getFullYear()
 				);
-				console.log(response);
 				setBusyDays(response);
 			} catch (error) {
 				console.error(error);
@@ -67,13 +66,11 @@ export default function Home() {
 		if (!hasFetchedRef.current) {
 			const fetchBusyDaysNow = async () => {
 				setIsFetching(true);
-				console.log("Primeiro carregamento...");
 				try {
 					const response = await getBusyDays(
 						new Date().getMonth() + 1,
 						new Date().getFullYear()
 					);
-					console.log(response);
 					setBusyDays(response);
 				} catch (error) {
 					console.error(error);

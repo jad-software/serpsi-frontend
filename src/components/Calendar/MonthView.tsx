@@ -124,11 +124,9 @@ export default function MonthView({
 
 	const handlePreviousMonth = () => {
 		const newDate = new Date(tempDate);
-		console.log("Data temp:", tempDate);
 		newDate.setMonth(tempDate.getMonth() - 1);
 		setTempDate(newDate);
 		onMonthChange(newDate);
-		console.log("Mudou para o mês anterior:", newDate);
 	};
 
 	const handleNextMonth = () => {
