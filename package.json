@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
+		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
@@ -38,7 +38,6 @@
 		"react-dom": "^18",
 		"react-haiku": "^2.2.0",
 		"react-hook-form": "^7.53.0",
-		"react-input-mask": "^3.0.0-alpha.2",
 		"react-input-mask-next": "^3.0.0-alpha.12",
 		"react-markdown": "^9.0.1",
 		"react-quill-new": "^3.4.6",

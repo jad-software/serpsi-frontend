@@ -2,10 +2,7 @@
 import classNames from "classnames";
 import { Input } from "../ui/input";
 import { UseFormRegister } from "react-hook-form";
-import InputMask, {
-	BeforeMaskedStateChangeStates,
-	InputState
-} from "react-input-mask-next";
+import InputMask from "react-input-mask-next";
 
 interface InputTextProps {
 	id: string;

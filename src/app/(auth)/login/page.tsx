@@ -15,19 +15,34 @@ export default function LoginPage() {
 	const { register, handleSubmit } = useForm<IFormProps>();
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [loading, setLoading] = useState(false);
-	const onSubmit: SubmitHandler<IFormProps> = async (data: any) => {
+	const onSubmit: SubmitHandler<IFormProps> = async (data) => {
 		const formData = new FormData();
 		formData.set("email", data.email);
 		formData.set("password", data.password);
+
 		setLoading(true);
-		toast.promise(login(formData), {
+
+		const loginWrapper = new Promise<void>(async (resolve, reject) => {
+			try {
+				await login(formData);
+				resolve();
+			} catch (err: any) {
+				if (typeof err === "object" && (err as Error).message === "NEXT_REDIRECT") {
+					resolve();
+				} else {
+					reject(err);
+				}
+			}
+		});
+
+		toast.promise(loginWrapper, {
 			loading: "Carregando...",
-			success: (result) => {
+			success: () => {
 				setLoading(false);
 				return "Login efetuado com sucesso! 🙂";
 			},
-			error: (result) => {
-				setErrors(result);
+			error: (err) => {
+				setErrors(err);
 				setLoading(false);
 				return "Erro ao efetuar Login: Email ou senha incorretos.";
 			}
