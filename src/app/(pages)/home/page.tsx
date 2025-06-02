@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { getBusyDays, MonthSessions } from "@/services/calendarService";
 import { setUnusual } from "@/services/unusualService";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -33,10 +33,12 @@ export default function Home() {
 		new Date(Date.now() - new Date().getTimezoneOffset() * 60 * 1000)
 	);
 	const [previousMonth, setPreviousMonth] = useState<number>(
-		dateSelected.getMonth()
+		dateSelected.getMonth() + 1
 	);
 	const [busyDays, setBusyDays] = useState<MonthSessions>([]);
 	const [isFetching, setIsFetching] = useState(false);
+
+	const hasFetchedRef = useRef(false);
 
 	const fetchBusyDays = useCallback(
 		async (selectedDate: Date) => {
@@ -62,14 +64,41 @@ export default function Home() {
 	);
 
 	useEffect(() => {
-		fetchBusyDays(dateSelected);
-	}, [dateSelected, viewMode, fetchBusyDays]);
+		if (!hasFetchedRef.current) {
+			const fetchBusyDaysNow = async () => {
+				setIsFetching(true);
+				console.log("Primeiro carregamento...");
+				try {
+					const response = await getBusyDays(
+						new Date().getMonth() + 1,
+						new Date().getFullYear()
+					);
+					console.log(response);
+					setBusyDays(response);
+				} catch (error) {
+					console.error(error);
+				} finally {
+					setIsFetching(false);
+				}
+			};
+			fetchBusyDaysNow();
+			hasFetchedRef.current = true;
+		}
+	}, []);
+
+	// useEffect(() => {
+	// 	fetchBusyDays(dateSelected);
+	// }, [dateSelected, viewMode, fetchBusyDays]);
 
 	const handleDateSelect = async (date: Date) => {
 		if (date.getTime() !== dateSelected.getTime()) {
 			setDateSelected(date);
-			await fetchBusyDays(date);
+			// await fetchBusyDays(date);
 		}
+	};
+
+	const handleMonthChange = async (tempDate: Date) => {
+		await fetchBusyDays(tempDate);
 	};
 
 	const submitUnusualDay = async (data: UnusualSchema) => {
@@ -89,7 +118,8 @@ export default function Home() {
 		<main className="flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center px-2 md:px-12">
 			<div className="mb-2 mt-1 flex w-full flex-col items-center justify-between md:flex-row">
 				<div className="mb-2 flex w-full flex-col items-center justify-center md:mb-0 md:flex-row lg:w-1/4">
-					{/* <Select>
+					{/*
+					<Select>
 						<SelectTrigger className="mb-2 min-w-40 border-primary-400 focus:ring-primary-600 md:mb-0">
 							<SelectValue placeholder="Psicóloga" />
 						</SelectTrigger>
@@ -98,7 +128,8 @@ export default function Home() {
 							<SelectItem value="dark">Dark</SelectItem>
 							<SelectItem value="system">System</SelectItem>
 						</SelectContent>
-					</Select> */}
+					</Select> 
+					*/}
 
 					<UnusualDaysDialog
 						triggerButton={
@@ -121,6 +152,7 @@ export default function Home() {
 				<MonthView
 					selectedDate={dateSelected}
 					onDateSelect={handleDateSelect}
+					onMonthChange={handleMonthChange}
 					busyDays={busyDays}
 					isFetching={isFetching}
 				/>
