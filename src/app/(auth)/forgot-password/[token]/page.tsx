@@ -88,7 +88,6 @@ export default function ResetPassword({
 						onSubmit={handleSubmit(onSubmit)}
 					>
 						<InputText
-							// name="email"
 							label="Insira sua nova senha"
 							type="password"
 							id="newPassword"
@@ -98,7 +97,6 @@ export default function ResetPassword({
 						/>
 						<br />
 						<InputText
-							// name="email"
 							label="Confirme sua nova senha"
 							type="password"
 							id="confirmNewPassword"

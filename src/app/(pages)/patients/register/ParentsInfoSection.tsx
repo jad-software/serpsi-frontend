@@ -68,8 +68,8 @@ export default function ParentsInfoSection({
 								placeholder={`CPF do Responsável ${index + 1}`}
 								type="text"
 								name={`parents.${index}.cpf`}
-								mask="999.999.999-99"
-								register={register}
+								mask="000.000.000-00"
+								control={control}
 								error={errors.parents?.[index]?.cpf?.message}
 							/>
 						</div>
@@ -104,8 +104,8 @@ export default function ParentsInfoSection({
 								placeholder={`Telefone do Responsável ${index + 1}`}
 								type="text"
 								name={`parents.${index}.phone`}
-								register={register}
-								mask="(99) 99999-9999"
+								control={control}
+								mask="(00) 00000-0000"
 								error={errors.parents?.[index]?.phone?.message}
 							/>
 						</div>

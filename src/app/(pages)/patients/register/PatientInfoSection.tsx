@@ -14,6 +14,7 @@ export default function PatientInfoSection({
 }: PacientInfoProps) {
 	const {
 		register,
+		control,
 		formState: { errors }
 	} = useFormContext<CreatePatientForm>();
 	return (
@@ -41,8 +42,8 @@ export default function PatientInfoSection({
 						placeholder="CPF do Paciente"
 						type="text"
 						name="person.cpf"
-						mask="999.999.999-99"
-						register={register}
+						mask="000.000.000-00"
+						control={control}
 						error={errors.person?.cpf?.message}
 					/>
 				</div>
@@ -75,8 +76,8 @@ export default function PatientInfoSection({
 						placeholder="Telefone do Paciente"
 						type="text"
 						name="person.phone"
-						mask="(99) 99999-9999"
-						register={register}
+						mask="(00) 00000-0000"
+						control={control}
 						error={errors.person?.phone?.message}
 					/>
 				</div>

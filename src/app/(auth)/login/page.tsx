@@ -74,7 +74,6 @@ export default function LoginPage() {
 						onSubmit={handleSubmit(onSubmit)}
 					>
 						<InputText
-							// name="email"
 							label="Insira seu E-mail"
 							type="text"
 							id="email"
@@ -84,7 +83,6 @@ export default function LoginPage() {
 						/>
 						<br />
 						<InputText
-							// name="password"
 							type="password"
 							label="Insira sua Senha"
 							id="password"

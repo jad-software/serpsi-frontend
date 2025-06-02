@@ -14,6 +14,7 @@ export default function PatientInfoSection({
 }: PsychologistnfoProps) {
 	const {
 		register,
+		control,
 		formState: { errors }
 	} = useFormContext<CreatePsychologistForm>();
 	return (
@@ -30,7 +31,7 @@ export default function PatientInfoSection({
 						placeholder="Nome do Psicólogo"
 						type="text"
 						name="person.name"
-						register={register}
+						{...{ register }}
 						error={errors.person?.name?.message}
 					/>
 				</div>
@@ -41,8 +42,8 @@ export default function PatientInfoSection({
 						placeholder="CPF do Psicólogo"
 						type="text"
 						name="person.cpf"
-						mask="999.999.999-99"
-						register={register}
+						mask="000.000.000-00"
+						control={control}
 						error={errors.person?.cpf?.message}
 					/>
 				</div>
@@ -53,7 +54,7 @@ export default function PatientInfoSection({
 						placeholder="dd/mm/aaaa"
 						type="date"
 						name="person.birthdate"
-						register={register}
+						{...{ register }}
 						error={errors.person?.birthdate?.message}
 					/>
 				</div>
@@ -64,7 +65,7 @@ export default function PatientInfoSection({
 						placeholder="RG do Psicólogo"
 						type="text"
 						name="person.rg"
-						register={register}
+						{...{ register }}
 						error={errors.person?.rg?.message}
 					/>
 				</div>
@@ -75,8 +76,8 @@ export default function PatientInfoSection({
 						placeholder="Telefone do Psicólogo"
 						type="text"
 						name="person.phone"
-						mask="(99) 99999-9999"
-						register={register}
+						mask="(00) 00000-0000"
+						{...{ register }}
 						error={errors.person?.phone?.message}
 					/>
 				</div>

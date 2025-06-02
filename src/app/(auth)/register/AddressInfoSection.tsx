@@ -65,8 +65,8 @@ export default function AddressInfoSection({
 						placeholder="CEP"
 						type="text"
 						name="address.zipCode"
-						mask="99999-999"
-						register={register}
+						mask="00000-000"
+						control={control}
 						error={errors.address?.zipCode?.message}
 					/>
 				</div>

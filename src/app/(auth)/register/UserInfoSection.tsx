@@ -14,6 +14,7 @@ export default function UserInfoSection({
 }: PsychologistnfoProps) {
 	const {
 		register,
+		control,
 		formState: { errors }
 	} = useFormContext<CreatePsychologistForm>();
 	return (
@@ -53,10 +54,10 @@ export default function UserInfoSection({
 						placeholder="CRP do Psicólogo"
 						type="text"
 						name="crp.crp"
-						mask="99/999999"
+						mask="00/000009"
 						autoComplete="new-password"
 						maskPlaceholder=""
-						register={register}
+						control={control}
 						error={errors.crp?.crp?.message}
 					/>
 				</div>

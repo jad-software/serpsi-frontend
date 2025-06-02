@@ -69,10 +69,9 @@ export default function ForgotPassword() {
 						onSubmit={handleSubmit(onSubmit)}
 					>
 						<InputText
-							// name="email"
+							id="email"
 							label="Insira seu E-mail"
 							type="text"
-							id="email"
 							placeholder="Email"
 							{...register("_email")}
 							error={errors._email?.message}
