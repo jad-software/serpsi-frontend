@@ -66,11 +66,10 @@ export async function createMeeting(meetingData: Meeting): Promise<any> {
 
 	if (!response.ok) {
 		const errorData = await response.json();
-		console.log("ErrorData", errorData);
 		throw new Error(errorData.message || "Erro ao criar o paciente.");
 	}
-  const result = await response.json();
-  return result;
+	const result = await response.json();
+	return result;
 }
 
 export async function getMeeting(id: string) {
@@ -109,7 +108,6 @@ export async function updateMeetingStatus(id: string, status: string) {
 		);
 		if (!response.ok) {
 			const errorData = await response.json();
-			console.log("ErrorData", errorData);
 			throw new Error(
 				errorData.message || "Erro ao mudar status de Sessão."
 			);
@@ -145,7 +143,6 @@ export async function updateMeetingPaymentMethod(
 		);
 		if (!response.ok) {
 			const errorData = await response.json();
-			console.log("ErrorData", errorData);
 			throw new Error(
 				errorData.message ||
 					"Erro ao mudar método de pagamento de Sessão."
@@ -179,7 +176,6 @@ export async function updateMeeting(
 		);
 		if (!response.ok) {
 			const errorData = await response.json();
-			console.log("ErrorData", errorData);
 			throw new Error(errorData.message || "Erro ao editar Sessão.");
 		}
 		return response.json();

@@ -18,7 +18,12 @@ export const columns: ColumnDef<Patient>[] = [
 		),
 		size: 70,
 		cell: (e) => (
-			<Link href={"/patients/"+ e.getValue() + "?name=" + e.row.original.name} className="flex justify-center">
+			<Link
+				href={
+					"/patients/" + e.getValue() + "?name=" + e.row.original.name
+				}
+				className="flex justify-center"
+			>
 				<PencilAltIcon width={24} height={24} />
 			</Link>
 		)
@@ -39,4 +44,3 @@ export const columns: ColumnDef<Patient>[] = [
 		size: 250
 	}
 ];
-

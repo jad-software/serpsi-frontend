@@ -37,15 +37,12 @@ export async function getAgenda(): Promise<ScheduleAgendas | undefined> {
 		);
 	}
 	const sub = cookies().get("sub")?.value!;
-	const response = await fetch(
-		process.env.BACKEND_URL + "/agendas/" + sub,
-		{
-			method: "GET",
-			next: { revalidate: 1 },
-			headers: {
-				Authorization: jwt
-			}
+	const response = await fetch(process.env.BACKEND_URL + "/agendas/" + sub, {
+		method: "GET",
+		next: { revalidate: 1 },
+		headers: {
+			Authorization: jwt
 		}
-	);
+	});
 	return await response.json();
 }

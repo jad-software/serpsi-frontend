@@ -31,9 +31,8 @@ export async function getData() {
 			docLink: value.docLink,
 			name: value.name,
 			createDate: formatDateToddmmYYYY(value.createDate) || "-"
-		}
+		};
 		response.push(res);
-	})
+	});
 	return response;
-
 }

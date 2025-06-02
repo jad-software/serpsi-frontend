@@ -99,7 +99,6 @@ export function ScheduleDefiner({
 					className="w-auto border border-primary-400 lg:w-fit"
 					error={errors.meetValue?.message}
 					value={"" + meetValue}
-					
 					beforeMaskedStateChange={({ nextState }) => {
 						let number = nextState.value.replace("R$ ", "");
 						if (number.replaceAll(".", "").length < 9) {

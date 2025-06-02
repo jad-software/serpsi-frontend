@@ -66,5 +66,4 @@ export async function getSchool({
 		return;
 	}
 	return await response.json();
-
 }

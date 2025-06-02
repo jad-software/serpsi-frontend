@@ -1,4 +1,8 @@
-import { formatDateToddmmYYYYHHMM, formatDateToYYYYmmdd, formatHour } from "@/services/utils/formatDate";
+import {
+	formatDateToddmmYYYYHHMM,
+	formatDateToYYYYmmdd,
+	formatHour
+} from "@/services/utils/formatDate";
 import {
 	CheckCircleIcon,
 	CheckIcon,
@@ -123,7 +127,7 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao confirmar sessão."
 			});
 			setSessionStatus("CONFIRMADO");
-		} catch (error) { }
+		} catch (error) {}
 	};
 
 	const cancelSession = () => {
@@ -134,12 +138,16 @@ export default function PatientSessionCard({
 				error: "Houve um erro ao cancelar sessão."
 			});
 			setSessionStatus("CANCELADO");
-		} catch (error) { }
+		} catch (error) {}
 	};
 
 	const router = useRouter();
 	const date = new Date(schedule);
-	const [year, month, day] = [date.getFullYear(), date.getMonth(), date.getDate()];
+	const [year, month, day] = [
+		date.getFullYear(),
+		date.getMonth(),
+		date.getDate()
+	];
 	const scheduleDate = new Date(year, month, day);
 
 	const methods = useForm<SessionData>({
@@ -225,7 +233,7 @@ export default function PatientSessionCard({
 					return "Houve um erro ao atualizar sessão.";
 				}
 			});
-		} catch (error) { }
+		} catch (error) {}
 	};
 
 	return (
@@ -241,7 +249,9 @@ export default function PatientSessionCard({
 					);
 
 					if (!isThreeDots) {
-						router.push(`/home/sessions/${id}?name=${formatDateToddmmYYYYHHMM(new Date(schedule))}`);
+						router.push(
+							`/home/sessions/${id}?name=${formatDateToddmmYYYYHHMM(new Date(schedule))}`
+						);
 					}
 				}}
 			>
@@ -325,10 +335,11 @@ export default function PatientSessionCard({
 									<input
 										type="date"
 										{...register("startDate")}
-										className={`h-11 w-full rounded border ${errors.startDate
+										className={`h-11 w-full rounded border ${
+											errors.startDate
 												? "border-red-500"
 												: "border-primary-400"
-											} p-2`}
+										} p-2`}
 										onBlur={() =>
 											handleStartDateBlur(
 												formatDateToYYYYmmdd(
@@ -410,10 +421,11 @@ export default function PatientSessionCard({
 										{...register("sessionValue")}
 										onChange={handleCurrencyChange}
 										placeholder="R$ 0,00"
-										className={`h-11 w-full rounded border ${errors.sessionValue
+										className={`h-11 w-full rounded border ${
+											errors.sessionValue
 												? "border-red-500"
 												: "border-primary-400"
-											} p-2 focus:ring`}
+										} p-2 focus:ring`}
 									/>
 									{errors.sessionValue && (
 										<p className="text-sm text-red-500">

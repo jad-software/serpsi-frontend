@@ -82,13 +82,26 @@ export default function LoginPage() {
 							text={loading ? "Carregando..." : "Entrar"}
 							variant="second"
 							disabled={loading}
-							className="pb-1 pt-1 text-xl mt-5"
+							className="mt-5 pb-1 pt-1 text-xl"
 							type="submit"
 						/>
 					</form>
 					<div className="my-2 flex flex-col items-center justify-center">
-						<a className="underline cursor-pointer" href="/forgot-password">Esqueceu sua senha?</a>
-						<p>Não tem Cadastro? <a className="underline cursor-pointer" href="/register">Cadastre-se</a></p>
+						<a
+							className="cursor-pointer underline"
+							href="/forgot-password"
+						>
+							Esqueceu sua senha?
+						</a>
+						<p>
+							Não tem Cadastro?{" "}
+							<a
+								className="cursor-pointer underline"
+								href="/register"
+							>
+								Cadastre-se
+							</a>
+						</p>
 					</div>
 				</section>
 			</section>

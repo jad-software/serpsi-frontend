@@ -66,9 +66,11 @@ export default function Documents() {
 					<div className="flex flex-grow items-end justify-end gap-4 text-center text-primary-600">
 						<button
 							onClick={() =>
-								downloadMultiFiles(table.getSelectedRowModel().rows)
+								downloadMultiFiles(
+									table.getSelectedRowModel().rows
+								)
 							}
-							className="inline-flex items-center justify-center whitespace-nowrap w-fit text-sm font-medium text-primary-600 underline gap-1"
+							className="inline-flex w-fit items-center justify-center gap-1 whitespace-nowrap text-sm font-medium text-primary-600 underline"
 						>
 							Baixar arquivos selecionados{" "}
 							<DownloadIcon className="h-4 w-4" />
@@ -82,10 +84,10 @@ export default function Documents() {
 
 async function downloadMultiFiles(rows: Row<DocumentColumns>[]) {
 	for (const value of rows) {
-    await DownloadFile(
-      value.original.docLink,
-      `${value.original.name} - ${value.original.title}`
-    );
-    await new Promise((resolve) => setTimeout(resolve, 300)); // pequeno delay
-  }
+		await DownloadFile(
+			value.original.docLink,
+			`${value.original.name} - ${value.original.title}`
+		);
+		await new Promise((resolve) => setTimeout(resolve, 300)); // pequeno delay
+	}
 }
