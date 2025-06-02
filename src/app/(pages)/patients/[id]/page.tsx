@@ -46,7 +46,6 @@ export default function MyPatient({
 		name: "_comorbidities",
 	});
 	const { errors } = formState;
-	const slug: { id: string } = React.use(params);
 
 	//passa a string para formato Phone
 	const parsePhoneToAPI = (phoneString: string) => {
@@ -106,8 +105,8 @@ export default function MyPatient({
 			setData(formattedData);
 			methods.reset(formattedData);
 		}
-		fetchData(slug.id);
-	}, [slug.id, methods, loading]);
+		fetchData(params.id);
+	}, [params.id, methods, loading]);
 
 	//salva a imagem para poder mandar pra nuvem
 	useEffect(() => {

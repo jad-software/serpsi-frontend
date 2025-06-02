@@ -29,7 +29,7 @@ type FileData = {
 export default function SpecificSessions({
 	params
 }: {
-	params: Promise<{ id: string }>;
+	params: { id: string };
 }) {
 	const [data, setData] = useState<FileData[]>([]);
 	const [content, setContent] = useState<string>("");
@@ -39,10 +39,9 @@ export default function SpecificSessions({
 	const [isLoading, setIsLoading] = useState(true);
 
 	const turndownService = new TurndownService();
-	const slug: { id: string } = React.use(params);
 	useEffect(() => {
 		async function getMeetingData() {
-			const response = await getMeeting(slug.id);
+			const response = await getMeeting(params.id);
 			setMeetingData(response);
 
 			setIsLoading(false);
@@ -107,7 +106,7 @@ export default function SpecificSessions({
 	};
 
 	const handleCancelSession = () => {
-		toast.promise(updateMeetingStatus(slug.id, "CANCELADO"), {
+		toast.promise(updateMeetingStatus(params.id, "CANCELADO"), {
 			loading: "carregando",
 			success: () => {
 				setMeetingData(prev => ({ ...prev, _status: "CANCELADO" }));

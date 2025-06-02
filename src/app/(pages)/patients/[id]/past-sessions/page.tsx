@@ -17,17 +17,16 @@ import { useSearchParams } from 'next/navigation'
 export default function PastSessionsPage({
 	params
 }: {
-	params: Promise<{ id: string }>;
+	params: { id: string };
 }) {
 	const [data, setData] = useState({} as Session[]);
-	const slug: { id: string } = React.use(params);
 	useEffect(() => {
 		async function fetchData() {
-			const data = await getSessions(slug.id);
+			const data = await getSessions(params.id);
 			setData(data);
 		}
 		fetchData();
-	}, [slug.id]);
+	}, [params.id]);
 	const [rowSelection, setRowSelection] = useState({});
 	let table = useReactTable({
 		data,
