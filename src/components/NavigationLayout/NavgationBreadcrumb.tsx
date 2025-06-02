@@ -70,38 +70,38 @@ const BreadcrumbContent = () => {
 	const crumbs = getCrumbs();
 
 	return (
-			<Breadcrumb>
-				<BreadcrumbList className="font-medium text-gray-600">
-					{crumbs.map((value, key) => (
-						<React.Fragment key={key}>
-							<BreadcrumbItem>
-								{key < getCrumbs().length - 1 ? (
-									<BreadcrumbLink href={value.link}>
-										{value.title}
-									</BreadcrumbLink>
-								) : (
-									<BreadcrumbPage className="font-medium text-primary-700">
-										{value.title}
-									</BreadcrumbPage>
-								)}
-							</BreadcrumbItem>
+		<Breadcrumb>
+			<BreadcrumbList className="font-medium text-gray-600">
+				{crumbs.map((value, key) => (
+					<React.Fragment key={key}>
+						<BreadcrumbItem>
 							{key < getCrumbs().length - 1 ? (
-								<BreadcrumbSeparator>
-									<ChevronRightIcon />
-								</BreadcrumbSeparator>
-							) : null}
-						</React.Fragment>
-					))}
-				</BreadcrumbList>
-			</Breadcrumb>
+								<BreadcrumbLink href={value.link}>
+									{value.title}
+								</BreadcrumbLink>
+							) : (
+								<BreadcrumbPage className="font-medium text-primary-700">
+									{value.title}
+								</BreadcrumbPage>
+							)}
+						</BreadcrumbItem>
+						{key < getCrumbs().length - 1 ? (
+							<BreadcrumbSeparator>
+								<ChevronRightIcon />
+							</BreadcrumbSeparator>
+						) : null}
+					</React.Fragment>
+				))}
+			</BreadcrumbList>
+		</Breadcrumb>
 	);
-}
+};
 
 // Main component with Suspense wrapper
 export default function NavigationBreadcrumb() {
 	return (
-			<Suspense fallback={<div>Loading...</div>}>
-					<BreadcrumbContent />
-			</Suspense>
+		<Suspense fallback={<div>Carregando...</div>}>
+			<BreadcrumbContent />
+		</Suspense>
 	);
 }

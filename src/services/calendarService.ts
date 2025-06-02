@@ -21,7 +21,7 @@ export async function getBusyDays(
 	month: number,
 	year: number
 ): Promise<MonthSessions> {
-	const jwt = cookies().get("Authorization")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
 	if (jwt) {
 		const response = await fetch(
 			process.env.BACKEND_URL +
@@ -49,7 +49,7 @@ export async function getMeetingsInDateRange(
 	startDate: Date,
 	endDate?: Date
 ): Promise<Meeting[]> {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (jwt) {
 		startDate.setHours(0, 0, 0, 0);
 		if (endDate) endDate.setHours(0, 0, 0, 0);

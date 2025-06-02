@@ -36,21 +36,21 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		if (!response.ok) {
 			throw new Error("e-mail ou senha incorretos");
 		}
-		cookies().set({
+		(await cookies()).set({
 			name: "Authorization",
 			value: "Bearer " + payload.access_token,
 			secure: true,
 			httpOnly: true,
 			expires: new Date(jwtDecode(payload.access_token).exp! * 1000)
 		});
-		cookies().set({
+		(await cookies()).set({
 			name: "sub",
 			value: payload.payload.sub,
 			secure: true,
 			httpOnly: true,
 			expires: new Date(jwtDecode(payload.access_token).exp! * 1000)
 		});
-		cookies().set({
+		(await cookies()).set({
 			name: "role",
 			value: payload.payload.role,
 			secure: true,
@@ -59,18 +59,16 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 		});
 		await setUserCookies();
 
-		cookies().set({
+		(await cookies()).set({
 			name: 'firstLogin',
 			value: payload.payload.firstLogin
 		});
-		
-		if ( payload.payload.firstLogin) {
-			return redirect("/home/schedule-definer?first=true")
-		}
-		else {
+
+		if (payload.payload.firstLogin) {
+			return redirect("/home/schedule-definer?first=true");
+		} else {
 			return redirect("/home");
 		}
-
 	} else {
 		const errors: Record<string, string> = {};
 		result.error.issues.forEach((error) => {
@@ -81,26 +79,25 @@ export async function login(form: FormData): Promise<Record<string, string>> {
 }
 
 export async function logout() {
-	cookies().delete("Authorization");
-	cookies().delete("sub");
-	cookies().delete("role");
-	cookies().delete("name");
-	cookies().delete("profilePic");
+	(await cookies()).delete("Authorization");
+	(await cookies()).delete("sub");
+	(await cookies()).delete("role");
+	(await cookies()).delete("name");
+	(await cookies()).delete("profilePic");
 }
 
 export async function createPsychologist(formData: FormData) {
-
-
-	const response = await fetch(process.env.BACKEND_URL + "/auth/register/psychologist", {
-		method: "POST",
-		headers: {
-		},
-		body: formData
-	});
+	const response = await fetch(
+		process.env.BACKEND_URL + "/auth/register/psychologist",
+		{
+			method: "POST",
+			headers: {},
+			body: formData
+		}
+	);
 
 	if (!response.ok) {
 		const errorData = await response.json();
-		console.log(errorData);
 		throw new Error(errorData.message || "Erro ao criar o psicólogo.");
 	}
 

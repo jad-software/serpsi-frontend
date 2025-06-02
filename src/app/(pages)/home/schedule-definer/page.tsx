@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { ScheduleDefiner } from "./scheduleDefiner";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -18,10 +18,19 @@ import { toast } from "sonner";
 import { getAgenda, setAgenda } from "@/services/agendaService";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import Cookies from 'js-cookie'
-
+import Cookies from "js-cookie";
 
 export default function ScheduleDefinePage() {
+	return (
+		<>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<ScheduleDefine />
+			</Suspense>
+		</>
+	);
+}
+
+function ScheduleDefine() {
 	const horarioRegex =
 		/^(([0-1][0-9]|2[0-3]):[0-5][0-9])|([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
 	const scheduleSchema = z.object({
@@ -182,13 +191,12 @@ export default function ScheduleDefinePage() {
 	const [meetValue, setMeetValue] = useState<number>(0);
 	const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
 
-
 	useEffect(() => {
 		async function SetDefaultAgendas() {
 			const data = await getAgenda();
-	
 
-			const firstLogin = Cookies.get('firstLogin') === 'true' ? true : false;
+			const firstLogin =
+				Cookies.get("firstLogin") === "true" ? true : false;
 			setIsFirstLogin(firstLogin);
 
 			let checks: boolean[] = Array.from({ length: 7 }, () => false);
@@ -207,32 +215,34 @@ export default function ScheduleDefinePage() {
 				setCheckboxes(checks);
 			}
 
-			methods.setValue('meetDuration', data!.meetDuration);
-			methods.setValue('meetValue', data!.meetValue);
+			methods.setValue("meetDuration", data!.meetDuration);
+			methods.setValue("meetValue", data!.meetValue);
 			setMeetValue(data!.meetValue);
 		}
 
 		SetDefaultAgendas();
 	}, [methods]);
 
-	const searchParams = useSearchParams()
+	const searchParams = useSearchParams();
 
-	const hasShown = useRef(false)
+	const hasShown = useRef(false);
 
 	useEffect(() => {
-		const isFirst = searchParams.get('first');
+		const isFirst = searchParams.get("first");
 
 		if (isFirst && !hasShown.current) {
-			hasShown.current = true
+			hasShown.current = true;
 
-			toast.success('Bem vindo!! Agora selecione os seus horários disponíveis');
+			toast.success(
+				"Bem vindo!! Agora selecione os seus horários disponíveis"
+			);
 
-			const newParams = new URLSearchParams(searchParams.toString())
-			newParams.delete('first')
+			const newParams = new URLSearchParams(searchParams.toString());
+			newParams.delete("first");
 
-			router.replace(`?${newParams.toString()}`, { scroll: false })
+			router.replace(`?${newParams.toString()}`, { scroll: false });
 		}
-	}, [searchParams, router])
+	}, [searchParams, router]);
 
 	const onSubmit = async (data: ScheduleAgendas) => {
 		const validation = validateData(data.agendas);
@@ -246,7 +256,7 @@ export default function ScheduleDefinePage() {
 		} else {
 			toast.success("Lista de horários atualizados com sucesso.");
 			setIsFirstLogin(false);
-			Cookies.set('firstLogin', 'false')
+			Cookies.set("firstLogin", "false");
 			router.push("/patients");
 		}
 	};

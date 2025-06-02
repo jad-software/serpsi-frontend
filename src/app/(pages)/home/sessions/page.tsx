@@ -3,7 +3,7 @@ import { DataTable } from "@/components/table/data-table";
 import { columns, Patient } from "./columns";
 import { getPatientsData } from "@/services/patientsService";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
 	getCoreRowModel,
 	getFilteredRowModel,
@@ -12,10 +12,19 @@ import {
 } from "@tanstack/react-table";
 import { SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
-import { useSearchParams } from 'next/navigation'
-
+import { useSearchParams } from "next/navigation";
 
 export default function PatientsPage() {
+	return (
+		<>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<Patients />
+			</Suspense>
+		</>
+	);
+}
+
+function Patients() {
 	const [data, setData] = useState({} as Patient[]);
 	useEffect(() => {
 		async function fetchData() {
@@ -37,15 +46,15 @@ export default function PatientsPage() {
 		}
 	});
 	const searchParams = useSearchParams();
-	const patientName = searchParams.get('paciente') ?? '';
+	const patientName = searchParams.get("paciente") ?? "";
 
-	const [busca, setBusca] = useState(patientName)
+	const [busca, setBusca] = useState(patientName);
 	useEffect(() => {
-		const coluna = table.getColumn('name')
+		const coluna = table.getColumn("name");
 		if (coluna && patientName) {
-			coluna.setFilterValue(patientName)
+			coluna.setFilterValue(patientName);
 		}
-	}, [table, patientName])
+	}, [table, patientName]);
 
 	return (
 		<main className="flex h-full w-full items-center justify-center bg-white p-4">
@@ -70,11 +79,15 @@ export default function PatientsPage() {
 							className="border-0 text-start focus-visible:ring-0"
 							placeholder={`Procurar por nome...`}
 							value={
-								(table.getColumn('name')?.getFilterValue() as string) ?? ''
+								(table
+									.getColumn("name")
+									?.getFilterValue() as string) ?? ""
 							}
 							onChange={(event) => {
-								setBusca(event.target.value)
-								table.getColumn('name')?.setFilterValue(event.target.value)
+								setBusca(event.target.value);
+								table
+									.getColumn("name")
+									?.setFilterValue(event.target.value);
 							}}
 						/>
 					</div>

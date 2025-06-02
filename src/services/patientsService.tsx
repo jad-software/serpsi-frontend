@@ -2,30 +2,28 @@
 import { cookies } from "next/headers";
 
 export async function getPatientsData(isNewSession: boolean = false) {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const url = isNewSession ? "/patients/addmeeting" : "/patients/psychologist/";
-	const response = await fetch(
-		process.env.BACKEND_URL + url,
-		{
-			method: "GET",
-			headers: {
-				Authorization: jwt
-			},
-			cache: "no-store"
-		}
-	);
+	const url = isNewSession
+		? "/patients/addmeeting"
+		: "/patients/psychologist/";
+	const response = await fetch(process.env.BACKEND_URL + url, {
+		method: "GET",
+		headers: {
+			Authorization: jwt
+		},
+		cache: "no-store"
+	});
 	return await response.json();
-
 }
 
 export async function createPatient(formData: FormData) {
-	const jwt = cookies().get("Authorization")?.value;
-	const id = cookies().get("sub")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
+	const id = (await cookies()).get("sub")?.value;
 
 	const patientData = formData.get("patientData");
 
@@ -61,7 +59,7 @@ export async function createPatient(formData: FormData) {
 }
 
 export async function updatePatient(formData: FormData, id: string) {
-	const jwt = cookies().get("Authorization")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
 
 	if (!jwt) {
 		throw new Error(
@@ -84,5 +82,4 @@ export async function updatePatient(formData: FormData, id: string) {
 	}
 
 	return await response.json();
-
 }

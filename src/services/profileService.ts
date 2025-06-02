@@ -3,13 +3,13 @@ import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 
 export async function getProfileData() {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const sub = cookies().get("sub")?.value!;
+	const sub = (await cookies()).get("sub")?.value!;
 	const response = await fetch(
 		process.env.BACKEND_URL + "/psychologists/" + sub,
 		{
@@ -21,17 +21,16 @@ export async function getProfileData() {
 		}
 	);
 	return await response.json();
-
 }
 
 export async function setProfile(data: any): Promise<any> {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const sub = cookies().get("sub")?.value!;
+	const sub = (await cookies()).get("sub")?.value!;
 	const response = await fetch(
 		process.env.BACKEND_URL + "/psychologists/" + sub,
 		{
@@ -47,14 +46,14 @@ export async function setProfile(data: any): Promise<any> {
 	// if (response.ok) {
 	//   revalidatePath(`/psychologists/${sub}`);
 	// }
-	cookies().set({
+	(await cookies()).set({
 		name: "name",
 		value: returnedData.user.person._name,
 		secure: true,
 		httpOnly: true,
 		expires: new Date(jwtDecode(jwt).exp! * 1000)
 	});
-	cookies().set({
+	(await cookies()).set({
 		name: "profilePic",
 		value: returnedData.user.person._profilePicture,
 		secure: true,
@@ -65,17 +64,17 @@ export async function setProfile(data: any): Promise<any> {
 }
 
 export async function getCookies() {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	return jwt;
 }
 export async function changePassword(data: any) {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const sub = cookies().get("sub")?.value!;
+	const sub = (await cookies()).get("sub")?.value!;
 	const response = await fetch(
 		process.env.BACKEND_URL + "/psychologists/updatePassword/" + sub,
 		{
