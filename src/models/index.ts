@@ -13,21 +13,19 @@ import { Patient } from "./Entities/Patient";
 import { Role } from "./vos/Role";
 import { Email } from "./vos/Email";
 
-export {
-  PaymentPlan
-};
+export { PaymentPlan };
 export type {
-  Address,
-  Comorbidity,
-  Cpf,
-  Document,
-  Email,
-  EntityBase,
-  MedicamentInfo,
-  Patient,
-  Person,
-  Phone,
-  Role,
-  School,
-  User
+	Address,
+	Comorbidity,
+	Cpf,
+	Document,
+	Email,
+	EntityBase,
+	MedicamentInfo,
+	Patient,
+	Person,
+	Phone,
+	Role,
+	School,
+	User
 };
