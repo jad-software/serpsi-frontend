@@ -3,7 +3,7 @@ import { DataTable } from "@/components/table/data-table";
 import { columns, Patient } from "./columns";
 import { getPatientsData } from "@/services/patientsService";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
 	getCoreRowModel,
 	getFilteredRowModel,
@@ -15,6 +15,16 @@ import { Input } from "@/components/ui/input";
 import { useSearchParams } from "next/navigation";
 
 export default function PatientsPage() {
+	return (
+		<>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<Patients />
+			</Suspense>
+		</>
+	);
+}
+
+function Patients() {
 	const [data, setData] = useState({} as Patient[]);
 	useEffect(() => {
 		async function fetchData() {

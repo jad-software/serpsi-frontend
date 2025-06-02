@@ -4,7 +4,7 @@ import { InputText } from "@/components/form/input";
 import { login } from "@/services/authService";
 import { forgotPass, resetPass } from "@/services/passwordService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z, ZodRawShape } from "zod";
@@ -30,9 +30,10 @@ type ResetPasswordData = z.infer<typeof passwordSchema>;
 export default function ResetPassword({
 	params
 }: {
-	params: { token: string };
+	params: Promise<{ token: string }>;
 }) {
-	const token = params.token;
+	const slug: { token: string } = React.use(params);
+	const token = slug.token;
 	const [loading, setLoading] = useState<boolean>(false);
 	const methods = useForm<ResetPasswordData>({
 		resolver: zodResolver(passwordSchema),

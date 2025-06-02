@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ListComponent } from "../../../patients/[id]/listComponent";
 import { PencilAltIcon } from "@heroicons/react/outline";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import RichTextEditor from "@/components/richEditor/richEditor";
 import TurndownService from "turndown";
 import { ConfirmSessionDialog } from "./confirmSessionDialog";
@@ -39,7 +39,7 @@ type FileData = {
 export default function SpecificSessions({
 	params
 }: {
-	params: { id: string };
+	params: Promise<{ id: string }>;
 }) {
 	const [data, setData] = useState<FileData[]>([]);
 	const [content, setContent] = useState<string>("");
@@ -49,9 +49,10 @@ export default function SpecificSessions({
 	const [isLoading, setIsLoading] = useState(true);
 
 	const turndownService = new TurndownService();
+	const slug: { id: string } = React.use(params);
 	useEffect(() => {
 		async function getMeetingData() {
-			const response = await getMeeting(params.id);
+			const response = await getMeeting(slug.id);
 			setMeetingData(response);
 
 			setIsLoading(false);
@@ -83,7 +84,7 @@ export default function SpecificSessions({
 			}
 		}
 		getMeetingData();
-	}, [params.id]);
+	}, [slug.id]);
 
 	const handleSubmit = async () => {
 		setIsSalvingReport(true);
@@ -94,7 +95,7 @@ export default function SpecificSessions({
 		const blob = new Blob([cleanHtml], { type: "text/html" });
 
 		toast.promise(
-			handleSessionReportUpload("Relato de sessão", params.id, blob),
+			handleSessionReportUpload("Relato de sessão", slug.id, blob),
 			{
 				loading: "Salvando relato...",
 				success: (result) => {
@@ -110,7 +111,7 @@ export default function SpecificSessions({
 	};
 
 	const handleConfirmSession = async () => {
-		toast.promise(updateMeetingStatus(params.id, "CONFIRMADO"), {
+		toast.promise(updateMeetingStatus(slug.id, "CONFIRMADO"), {
 			loading: "Carregando",
 			success: () => {
 				setMeetingData((prev) => ({ ...prev, _status: "CONFIRMADO" }));
@@ -123,7 +124,7 @@ export default function SpecificSessions({
 	};
 
 	const handleCancelSession = () => {
-		toast.promise(updateMeetingStatus(params.id, "CANCELADO"), {
+		toast.promise(updateMeetingStatus(slug.id, "CANCELADO"), {
 			loading: "carregando",
 			success: () => {
 				setMeetingData((prev) => ({ ...prev, _status: "CANCELADO" }));
@@ -139,7 +140,7 @@ export default function SpecificSessions({
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		setIsFileUploading(true);
-		toast.promise(handleAditionalFileUpload(event, params.id), {
+		toast.promise(handleAditionalFileUpload(event, slug.id), {
 			loading: "Carregando",
 			success: (result) => {
 				setIsFileUploading(false);

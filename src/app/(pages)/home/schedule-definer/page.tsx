@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { ScheduleDefiner } from "./scheduleDefiner";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -21,6 +21,16 @@ import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 
 export default function ScheduleDefinePage() {
+	return (
+		<>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<ScheduleDefine />
+			</Suspense>
+		</>
+	);
+}
+
+function ScheduleDefine() {
 	const horarioRegex =
 		/^(([0-1][0-9]|2[0-3]):[0-5][0-9])|([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
 	const scheduleSchema = z.object({

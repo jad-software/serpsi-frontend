@@ -36,7 +36,7 @@ export type TypeSchoolData = {
 export async function getSchool({
 	...params
 }: TypeSchool): Promise<TypeSchoolData | undefined> {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
@@ -66,4 +66,5 @@ export async function getSchool({
 		return;
 	}
 	return await response.json();
+
 }

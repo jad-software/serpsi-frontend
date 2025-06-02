@@ -1,7 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
 export async function addMedicament(formData: FormData, id: string) {
-	const jwt = cookies().get("Authorization")?.value;
+  const jwt = (await cookies()).get("Authorization")?.value;
 
 	if (!jwt) {
 		throw new Error(
@@ -29,7 +29,7 @@ export async function addMedicament(formData: FormData, id: string) {
 }
 
 export async function deleteMedicament(id: string, medicamentId: string) {
-	const jwt = cookies().get("Authorization")?.value;
+  const jwt = (await cookies()).get("Authorization")?.value;
 
 	if (!jwt) {
 		throw new Error(

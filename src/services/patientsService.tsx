@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 
 export async function getPatientsData(isNewSession: boolean = false) {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
@@ -22,8 +22,8 @@ export async function getPatientsData(isNewSession: boolean = false) {
 }
 
 export async function createPatient(formData: FormData) {
-	const jwt = cookies().get("Authorization")?.value;
-	const id = cookies().get("sub")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
+	const id = (await cookies()).get("sub")?.value;
 
 	const patientData = formData.get("patientData");
 
@@ -59,7 +59,7 @@ export async function createPatient(formData: FormData) {
 }
 
 export async function updatePatient(formData: FormData, id: string) {
-	const jwt = cookies().get("Authorization")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
 
 	if (!jwt) {
 		throw new Error(

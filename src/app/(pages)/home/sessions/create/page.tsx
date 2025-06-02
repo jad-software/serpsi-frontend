@@ -18,7 +18,7 @@ import { z } from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { getData } from "@/services/myPatientService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Patient, Phone } from "@/models";
 import {
 	formatDateToddmmYYYY,
@@ -75,7 +75,17 @@ const sessionSchema = z.object({
 
 type SessionData = z.infer<typeof sessionSchema>;
 
-export default function CreateSession() {
+export default function CreateSessionPage() {
+	return (
+		<>
+			<Suspense fallback={<div>Carregando...</div>}>
+				<CreateSession />
+			</Suspense>
+		</>
+	);
+}
+
+function CreateSession() {
 	const searchParams = useSearchParams();
 	const [data, setData] = useState({} as Patient);
 	const [aVTime, setAvTime] = useState<string[]>([]);

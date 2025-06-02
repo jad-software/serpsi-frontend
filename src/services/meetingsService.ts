@@ -4,7 +4,7 @@ import { PaymentMethod } from "@/models/Entities/PaymentMethod";
 import { cookies } from "next/headers";
 
 export async function getSessions(id: string) {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (jwt) {
 		const response = await fetch(
 			process.env.BACKEND_URL + "/patients/meetings/" + id,
@@ -21,7 +21,7 @@ export async function getSessions(id: string) {
 }
 
 export async function getHourAvailableByDate(startDate: string) {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (jwt) {
 		const response = await fetch(
 			process.env.BACKEND_URL +
@@ -40,8 +40,8 @@ export async function getHourAvailableByDate(startDate: string) {
 }
 
 export async function createMeeting(meetingData: Meeting): Promise<any> {
-	const jwt = cookies().get("Authorization")?.value;
-	const id = cookies().get("sub")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
+	const id = (await cookies()).get("sub")?.value;
 	if (!jwt || !id) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
@@ -73,7 +73,7 @@ export async function createMeeting(meetingData: Meeting): Promise<any> {
 }
 
 export async function getMeeting(id: string) {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (jwt) {
 		const response = await fetch(
 			process.env.BACKEND_URL + "/meetings/" + id,
@@ -90,7 +90,7 @@ export async function getMeeting(id: string) {
 }
 
 export async function updateMeetingStatus(id: string, status: string) {
-	const jwt = cookies().get("Authorization")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
 	if (jwt) {
 		const response = await fetch(
 			process.env.BACKEND_URL + "/meetings/status/" + id,
@@ -120,7 +120,7 @@ export async function updateMeetingPaymentMethod(
 	billId: string,
 	paymentMethod: PaymentMethod
 ) {
-	const jwt = cookies().get("Authorization")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
 	if (jwt) {
 		const billIds: string[] = [];
 		billIds.push(billId);
@@ -157,7 +157,7 @@ export async function updateMeeting(
 	schedule: string,
 	amount: number
 ) {
-	const jwt = cookies().get("Authorization")?.value;
+	const jwt = (await cookies()).get("Authorization")?.value;
 	if (jwt) {
 		const response = await fetch(
 			process.env.BACKEND_URL + "/meetings/" + id,

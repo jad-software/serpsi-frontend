@@ -5,13 +5,13 @@ import { cookies } from "next/headers";
 export async function setAgenda(
 	data: ScheduleAgendas
 ): Promise<any | undefined> {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const sub = cookies().get("sub")?.value!;
+	const sub = (await cookies()).get("sub")?.value!;
 	data.psychologistId = sub;
 	const response = await fetch(process.env.BACKEND_URL + "/agendas", {
 		method: "POST",
@@ -30,13 +30,13 @@ export async function setAgenda(
 }
 
 export async function getAgenda(): Promise<ScheduleAgendas | undefined> {
-	const jwt = cookies().get("Authorization")?.value!;
+	const jwt = (await cookies()).get("Authorization")?.value!;
 	if (!jwt) {
 		throw new Error(
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const sub = cookies().get("sub")?.value!;
+	const sub = (await cookies()).get("sub")?.value!;
 	const response = await fetch(process.env.BACKEND_URL + "/agendas/" + sub, {
 		method: "GET",
 		next: { revalidate: 1 },

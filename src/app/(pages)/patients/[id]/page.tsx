@@ -16,7 +16,7 @@ import { ListComponent } from "./listComponent";
 import { formatDateToddmmYYYY } from "@/services/utils/formatDate";
 import { formatPhone } from "@/services/utils/formatPhone";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatMedicineSchedule } from "@/services/utils/formatMedicine";
 import {
 	Controller,
@@ -53,7 +53,11 @@ import { getCEP } from "@/services/cepService";
 import { getSchool } from "@/services/schoolService";
 import Loading from "@/components/loading/Loading";
 
-export default function MyPatient({ params }: { params: { id: string } }) {
+export default function MyPatient({
+	params
+}: {
+	params: Promise<{ id: string }>;
+}) {
 	const router = useRouter();
 	const methods = useForm<PatientData>({
 		resolver: zodResolver(PatientSchema),
@@ -66,6 +70,7 @@ export default function MyPatient({ params }: { params: { id: string } }) {
 		name: "_comorbidities"
 	});
 	const { errors } = formState;
+	const slug: { id: string } = React.use(params);
 
 	//passa a string para formato Phone
 	const parsePhoneToAPI = (phoneString: string) => {
@@ -128,8 +133,8 @@ export default function MyPatient({ params }: { params: { id: string } }) {
 			setData(formattedData);
 			methods.reset(formattedData);
 		}
-		fetchData(params.id);
-	}, [params.id, methods, loading]);
+		fetchData(slug.id);
+	}, [slug.id, methods, loading]);
 
 	//salva a imagem para poder mandar pra nuvem
 	useEffect(() => {
@@ -1894,7 +1899,7 @@ export default function MyPatient({ params }: { params: { id: string } }) {
 													<Link
 														href={
 															"/patients/" +
-															params.id +
+															slug.id +
 															"/past-sessions?name=" +
 															data._person._name
 														}
