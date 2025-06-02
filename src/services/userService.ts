@@ -24,7 +24,7 @@ export async function setUserCookies() {
 			method: "GET",
 			next: { revalidate: 30 },
 			headers: {
-				Authorization: jwt,
+				Authorization: jwt
 			}
 		}
 	);
@@ -46,5 +46,4 @@ export async function setUserCookies() {
 		httpOnly: true,
 		expires: new Date(jwtDecode(jwt).exp! * 1000)
 	});
-
 }

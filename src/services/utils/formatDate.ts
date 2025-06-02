@@ -9,7 +9,10 @@ export function formatDateToddmmYYYYHHMM(date: Date) {
 }
 
 export function formatDateToYYYYmmdd(date: Date) {
-	return moment.utc(date).format("YYYY-MM-DDT00:00:00.000z").replace(/\s*(GMT|UTC)$/, "z")
+	return moment
+		.utc(date)
+		.format("YYYY-MM-DDT00:00:00.000z")
+		.replace(/\s*(GMT|UTC)$/, "z");
 }
 
 export function formatHour(date: string) {

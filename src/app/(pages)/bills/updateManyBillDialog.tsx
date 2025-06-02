@@ -36,7 +36,7 @@ type UpdateBills = {
 	_paymentMethod: {
 		_paymentDate: Date;
 		_paymentType: string;
-	}
+	};
 };
 
 export function UpdateManyBillDialog({
@@ -65,9 +65,10 @@ export function UpdateManyBillDialog({
 				.min(2, "Tipo é um campo obrigatório.")
 				.optional()
 				.transform((val) => val?.toUpperCase()),
-			_paymentDate: z.preprocess((val) => {
-				return val === "" ? undefined : val;
-			}, z.coerce.date().optional())
+			_paymentDate: z
+				.preprocess((val) => {
+					return val === "" ? undefined : val;
+				}, z.coerce.date().optional())
 				.refine((val) => val !== undefined && val <= new Date(), {
 					message: "A data não pode estar no futuro."
 				})
@@ -81,10 +82,8 @@ export function UpdateManyBillDialog({
 			toast.success("Contas atualizadas com sucesso.");
 			setOpen(false);
 			onSuccess?.();
-		}
-		catch (error) {
+		} catch (error) {
 			toast.error("Erro ao atualizar conta.");
-			console.log(error);
 		}
 	};
 
@@ -110,13 +109,12 @@ export function UpdateManyBillDialog({
 						</DialogDescription>
 					</DialogHeader>
 					<form
-						className="flex flex-col justify-end gap-6 max-w-[100%]"
+						className="flex max-w-[100%] flex-col justify-end gap-6"
 						onSubmit={methods.handleSubmit(onSubmit, (data) => {
-							console.log(data);
 							toast.warning("Algo deu errado");
 						})}
 					>
-						<section className="flex flex-col md:flex-row gap-6 ">
+						<section className="flex flex-col gap-6 md:flex-row">
 							<div className="flex max-h-[200px] w-full flex-col overflow-auto">
 								{bills.map((bill) => (
 									<div
@@ -142,7 +140,11 @@ export function UpdateManyBillDialog({
 										type="date"
 										name="_paymentMethod._paymentDate"
 										register={methods.register}
-										error={methods.formState.errors._paymentMethod?._paymentDate?.message}
+										error={
+											methods.formState.errors
+												._paymentMethod?._paymentDate
+												?.message
+										}
 									/>
 								</div>
 								<div>

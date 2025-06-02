@@ -46,6 +46,6 @@ export async function getAgenda(): Promise<ScheduleAgendas | undefined> {
 				Authorization: jwt
 			}
 		}
-	);
+	});
 	return await response.json();
 }

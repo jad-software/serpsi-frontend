@@ -6,10 +6,7 @@ import {
 	TableFooter,
 	TableRow
 } from "@/components/ui/table";
-import {
-	ColumnDef,
-	Table
-} from "@tanstack/react-table";
+import { ColumnDef, Table } from "@tanstack/react-table";
 import { PaginationTable } from "./pagination-table";
 import { HeaderTable } from "./header-table";
 import { BodyTable } from "./body-table";
@@ -30,12 +27,13 @@ export function DataTable<TData, TValue>({
 	table
 }: DataTableProps<TData, TValue>) {
 	return (
-		<section className="flex flex-col items-start gap-2 rounded-[20px] w-full lg:w-4/5">
+		<section className="flex w-full flex-col items-start gap-2 rounded-[20px] lg:w-4/5">
 			{/* seção de filtros para a tabela */}
-			<section className="flex flex-col w-full items-start md:items-center justify-start md:flex-row gap-4">
+			<section className="flex w-full flex-col items-start justify-start gap-4 md:flex-row md:items-center">
 				{filteringNode ?? null}
 				{/** seção para arquivos selecionados. disponivel apenas para documentos por enquanto */}
-				{table.getFilteredSelectedRowModel().rows.length > 0 && selectedAction
+				{table.getFilteredSelectedRowModel().rows.length > 0 &&
+				selectedAction
 					? selectedAction
 					: null}
 			</section>
@@ -73,4 +71,3 @@ export function DataTable<TData, TValue>({
 		</section>
 	);
 }
-

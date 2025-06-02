@@ -36,7 +36,6 @@ export default function ExtraInfoSection({
 		formState: { errors }
 	} = useFormContext<ExtraInfoForm>();
 
-
 	return (
 		<FormSection
 			currentStep={progress}
@@ -45,7 +44,7 @@ export default function ExtraInfoSection({
 		>
 			<>
 				<div>
-				<InputText
+					<InputText
 						id="acompanhamentos"
 						label="Diploma:"
 						placeholder=""
@@ -77,7 +76,7 @@ export default function ExtraInfoSection({
 					/>
 				</div>
 				<div>
-				<InputText
+					<InputText
 						id="acompanhamentos"
 						label="CRP:"
 						placeholder=""
@@ -94,8 +93,7 @@ export default function ExtraInfoSection({
 				</div>
 				<br />
 
-				<div className="flex w-full items-center justify-start">
-				</div>
+				<div className="flex w-full items-center justify-start"></div>
 				<br />
 			</>
 		</FormSection>

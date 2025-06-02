@@ -5,4 +5,4 @@ export interface Document extends EntityBase {
 	_title: string;
 	_docLink: string;
 	_patient: Patient;
-};
+}
