@@ -68,30 +68,30 @@ export default function MonthView({
 		isPrevMonth: boolean = false,
 		isNextMonth: boolean = false
 	) => {
-			const year = tempDate.getFullYear();
-			const month = tempDate.getMonth();
+		const year = tempDate.getFullYear();
+		const month = tempDate.getMonth();
 
-			let targetMonth = month;
-			let targetYear = year;
+		let targetMonth = month;
+		let targetYear = year;
 
-			if (isPrevMonth) {
-				targetMonth = month - 1;
-				if (targetMonth < 0) {
-					targetMonth = 11;
-					targetYear--;
-				}
-			} else if (isNextMonth) {
-				targetMonth = month + 1;
-				if (targetMonth > 11) {
-					targetMonth = 0;
-					targetYear++;
-				}
+		if (isPrevMonth) {
+			targetMonth = month - 1;
+			if (targetMonth < 0) {
+				targetMonth = 11;
+				targetYear--;
 			}
+		} else if (isNextMonth) {
+			targetMonth = month + 1;
+			if (targetMonth > 11) {
+				targetMonth = 0;
+				targetYear++;
+			}
+		}
 
-			const newDate = new Date(targetYear, targetMonth, day);
-			onDateSelect(newDate);
-			setTempDate(newDate);
-		};
+		const newDate = new Date(targetYear, targetMonth, day);
+		onDateSelect(newDate);
+		setTempDate(new Date(targetYear, targetMonth, 1));
+	};
 
 	const getMonthString = (month: number) => {
 		switch (month) {
@@ -264,7 +264,7 @@ export default function MonthView({
 							selected={
 								day === selectedDate.getDate() &&
 								mes ===
-								getMonthString(selectedDate.getMonth()) &&
+									getMonthString(selectedDate.getMonth()) &&
 								ano === selectedDate.getFullYear()
 							}
 							onClick={() => handleDateClick(day, false, false)}
