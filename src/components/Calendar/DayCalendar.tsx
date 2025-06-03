@@ -56,23 +56,20 @@ export default function DayView({ dateSelected, onDateSelect }: DayViewProps) {
 	};
 
 	const formatDateValue = () => {
-		const date =
-			dateSelected && !isNaN(dateSelected.getTime())
-				? dateSelected
-				: new Date();
+		const date = dateSelected && !isNaN(dateSelected.getTime()) ? dateSelected : new Date();
 
 		const localDate = new Date(
 			date.getFullYear(),
 			date.getMonth(),
 			date.getDate()
 		);
-		return localDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
+		return localDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
 	};
 
 	const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputValue = e.target.value;
 		if (!inputValue) return;
-
+		
 		const [year, month, day] = inputValue.split("-").map(Number);
 		const selectedDate = new Date(year, month - 1, day);
 		onDateSelect(selectedDate);
@@ -96,8 +93,8 @@ export default function DayView({ dateSelected, onDateSelect }: DayViewProps) {
 		fetchMeetingsForDate();
 	}, [dateSelected, daySelected]);
 	return (
-		<section className="flex h-[30rem] w-full flex-col gap-2 lg:w-2/5">
-			<div className="flex flex-row justify-center text-center">
+		<section className="flex h-[30rem] w-full flex-col lg:w-2/5 gap-2">
+			<div className="flex flex-row text-center justify-center">
 				<h1 className="mb-2 text-center text-3xl md:text-left md:text-4xl">
 					{daySelected}
 				</h1>
@@ -111,7 +108,7 @@ export default function DayView({ dateSelected, onDateSelect }: DayViewProps) {
 					ref={datePickerRef}
 					id="date-picker"
 					type="date"
-					className="pointer-events-none absolute opacity-0"
+					className="absolute opacity-0 pointer-events-none"
 					value={formatDateValue()}
 					onChange={handleDateInputChange}
 				/>

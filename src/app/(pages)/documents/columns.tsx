@@ -10,7 +10,8 @@ export type DocumentColumns = {
 	docLink: string;
 	name: string;
 	createDate: string;
-};
+}
+
 
 export const columns: ColumnDef<DocumentColumns>[] = [
 	{
@@ -46,17 +47,17 @@ export const columns: ColumnDef<DocumentColumns>[] = [
 		header: "",
 		size: 70,
 		cell: ({ row }) => (
-			<Viewer
-				link={row.original.docLink}
-				title={row.original.name + " - " + row.original.title}
-				className=""
-			>
-				<DocumentTextIcon
-					width={24}
-					height={24}
-					className="text-primary-600"
-				/>
-			</Viewer>
+				<Viewer
+					link={row.original.docLink}
+					title={row.original.name + " - " + row.original.title}
+					className=""
+				>
+					<DocumentTextIcon
+						width={24}
+						height={24}
+						className="text-primary-600"
+					/>
+				</Viewer>
 		)
 	},
 	{

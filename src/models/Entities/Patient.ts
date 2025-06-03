@@ -7,11 +7,11 @@ import { Person } from "./Person";
 import { Document } from "./Document";
 
 export interface Patient extends EntityBase {
-	_paymentPlan: PaymentPlan;
-	_school: School;
-	_comorbidities: Comorbidity[];
-	_medicines: MedicamentInfo[];
-	_person: Person;
-	_parents: Person[];
-	_previewFollowUps?: Document[];
+  _paymentPlan: PaymentPlan;
+  _school: School;
+  _comorbidities: Comorbidity[];
+  _medicines: MedicamentInfo[];
+  _person: Person;
+  _parents: Person[];
+  _previewFollowUps?: Document[];
 }

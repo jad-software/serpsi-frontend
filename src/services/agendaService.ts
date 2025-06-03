@@ -36,13 +36,16 @@ export async function getAgenda(): Promise<ScheduleAgendas | undefined> {
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const sub = (await cookies()).get("sub")?.value!;
-	const response = await fetch(process.env.BACKEND_URL + "/agendas/" + sub, {
-		method: "GET",
-		next: { revalidate: 1 },
-		headers: {
-			Authorization: jwt
+	const sub = cookies().get("sub")?.value!;
+	const response = await fetch(
+		process.env.BACKEND_URL + "/agendas/" + sub,
+		{
+			method: "GET",
+			next: { revalidate: 1 },
+			headers: {
+				Authorization: jwt
+			}
 		}
-	});
+	);
 	return await response.json();
 }

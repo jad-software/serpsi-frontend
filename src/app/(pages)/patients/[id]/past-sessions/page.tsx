@@ -12,22 +12,21 @@ import React, { useEffect, useState } from "react";
 import { SearchIcon } from "@heroicons/react/outline";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from 'next/navigation'
 
 export default function PastSessionsPage({
 	params
 }: {
-	params: Promise<{ id: string }>;
+	params: { id: string };
 }) {
 	const [data, setData] = useState({} as Session[]);
-	const slug: { id: string } = React.use(params);
 	useEffect(() => {
 		async function fetchData() {
-			const data = await getSessions(slug.id);
+			const data = await getSessions(params.id);
 			setData(data);
 		}
 		fetchData();
-	}, [slug.id]);
+	}, [params.id]);
 	const [rowSelection, setRowSelection] = useState({});
 	let table = useReactTable({
 		data,
@@ -41,7 +40,7 @@ export default function PastSessionsPage({
 		}
 	});
 	const searchParams = useSearchParams();
-	const patientName = searchParams.get("name") ?? "";
+	const patientName = searchParams.get('name') ?? '';
 	return (
 		<main className="flex h-full w-full items-center justify-center bg-white p-4">
 			<DataTable
@@ -49,11 +48,11 @@ export default function PastSessionsPage({
 				table={table}
 				linkTop={
 					<Link
-						href={"/home/sessions?paciente=" + patientName}
-						className="text-sm font-medium text-primary-600 underline"
-					>
-						Cadastrar nova sessão
-					</Link>
+							href={"/home/sessions?paciente="+patientName }
+							className="text-sm font-medium text-primary-600 underline"
+						>
+							Cadastrar nova sessão
+						</Link>
 				}
 				filteringNode={
 					<div className="border-1 flex max-w-[300px] items-center rounded-lg border px-2">

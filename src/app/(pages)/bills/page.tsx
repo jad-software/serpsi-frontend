@@ -43,7 +43,7 @@ export default function BillsPage() {
 	async function refreshData() {
 		const updatedData = await getData();
 		setData(updatedData);
-		setRowSelection({});
+		setRowSelection({})
 	}
 
 	useEffect(() => {
@@ -83,11 +83,11 @@ export default function BillsPage() {
 							onValueChange={(value) =>
 								value !== "TODOS"
 									? table
-											.getColumn("_billType")
-											?.setFilterValue(value)
+										.getColumn("_billType")
+										?.setFilterValue(value)
 									: table
-											.getColumn("_billType")
-											?.setFilterValue(undefined)
+										.getColumn("_billType")
+										?.setFilterValue(undefined)
 							}
 						>
 							<SelectTrigger
@@ -126,7 +126,9 @@ export default function BillsPage() {
 							refreshData();
 						}}
 						triggerButton={
-							<button className="inline-flex w-fit items-center justify-center gap-1 whitespace-nowrap text-sm font-medium text-primary-600 underline">
+							<button
+								className="inline-flex items-center justify-center whitespace-nowrap w-fit text-sm font-medium text-primary-600 underline gap-1"
+							>
 								Adicionar pagamentos
 								<CurrencyDollarIcon className="h-4 w-4" />
 							</button>

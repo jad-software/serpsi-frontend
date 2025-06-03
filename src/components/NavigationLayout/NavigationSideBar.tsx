@@ -1,11 +1,11 @@
 import classNames from "classnames";
 import { useRef } from "react";
-import { useClickOutside, useMediaQuery } from "react-haiku";
+import { useClickOutside, useMediaQuery } from 'react-haiku';
 
 export default function NavigationSideBar({
 	children,
 	isHidden,
-	setIsHidden = () => {}
+	setIsHidden = () => { }
 }: Readonly<{
 	children: React.ReactNode;
 	isHidden: boolean;
@@ -16,8 +16,8 @@ export default function NavigationSideBar({
 		{ "hidden ": isHidden }
 	);
 	const isMobile = useMediaQuery("(max-width: 640px)", false);
-	const handleClickOutside = () => isMobile && setIsHidden(true);
-	const ref = useRef(null);
+	const handleClickOutside = () => isMobile && setIsHidden(true) ;
+	const ref = useRef(null)
 	useClickOutside(ref, handleClickOutside);
 
 	return (

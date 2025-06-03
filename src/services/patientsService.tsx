@@ -8,17 +8,19 @@ export async function getPatientsData(isNewSession: boolean = false) {
 			"Token de autenticação não encontrado. Por favor, faça login novamente."
 		);
 	}
-	const url = isNewSession
-		? "/patients/addmeeting"
-		: "/patients/psychologist/";
-	const response = await fetch(process.env.BACKEND_URL + url, {
-		method: "GET",
-		headers: {
-			Authorization: jwt
-		},
-		cache: "no-store"
-	});
+	const url = isNewSession ? "/patients/addmeeting" : "/patients/psychologist/";
+	const response = await fetch(
+		process.env.BACKEND_URL + url,
+		{
+			method: "GET",
+			headers: {
+				Authorization: jwt
+			},
+			cache: "no-store"
+		}
+	);
 	return await response.json();
+
 }
 
 export async function createPatient(formData: FormData) {
@@ -82,4 +84,5 @@ export async function updatePatient(formData: FormData, id: string) {
 	}
 
 	return await response.json();
+
 }

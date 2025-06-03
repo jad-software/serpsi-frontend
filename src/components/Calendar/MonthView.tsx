@@ -90,7 +90,7 @@ export default function MonthView({
 
 		const newDate = new Date(targetYear, targetMonth, day);
 		onDateSelect(newDate);
-		setTempDate(newDate);
+		setTempDate(new Date(targetYear, targetMonth, 1));
 	};
 
 	const getMonthString = (month: number) => {

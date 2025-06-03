@@ -19,14 +19,7 @@ export const columns: ColumnDef<Session>[] = [
 		size: 70,
 		cell: (e) => (
 			<Link
-				href={
-					("/home/sessions/" +
-						e.getValue() +
-						"?name=" +
-						formatDateToddmmYYYYHHMM(
-							new Date(e.row.original.meeting_schedule)
-						)) as string
-				}
+				href={"/home/sessions/" + e.getValue()+"?name="+formatDateToddmmYYYYHHMM(new Date(e.row.original.meeting_schedule)) as string}
 				className="flex justify-center"
 			>
 				<PencilAltIcon width={24} height={24} />
@@ -44,11 +37,7 @@ export const columns: ColumnDef<Session>[] = [
 		cell: (e) => {
 			let className =
 				e.getValue() == "Pendente" ? "text-orange-600/70" : "";
-			return (e.getValue() as string) ? (
-				<p className={className}>{e.getValue() as string}</p>
-			) : (
-				<p>-</p>
-			);
+			return e.getValue() as string ? <p className={className}>{e.getValue() as string}</p> : <p>-</p>;
 		},
 		size: 250
 	},
@@ -61,13 +50,12 @@ export const columns: ColumnDef<Session>[] = [
 		accessorKey: "meeting_schedule",
 		header: "Data da sessão",
 		cell: (e) => (
-			<div className="">
-				{formatDateToddmmYYYYHHMM(new Date(e.getValue() as string))}
-			</div>
+			<div className="">{formatDateToddmmYYYYHHMM(new Date(e.getValue() as string))}</div>
 		),
 		size: 250,
 		filterFn: (row, id, filterValue) => {
 			const date = formatDateToddmmYYYYHHMM(row.getValue(id));
+			console.log(row.getValue(id))
 			return date.includes(filterValue);
 		}
 	}

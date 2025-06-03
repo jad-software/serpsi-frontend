@@ -1,3 +1,3 @@
 export interface Cpf {
-	_cpf: string;
+  _cpf: string;
 }

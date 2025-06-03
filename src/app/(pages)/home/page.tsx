@@ -108,7 +108,7 @@ export default function Home() {
 				},
 				error: "Erro ao criar horários indisponíveis."
 			});
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	return (
