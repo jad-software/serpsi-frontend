@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 
 export default function RegisterNewPatientPage() {
 	const [progress, setProgress] = useState<number>(1);
+	const [personIsUnderAge, setPersonIsUnderAge] = useState<boolean>(false);
 	const router = useRouter();
 
 	const maxProgress = 5;
@@ -30,6 +31,7 @@ export default function RegisterNewPatientPage() {
 		resolver: zodResolver(createPatientFormSchema),
 		defaultValues: {
 			// ParentsInfoSection
+			checkParents: true,
 			parents: [
 				{
 					name: "",
@@ -90,12 +92,27 @@ export default function RegisterNewPatientPage() {
 		switch (progress) {
 			case 1:
 				isValid = await methods.trigger(["person"]);
+				if (isValid) {
+					let personAge =
+						new Date().getFullYear() -
+						new Date(
+							methods.watch("person.birthdate")
+						).getFullYear();
+
+					setPersonIsUnderAge(personAge < 18);
+
+					if (!(personAge < 18)) {
+						methods.setValue("checkSchool", false);
+						methods.setValue("checkParents", false);
+					}
+				}
 				break;
 			case 2:
 				isValid = await methods.trigger(["address"]);
 				break;
 			case 3:
-				isValid = await methods.trigger(["parents"]);
+				if (methods.watch("checkParents"))
+					isValid = await methods.trigger(["parents"]);
 				break;
 			case 4:
 				if (methods.watch("checkSchool"))
@@ -147,6 +164,7 @@ export default function RegisterNewPatientPage() {
 						<ParentsInfoSection
 							progress={progress}
 							componentIndex={3}
+							underage={personIsUnderAge}
 						/>
 
 						<SchoolInfoSection

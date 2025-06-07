@@ -71,31 +71,42 @@ export const createPatientFormSchema = z
 		}),
 
 		// ParentsInfoSection
-		parents: z.array(
-			z.object({
-				name: z.string().min(1, "Nome é um campo obrigatório."),
-				rg: z.string().min(1, "RG é um campo obrigatório."),
-				birthdate: z
-					.preprocess((val) => {
-						return val === "" ? undefined : val;
-					}, z.coerce.date().optional())
-					.refine((val) => val !== undefined, {
-						message: "Data de nascimento é obrigatória."
-					}),
-				phone: z
-					.string()
-					.regex(
-						phoneRegex,
-						"O telefone deve seguir o padrão (00) 00000-0000."
-					),
-				cpf: z
-					.string()
-					.regex(
-						cpfRegex,
-						"O CPF deve seguir o padrão 000.000.000-00."
-					)
-			})
-		),
+		// ParentsInfoSection
+		checkParents: z.boolean(),
+		parents: z
+			.array(
+				z.object({
+					name: z.string().min(1, "Nome é um campo obrigatório."),
+					rg: z.string().min(1, "RG é um campo obrigatório."),
+					birthdate: z
+						.preprocess((val) => {
+							return val === "" ? undefined : val;
+						}, z.coerce.date().optional())
+						.refine((val) => val !== undefined, {
+							message: "Data de nascimento é obrigatória."
+						}),
+					phone: z
+						.string()
+						.regex(
+							phoneRegex,
+							"O telefone deve seguir o padrão (00) 00000-0000."
+						),
+					cpf: z
+						.string()
+						.min(1, "CPF é um campo obrigatório.")
+						.refine(validateCPF, {
+							message: "CPF inválido."
+						})
+						.refine(
+							async (cpf) =>
+								!(await verifyIfCPFAlreadyExists(cpf)),
+							{
+								message: "CPF já cadastrado."
+							}
+						)
+				})
+			)
+			.optional(),
 
 		// SchoolInfoSection
 		checkSchool: z.boolean(),
@@ -183,7 +194,30 @@ export const createPatientFormSchema = z
 			message: "Preencha os campos da escola.",
 			path: ["school"]
 		}
-	);
+	)
+	.superRefine((data, ctx) => {
+		const birthdate = data.person.birthdate;
+
+		if (!birthdate) return;
+
+		const today = new Date();
+		const age = today.getFullYear() - birthdate.getFullYear();
+		const isBirthdayPassed =
+			today.getMonth() > birthdate.getMonth() ||
+			(today.getMonth() === birthdate.getMonth() &&
+				today.getDate() >= birthdate.getDate());
+
+		const isAdult = age > 18 || (age === 18 && isBirthdayPassed);
+
+		if (!isAdult && (!data.parents || data.parents.length === 0)) {
+			ctx.addIssue({
+				path: ["parents"],
+				code: z.ZodIssueCode.custom,
+				message:
+					"Informações dos responsáveis são obrigatórias para menores de idade."
+			});
+		}
+	});
 
 export type CreatePatientForm = z.infer<typeof createPatientFormSchema>;
 
@@ -212,7 +246,7 @@ export function formatPatientData(formData: CreatePatientForm): FormData {
 				complement: string;
 			};
 		};
-		parents: {
+		parents?: {
 			name: string;
 			rg: string;
 			birthdate: string;
@@ -283,20 +317,6 @@ export function formatPatientData(formData: CreatePatientForm): FormData {
 				complement: formData.address.complement || ""
 			}
 		},
-		parents: formData.parents.map((parent) => ({
-			name: parent.name,
-			rg: parent.rg,
-			birthdate: parent.birthdate?.toISOString().split("T")[0],
-			phone: {
-				ddi: "+55",
-				ddd: parent.phone.slice(1, 3),
-				number: parent.phone.slice(4).replace("-", "")
-			},
-			cpf: {
-				cpf: parent.cpf
-			}
-		})),
-
 		comorbidities: formData.comorbidities
 			? formData.comorbidities.split(",").map((name) => {
 					return {
@@ -343,6 +363,24 @@ export function formatPatientData(formData: CreatePatientForm): FormData {
 			}
 		};
 	}
+
+	if (formData.checkParents === true) {
+		formattedData.parents =
+			formData.parents?.map((parent) => ({
+				name: parent.name,
+				rg: parent.rg,
+				birthdate: parent.birthdate?.toISOString().split("T")[0],
+				phone: {
+					ddi: "+55",
+					ddd: parent.phone.slice(1, 3),
+					number: parent.phone.slice(4).replace("-", "")
+				},
+				cpf: {
+					cpf: parent.cpf
+				}
+			})) || [];
+	}
+
 	formDataObj.append("patientData", JSON.stringify(formattedData));
 	formDataObj.append("profilePicture", profPic[0]);
 
